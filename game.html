@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Live - Football Manager</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Scoreboard -->
+        <div class="scoreboard">
+            <div class="team home-team">
+                <span class="team-name" id="homeTeamName">Home</span>
+                <span class="team-score" id="homeScore">0</span>
+            </div>
+            
+            <div class="match-info">
+                <div class="match-time" id="matchTime">00:00</div>
+                <div class="match-half" id="matchHalf">1st Half</div>
+            </div>
+            
+            <div class="team away-team">
+                <span class="team-score" id="awayScore">0</span>
+                <span class="team-name" id="awayTeamName">Away</span>
+            </div>
+        </div>
+
+        <!-- Football Field -->
+        <div class="field-container">
+            <canvas id="gameCanvas" width="800" height="500"></canvas>
+        </div>
+
+        <!-- Game Controls -->
+        <div class="game-controls">
+            <button id="pauseBtn" onclick="togglePause()">⏸️ Pause</button>
+            <button id="formationBtn" onclick="changeFormation()">🔄 Formation</button>
+            <button id="substituteBtn" onclick="makeSubstitution()">👥 Substitute</button>
+            <button id="tacticsBtn" onclick="changeTactics()">📊 Tactics</button>
+        </div>
+
+        <!-- Match Stats -->
+        <div class="match-stats">
+            <div class="stat">
+                <span>Possession</span>
+                <div class="possession-bar">
+                    <div class="home-possession" id="homePossession">50%</div>
+                    <div class="away-possession" id="awayPossession">50%</div>
+                </div>
+            </div>
+            <div class="stat">
+                <span>Shots: </span>
+                <span id="homeShots">0</span> - <span id="awayShots">0</span>
+            </div>
+            <div class="stat">
+                <span>Fouls: </span>
+                <span id="homeFouls">0</span> - <span id="awayFouls">0</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

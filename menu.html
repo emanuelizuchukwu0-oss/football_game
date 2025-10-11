@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D Football Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main-menu {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+        }
+
+        .menu-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .game-title {
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .menu-options {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .menu-btn {
+            background: linear-gradient(45deg, #00b09b, #96c93d);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .menu-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #96c93d, #00b09b);
+        }
+
+        .game-info {
+            color: white;
+            opacity: 0.8;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-menu">
+        <div class="menu-container">
+            <h1 class="game-title">⚽ 2D Football Manager</h1>
+            
+            <div class="menu-options">
+                <button class="menu-btn" onclick="startGame()">🎮 Quick Match</button>
+                <button class="menu-btn" onclick="selectTeams()">🏆 Team Selection</button>
+                <button class="menu-btn" onclick="showTournament()">🏅 Tournament</button>
+                <button class="menu-btn" onclick="showSettings()">⚙️ Settings</button>
+            </div>
+            
+            <div class="game-info">
+                <p>11 vs 11 • 10 Clubs • Realistic Physics</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function startGame() {
+            // Redirect to your game page
+            window.location.href = 'game.html';
+        }
+        
+        function selectTeams() {
+            // Redirect to teams page or show team selection
+            alert('Team Selection - Choose your favorite club!');
+        }
+        
+        function showTournament() {
+            alert('Tournament mode coming soon!');
+        }
+        
+        function showSettings() {
+            alert('Settings menu coming soon!');
+        }
+    </script>
+</body>
+</html>

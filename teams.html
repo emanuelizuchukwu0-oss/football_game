@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Teams - Football Manager</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="team-selection">
+        <div class="selection-container">
+            <h1>Select Your Teams</h1>
+            
+            <div class="teams-section">
+                <div class="team-home">
+                    <h2>Home Team</h2>
+                    <div class="team-grid" id="homeTeams">
+                        <!-- Teams will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="vs-section">
+                    <div class="vs-circle">VS</div>
+                </div>
+                
+                <div class="team-away">
+                    <h2>Away Team</h2>
+                    <div class="team-grid" id="awayTeams">
+                        <!-- Teams will be loaded here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="selected-teams">
+                <div id="selectedHome" class="selected-team">No team selected</div>
+                <div id="selectedAway" class="selected-team">No team selected</div>
+            </div>
+            
+            <button class="start-match-btn" onclick="startMatch()" disabled>Start Match</button>
+            <button class="back-btn" onclick="goBack()">Back to Menu</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
