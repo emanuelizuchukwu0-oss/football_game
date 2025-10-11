@@ -165,6 +165,10 @@ const formations = {
 };
 
 
+// Game Mode Selection
+let selectedGameMode = 'player-vs-computer';
+let selectedFormation = '4-4-2';
+
 // Real Football Players Database
 const footballPlayers = [
     { id: 1, name: "Lionel Messi", position: "RW", rating: 93, team: "Inter Miami" },
@@ -201,9 +205,6 @@ const teamPlays = [
     }
 ];
 
-// Game Mode Selection
-let selectedGameMode = 'player-vs-computer';
-let selectedFormation = '4-4-2';
 
 
 
