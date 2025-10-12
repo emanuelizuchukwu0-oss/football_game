@@ -2438,6 +2438,103 @@ class FootballGame {
         }
     }
 }
+// === GAME LOOP FIX ===
+
+// Game state
+let gameTime = 0; // seconds
+let lastUpdateTime = Date.now();
+
+// Example player objects (you should already have them)
+const players = [
+  { x: 200, y: 400, color: "#e74c3c", speed: 2, direction: 1 }, // Player-controlled
+  { x: 1000, y: 400, color: "#3498db", speed: 2, direction: -1 } // AI player
+];
+
+// Create a new football ball object
+const ball = new FootballBall(600, 400);
+
+// Main update loop
+function updateGame() {
+  const now = Date.now();
+  const delta = (now - lastUpdateTime) / 1000; // seconds since last frame
+  lastUpdateTime = now;
+  
+  // Update timer
+  gameTime += delta;
+  const timerElement = document.getElementById("gameTimer");
+  if (timerElement) {
+    timerElement.textContent = `⏱️ ${Math.floor(gameTime)}s`;
+  }
+
+  // Update ball
+  ball.update();
+
+  // Move players (basic AI and player movement simulation)
+  players.forEach((p, index) => {
+    if (index === 0) {
+      // Simulate player movement (left-right automatic demo)
+      p.x += Math.sin(gameTime) * p.speed;
+    } else {
+      // Simple AI chasing ball
+      if (ball.x > p.x) p.x += p.speed;
+      else p.x -= p.speed;
+      if (ball.y > p.y) p.y += p.speed;
+      else p.y -= p.speed;
+    }
+  });
+
+  // Draw everything
+  drawGame();
+
+  // Keep looping
+  requestAnimationFrame(updateGame);
+}
+
+// Draw function
+function drawGame() {
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Draw pitch
+  ctx.fillStyle = "#2ecc71";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Center line
+  ctx.strokeStyle = "white";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(canvas.width / 2, 0);
+  ctx.lineTo(canvas.width / 2, canvas.height);
+  ctx.stroke();
+
+  // Draw players
+  players.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 20, 0, Math.PI * 2);
+    ctx.fillStyle = p.color;
+    ctx.fill();
+  });
+
+  // Draw ball
+  ball.draw(ctx);
+}
+
+// Start the game loop once page is loaded
+window.addEventListener("load", () => {
+  const timerDisplay = document.createElement("div");
+  timerDisplay.id = "gameTimer";
+  timerDisplay.style.position = "absolute";
+  timerDisplay.style.top = "20px";
+  timerDisplay.style.left = "50%";
+  timerDisplay.style.transform = "translateX(-50%)";
+  timerDisplay.style.color = "white";
+  timerDisplay.style.fontSize = "24px";
+  timerDisplay.style.fontWeight = "bold";
+  document.body.appendChild(timerDisplay);
+
+  updateGame(); // Start loop
+});
+
 
 // Enhanced global game instance
 let game;
