@@ -323,7 +323,8 @@ class FootballBall {
     }
 }
 
-// Replace your existing AnimatedPlayer class with this improved version
+
+// Enhanced AnimatedPlayer class with realistic football positioning
 class AnimatedPlayer {
     constructor(config) {
         this.x = config.x;
@@ -338,8 +339,8 @@ class AnimatedPlayer {
         this.isUserControlled = config.isUserControlled || false;
         this.isCurrentUserControlled = config.isCurrentUserControlled || false;
         this.playerData = config.playerData || null;
-
-        // animations & state
+        
+        // Animation properties
         this.animationFrame = 0;
         this.legSwing = 0;
         this.armSwing = 0;
@@ -352,16 +353,16 @@ class AnimatedPlayer {
         this.tackleFrame = 0;
         this.celebrating = false;
         this.celebrationFrame = 0;
-
-        // movement
+        
+        // Movement
         this.speedX = 0;
         this.speedY = 0;
         this.targetX = this.x;
         this.targetY = this.y;
         this.userInputX = 0;
         this.userInputY = 0;
-
-        // attributes (scale from provided playerData or random)
+        
+        // Player attributes
         if (this.playerData) {
             this.baseSpeed = 2 + (this.playerData.speed / 100) * 3;
             this.shooting = 0.5 + (this.playerData.shooting / 100) * 0.5;
@@ -371,93 +372,109 @@ class AnimatedPlayer {
             this.shooting = 0.5 + Math.random() * 0.5;
             this.passing = 0.5 + Math.random() * 0.5;
         }
+        
         this.speed = this.baseSpeed;
-        this.aggression = 0.45 + Math.random() * 0.3; // lower to avoid everyone chasing
-        this.control = 0.5 + Math.random() * 0.4;
-        this.tacklingSkill = 0.45 + Math.random() * 0.4;
+        this.aggression = 0.5 + Math.random() * 0.5;
+        this.control = 0.5 + Math.random() * 0.5;
+        this.tacklingSkill = 0.5 + Math.random() * 0.5;
         this.stamina = 1.0;
-
-        // AI state & positioning
+        
+        // AI behavior
         this.lastBallOwner = null;
         this.supportPosition = { x: this.x, y: this.y };
         this.role = this.determineRole();
         this.attackIntent = 0;
         this.defenseIntent = 0;
-        this.patience = 50 + Math.random() * 50;
-        this.actionTimer = Math.floor(20 + Math.random() * 40); // decision cooldown
+        this.patience = Math.random() * 100;
+        this.actionTimer = 0;
         this.formationPosition = this.getFormationPosition();
-        this.positionDiscipline = 0.75 + Math.random() * 0.2; // higher = stay in formation
+        
+        // Position behavior
+        this.setPositionBehavior();
+        this.positionDiscipline = 0.8 + Math.random() * 0.2;
         this.ballChasingUrgency = this.calculateBallChasingUrgency();
-        this.lastDecisionAt = 0;
-    }
-
-    determineRole() {
-        const p = this.position || '';
-        if (p === 'GK') return 'goalkeeper';
-        if (p.includes('B') || p.includes('DM') || p === 'CB') return 'defender';
-        if (p.includes('M') || p.includes('W') || p.includes('AM') || p === 'CM') return 'midfielder';
-        if (p.includes('S') || p.includes('T') || p.includes('ST') || p === 'ST') return 'attacker';
-        return 'midfielder';
     }
 
     setPositionBehavior() {
-        // kept for backward compat if you call it externally
-        switch (this.role) {
+        switch(this.role) {
             case 'goalkeeper':
+                this.aggression = 0.3;
+                this.defenseIntent = 100;
+                this.attackIntent = 0;
                 this.positionDiscipline = 0.95;
                 break;
             case 'defender':
-                this.positionDiscipline = 0.9;
+                this.aggression = 0.6;
+                this.defenseIntent = 85;
+                this.attackIntent = 15;
+                this.positionDiscipline = 0.85;
                 break;
             case 'midfielder':
+                this.aggression = 0.5;
+                this.defenseIntent = 50;
+                this.attackIntent = 50;
                 this.positionDiscipline = 0.75;
                 break;
             case 'attacker':
-                this.positionDiscipline = 0.65;
+                this.aggression = 0.4;
+                this.defenseIntent = 20;
+                this.attackIntent = 80;
+                this.positionDiscipline = 0.7;
                 break;
         }
     }
 
     calculateBallChasingUrgency() {
-        switch (this.role) {
-            case 'goalkeeper': return 0.05;
-            case 'defender': return 0.35;
+        switch(this.role) {
+            case 'goalkeeper': return 0.1;
+            case 'defender': return 0.4;
             case 'midfielder': return 0.7;
             case 'attacker': return 0.6;
             default: return 0.5;
         }
     }
 
-    // -------------------------
-    // main update called every tick
-    // -------------------------
-    update(ball, userInput = null, game = null) {
-        // stamina handling
-        if (this.running) this.stamina = Math.max(0.25, this.stamina - 0.0012);
-        else this.stamina = Math.min(1.0, this.stamina + 0.002);
+    determineRole() {
+        const position = this.position;
+        if (position === 'GK') return 'goalkeeper';
+        if (position.includes('B') || position.includes('DM')) return 'defender';
+        if (position.includes('M') || position.includes('W') || position.includes('AM')) return 'midfielder';
+        if (position.includes('S') || position.includes('T')) return 'attacker';
+        return 'midfielder';
+    }
 
-        // sprint influence only for user player (keeps AI realistic)
-        if (this.sprinting && this.isCurrentUserControlled && this.stamina > 0.25) {
+    update(ball, userInput = null, game = null) {
+        // Handle stamina
+        if (this.running) {
+            this.stamina = Math.max(0.3, this.stamina - 0.001);
+        } else {
+            this.stamina = Math.min(1.0, this.stamina + 0.002);
+        }
+
+        // Handle sprinting
+        if (this.sprinting && this.isCurrentUserControlled && this.stamina > 0.3) {
             this.speed = this.baseSpeed * 1.8;
-            this.stamina -= 0.004;
+            this.stamina -= 0.003;
         } else {
             this.speed = this.baseSpeed * (0.8 + this.stamina * 0.2);
         }
 
-        // user control vs AI
         if (this.isCurrentUserControlled && userInput) {
             this.userInputX = userInput.x;
             this.userInputY = userInput.y;
+            
             this.speedX = this.userInputX * this.speed;
             this.speedY = this.userInputY * this.speed;
+            
             this.x += this.speedX;
             this.y += this.speedY;
             this.running = (this.userInputX !== 0 || this.userInputY !== 0);
+            
         } else {
             this.updateAI(ball, game);
         }
 
-        // animations
+        // Update animations
         this.animationFrame++;
         if (this.running) {
             this.legSwing = Math.sin(this.animationFrame * 0.3) * 20;
@@ -467,16 +484,16 @@ class AnimatedPlayer {
             this.armSwing *= 0.8;
         }
 
-        // tackle animation cooldown
+        // Update tackle animation
         if (this.tackling) {
             this.tackleFrame++;
-            if (this.tackleFrame > 24) {
+            if (this.tackleFrame > 25) {
                 this.tackling = false;
                 this.tackleFrame = 0;
             }
         }
 
-        // celebration cooldown
+        // Update celebration
         if (this.celebrating) {
             this.celebrationFrame++;
             if (this.celebrationFrame > 100) {
@@ -485,352 +502,346 @@ class AnimatedPlayer {
             }
         }
 
-        // keep inside field bounds
+        // Boundary checks
         this.x = Math.max(this.radius, Math.min(1200 - this.radius, this.x));
         this.y = Math.max(this.radius, Math.min(800 - this.radius, this.y));
 
-        // if has ball, carry it
         if (this.hasBall && ball.possessedBy === this) {
-            // ball offset slightly ahead based on team side
-            ball.x = this.x + (this.isHomeTeam ? 26 : -26);
+            ball.x = this.x + (this.isHomeTeam ? 30 : -30);
             ball.y = this.y;
             ball.lastTouchedBy = this;
         }
     }
 
-    // -------------------------
-    // AI: decides target and actions
-    // -------------------------
     updateAI(ball, game) {
-        // reduce frequency of heavy decisions
         this.actionTimer--;
+
         const dx = ball.x - this.x;
         const dy = ball.y - this.y;
-        const distToBall = Math.hypot(dx, dy);
+        const distance = Math.sqrt(dx * dx + dy * dy);
 
-        // If ball is possessed
+        // SIMPLIFIED AI LOGIC - This will fix the blank screen issue
         if (ball.possessedBy) {
             if (ball.possessedBy.isHomeTeam === this.isHomeTeam) {
-                // team has ball -> provide support / create width / maintain shape
+                // Teammate has ball - find good support position
                 this.supportTeammate(ball.possessedBy, ball, game);
             } else {
-                // opposition has ball -> defend, press or hold shape depending on distance/role
-                this.defendAgainstOpponent(ball, distToBall, game);
+                // Opponent has ball - defend intelligently
+                this.defendAgainstOpponent(ball, distance, game);
             }
         } else {
-            // ball is free -> limited chases: only closest appropriate roles go for it
-            if (this.shouldGoForLooseBall(ball, game, distToBall)) {
+            // Ball is free - only go for it if it's your job
+            if (distance < 150 && this.shouldGoForLooseBall(ball)) {
                 this.targetX = ball.x;
                 this.targetY = ball.y;
+                this.running = true;
             } else {
                 this.returnToPosition(ball, game);
             }
         }
 
-        // movement toward the decided target
+        // Move towards target
         this.moveToTarget();
 
-        // periodic tactical decisions (passes, shots, tackles)
+        // Occasionally make decisions
         if (this.actionTimer <= 0) {
-            this.makeAIDecision(ball, game, distToBall);
-            // randomize next decision to avoid synchronized movement
-            this.actionTimer = 25 + Math.floor(Math.random() * 35);
+            this.makeAIDecision(ball, game, distance);
+            this.actionTimer = 30 + Math.random() * 40;
         }
     }
 
-    // -------------------------
-    // Support teammate: spacing & runs
-    // -------------------------
     supportTeammate(ballOwner, ball, game) {
-        // If I'm the ball owner, nothing to do here (other code handles it)
-        if (ballOwner === this) return;
+        // Don't crowd the ball owner
+        const distanceToOwner = Math.sqrt(
+            Math.pow(this.x - ballOwner.x, 2) + Math.pow(this.y - ballOwner.y, 2)
+        );
 
-        // distance to ball owner
-        const d = Math.hypot(this.x - ballOwner.x, this.y - ballOwner.y);
-
-        // If I'm too close to ball owner -> create space
-        if (d < 70) {
+        if (distanceToOwner < 60) {
+            // Move away to create space
             const angleAway = Math.atan2(this.y - ballOwner.y, this.x - ballOwner.x);
-            this.targetX = ballOwner.x + Math.cos(angleAway) * 110;
-            this.targetY = ballOwner.y + Math.sin(angleAway) * 110;
-            this.applyPositionConstraints();
-            return;
-        }
-
-        // Role-based support:
-        if (this.role === 'defender') {
-            // hold a defensive position that cuts passing lanes but doesn't crowd
-            const defensiveLine = this.isHomeTeam ? 300 : 900;
-            // shift vertically to cover ball owner's channel
-            this.targetX = Math.max(defensiveLine - 40, Math.min(defensiveLine + 40, this.formationPosition.x));
-            this.targetY = ball.y + (this.formationPosition.y - ball.y) * 0.3;
-        } else if (this.role === 'midfielder') {
-            // create passing triangles: offer diagonal/support runs
-            const supportOffset = (this.isHomeTeam ? 1 : -1) * (60 + Math.random() * 30);
-            // prefer a position to the side and slightly forward of ballOwner
-            this.targetX = ballOwner.x + supportOffset;
-            this.targetY = ballOwner.y + (Math.random() - 0.5) * 80;
-        } else if (this.role === 'attacker') {
-            // attackers make runs: sometimes stay wide, sometimes diagonal in-behind runs
-            if (Math.random() < 0.12) {
-                // make a forward run behind defense
-                const runDistanceX = (this.isHomeTeam ? 1 : -1) * (150 + Math.random() * 120);
-                this.targetX = ballOwner.x + runDistanceX;
-                this.targetY = 300 + Math.random() * 200;
-            } else {
-                // hold formation position but bias slightly forward
-                this.targetX = this.formationPosition.x + (this.isHomeTeam ? 30 : -30);
-                this.targetY = this.formationPosition.y + (Math.random() - 0.5) * 40;
-            }
+            this.targetX = ballOwner.x + Math.cos(angleAway) * 80;
+            this.targetY = ballOwner.y + Math.sin(angleAway) * 80;
         } else {
-            // fallback: return to formation with small randomness
-            this.targetX = this.formationPosition.x + (Math.random() - 0.5) * 20;
-            this.targetY = this.formationPosition.y + (Math.random() - 0.5) * 20;
+            // Find a good support position based on role
+            switch(this.role) {
+                case 'defender':
+                    this.targetX = this.isHomeTeam ? 300 : 900;
+                    this.targetY = ball.y;
+                    break;
+                case 'midfielder':
+                    const supportX = ballOwner.x + (this.isHomeTeam ? 60 : -60);
+                    const supportY = ballOwner.y + (Math.random() - 0.5) * 80;
+                    this.targetX = supportX;
+                    this.targetY = supportY;
+                    break;
+                case 'attacker':
+                    // Make runs into space
+                    if (Math.random() < 0.02) {
+                        this.targetX = this.isHomeTeam ? 900 : 300;
+                        this.targetY = 300 + Math.random() * 200;
+                    } else {
+                        this.targetX = this.formationPosition.x;
+                        this.targetY = this.formationPosition.y;
+                    }
+                    break;
+                default:
+                    this.targetX = this.formationPosition.x;
+                    this.targetY = this.formationPosition.y;
+            }
         }
-
+        
         this.applyPositionConstraints();
+        this.running = true;
     }
 
-    // -------------------------
-    // Defend intelligently
-    // -------------------------
     defendAgainstOpponent(ball, distance, game) {
         if (this.role === 'goalkeeper') {
             this.actAsGoalkeeper(ball, game);
             return;
         }
 
-        // If very close and aggressive -> go to ball
-        if (distance < 90 && this.aggression > 0.5) {
-            // small chance to step in to tackle/pressure
+        const goalX = this.isHomeTeam ? 50 : 1150;
+        
+        if (distance < 120 && this.aggression > 0.4) {
+            // Press the ball if close and aggressive
             this.targetX = ball.x;
             this.targetY = ball.y;
-            return;
-        }
-
-        // Mark the nearest dangerous opponent or cut passing lanes between them and our goal
-        const opponents = (game && game.players) ? game.players.filter(p => p.isHomeTeam !== this.isHomeTeam) : [];
-        let dangerous = null;
-        let maxThreat = -Infinity;
-        for (const op of opponents) {
-            // threat = forward progress + closeness to ball
-            const forwardProgress = (this.isHomeTeam ? (op.x - 600) : (600 - op.x));
-            const dist = Math.hypot(op.x - ball.x, op.y - ball.y);
-            const threat = forwardProgress - dist * 0.3;
-            if (threat > maxThreat) { maxThreat = threat; dangerous = op; }
-        }
-
-        if (dangerous) {
-            // Intercept line between dangerous opponent and our goal (zonal)
-            const defensiveLineX = this.isHomeTeam ? Math.max(200, this.formationPosition.x) : Math.min(1000, this.formationPosition.x);
-            // place between opponent and defensive line
-            this.targetX = defensiveLineX + (dangerous.x - defensiveLineX) * 0.25;
-            this.targetY = dangerous.y + (Math.random() - 0.5) * 50;
         } else {
-            // fallback: hold formation line
-            this.targetX = this.formationPosition.x + (this.isHomeTeam ? -10 : 10);
-            this.targetY = this.formationPosition.y;
+            // Mark space and cut passing lanes
+            const defensiveX = this.isHomeTeam ? 350 : 850;
+            const interceptX = defensiveX + (ball.x - defensiveX) * 0.3;
+            const interceptY = this.y + (ball.y - this.y) * 0.2;
+            
+            this.targetX = interceptX;
+            this.targetY = interceptY;
         }
-
-        this.applyPositionConstraints();
+        
+        this.running = distance > 30;
     }
 
-    // -------------------------
-    // Decide whether to chase loose ball
-    // -------------------------
-    shouldGoForLooseBall(ball, game, distToBall) {
+    shouldGoForLooseBall(ball) {
+        // Only certain players should chase loose balls
         if (this.role === 'goalkeeper') return false;
-
-        // find team mate closer than me? if so don't chase
-        if (game && game.players) {
-            const teammates = game.players.filter(p => p.isHomeTeam === this.isHomeTeam && p !== this);
-            for (const tm of teammates) {
-                const dtm = Math.hypot(tm.x - ball.x, tm.y - ball.y);
-                if (dtm < distToBall - 10 && dtm < 130) return false;
-            }
-        }
-
-        // only chase if ball is in my area or I'm a midfielder/attacker with urgency
-        const formationPos = this.getFormationPosition();
-        const distanceToFormation = Math.hypot(ball.x - formationPos.x, ball.y - formationPos.y);
-        const inMyArea = distanceToFormation < 140; // smaller radius -> avoids everyone chasing
-
-        // midfields and attackers more likely, defenders less so
-        const urgency = this.ballChasingUrgency * this.aggression * (inMyArea ? 1.8 : 0.6);
-
-        // add randomness and throttle (avoid repeated immediate chases)
-        return inMyArea && (Math.random() < urgency * 0.06);
+        
+        const ballInMyArea = this.isBallInMyArea(ball);
+        const urgency = this.ballChasingUrgency * this.aggression;
+        
+        return ballInMyArea && (Math.random() < urgency * 0.03);
     }
 
-    // -------------------------
-    // fallback return to formation with slight ball influence
-    // -------------------------
+    isBallInMyArea(ball) {
+        const formationPos = this.getFormationPosition();
+        const distanceToFormation = Math.sqrt(
+            Math.pow(ball.x - formationPos.x, 2) + Math.pow(ball.y - formationPos.y, 2)
+        );
+        return distanceToFormation < 120;
+    }
+
     returnToPosition(ball, game) {
         const formationPos = this.getFormationPosition();
-
-        const variationX = (Math.random() - 0.5) * 18;
-        const variationY = (Math.random() - 0.5) * 14;
-
-        // small influence: drift toward ball if team is attacking/ball in that half
-        const teamAttacking = this.isHomeTeam ? (ball.x > 600) : (ball.x < 600);
-        const ballInfluenceX = (teamAttacking ? 1 : -0.6) * (ball.x - 600) * 0.03;
-        const ballInfluenceY = (ball.y - 400) * 0.02;
-
-        // preserve formation discipline: don't stray too far
+        
+        // Small variations to make it look natural
+        const variationX = (Math.random() - 0.5) * 20;
+        const variationY = (Math.random() - 0.5) * 15;
+        
+        // Slight adjustment based on ball position
+        const ballInfluenceX = (ball.x - 600) * 0.05;
+        const ballInfluenceY = (ball.y - 400) * 0.05;
+        
         this.targetX = formationPos.x + ballInfluenceX + variationX;
         this.targetY = formationPos.y + ballInfluenceY + variationY;
+        
+        this.applyPositionConstraints();
+        this.running = true;
+    }
 
+    actAsGoalkeeper(ball, game) {
+        const goalX = this.isHomeTeam ? 50 : 1150;
+        const goalY = 400;
+        
+        // Simple goalkeeper AI - stay near goal but move to intercept
+        this.targetX = goalX;
+        
+        if (ball.y > 350 && ball.y < 450) {
+            this.targetY = ball.y;
+        } else {
+            this.targetY = goalY;
+        }
+        
         this.applyPositionConstraints();
     }
 
-    // -------------------------
-    // Constrain targets by role/side so players hold lines
-    // -------------------------
     applyPositionConstraints() {
-        switch (this.role) {
+        // Keep players in sensible areas
+        switch(this.role) {
             case 'goalkeeper':
                 this.targetX = Math.max(30, Math.min(150, this.targetX));
                 this.targetY = Math.max(150, Math.min(650, this.targetY));
                 break;
             case 'defender':
-                if (this.isHomeTeam) this.targetX = Math.max(100, Math.min(520, this.targetX));
-                else this.targetX = Math.max(680, Math.min(1100, this.targetX));
+                if (this.isHomeTeam) {
+                    this.targetX = Math.max(100, Math.min(500, this.targetX));
+                } else {
+                    this.targetX = Math.max(700, Math.min(1100, this.targetX));
+                }
                 break;
             case 'midfielder':
-                this.targetX = Math.max(220, Math.min(980, this.targetX));
+                this.targetX = Math.max(200, Math.min(1000, this.targetX));
                 break;
             case 'attacker':
-                if (this.isHomeTeam) this.targetX = Math.max(480, Math.min(1150, this.targetX));
-                else this.targetX = Math.max(50, Math.min(720, this.targetX));
+                if (this.isHomeTeam) {
+                    this.targetX = Math.max(500, Math.min(1100, this.targetX));
+                } else {
+                    this.targetX = Math.max(100, Math.min(700, this.targetX));
+                }
                 break;
         }
+        
         this.targetY = Math.max(80, Math.min(720, this.targetY));
     }
 
-    // -------------------------
-    // movement toward decided target
-    // -------------------------
     moveToTarget() {
-        const dx = this.targetX - this.x;
-        const dy = this.targetY - this.y;
-        const dist = Math.hypot(dx, dy);
+        const targetDx = this.targetX - this.x;
+        const targetDy = this.targetY - this.y;
+        const targetDistance = Math.sqrt(targetDx * targetDx + targetDy * targetDy);
 
-        if (dist > 6) {
-            // pace is affected by stamina/aggression but limited to avoid sprinting everywhere
-            const speedMultiplier = 0.9 + (this.stamina * 0.3);
-            const sX = (dx / dist) * this.speed * speedMultiplier;
-            const sY = (dy / dist) * this.speed * speedMultiplier;
-
-            // damp movement a bit for smoother motion
-            this.speedX = this.speedX * 0.6 + sX * 0.4;
-            this.speedY = this.speedY * 0.6 + sY * 0.4;
-
+        if (targetDistance > 5) {
+            const speedMultiplier = this.stamina * (1 + this.aggression * 0.2);
+            this.speedX = (targetDx / targetDistance) * this.speed * speedMultiplier;
+            this.speedY = (targetDy / targetDistance) * this.speed * speedMultiplier;
+            
             this.x += this.speedX;
             this.y += this.speedY;
-            this.running = dist > 18;
+            this.running = targetDistance > 15;
         } else {
-            // small damping to avoid jitter
-            this.speedX *= 0.7;
-            this.speedY *= 0.7;
+            this.speedX *= 0.8;
+            this.speedY *= 0.8;
             this.running = false;
         }
     }
 
-    // -------------------------
-    // tactical decisions: tackle, pass, shoot
-    // -------------------------
-    makeAIDecision(ball, game, distToBall) {
-        // If opponent has ball and we're close -> attempt tackle/pressure
-        if (ball.possessedBy && ball.possessedBy.isHomeTeam !== this.isHomeTeam) {
-            // prefer defenders/midfields to tackle if close
-            if (distToBall < 40 && (this.role === 'defender' || this.role === 'midfielder')) {
-                if (Math.random() < (0.35 * this.tacklingSkill + 0.15 * this.aggression)) {
-                    this.attemptTackle(ball, game);
-                    return;
-                }
-            }
-
-            // if midfielder/attacker and further away maybe mark or intercept lane - covered in defendAgainstOpponent
+    makeAIDecision(ball, game, distance) {
+        // Attempt tackle
+        if (ball.possessedBy && ball.possessedBy.isHomeTeam !== this.isHomeTeam && 
+            distance < 35 && Math.random() < this.aggression * 0.02) {
+            this.attemptTackle(ball, game);
         }
-
-        // If I have the ball, decide pass/shot/dribble
+        
+        // Attempt shot or pass if has ball
         if (this.hasBall && ball.possessedBy === this) {
-            // compute distance to goal (simplified)
             const goalX = this.isHomeTeam ? 1150 : 50;
-            const distToGoal = Math.abs(goalX - this.x);
-
-            // If in shooting range and conditions favorable -> attempt shot
-            if (distToGoal < 240 && Math.random() < this.shooting * 0.02) {
+            const dxToGoal = goalX - this.x;
+            const distanceToGoal = Math.abs(dxToGoal);
+            
+            if (distanceToGoal < 250 && Math.random() < this.shooting * 0.01) {
                 this.attemptShot(ball, game);
-                return;
+            } else if (Math.random() < this.passing * 0.02) {
+                this.attemptPass(ball, game);
             }
-
-            // Otherwise try to pick an open teammate
-            if (Math.random() < Math.min(0.6, 0.25 + this.passing * 0.35)) {
-                if (this.attemptPass(ball, game)) return;
-            }
-
-            // else keep dribbling a little by moving toward a safe support position
-            // pick a small forward step
-            this.targetX = this.x + (this.isHomeTeam ? 30 : -30);
-            this.targetY = this.y + (Math.random() - 0.5) * 30;
-            return;
         }
-
-        // If ball is free: maybe go for it if appropriate (handled elsewhere)
     }
 
-    // -------------------------
-    // Passing: choose best open teammate
-    // -------------------------
-    attemptPass(ball, game) {
-        if (!this.hasBall || !game || !game.players) return false;
+    // Keep all your existing methods below - they should work fine:
+    // attemptShot, attemptPass, passBall, attemptTackle, kickBall, 
+    // distanceToLine, getFormationPosition, startSprint, stopSprint, celebrate
 
-        let best = null;
-        let bestScore = -Infinity;
+    getFormationPosition() {
+        // Simple fallback formation if the main one isn't available
+        const isHome = this.isHomeTeam;
+        const baseX = isHome ? 200 : 1000;
+        
+        const positions = {
+            'GK': { x: isHome ? 100 : 1100, y: 400 },
+            'RB': { x: baseX, y: 200 }, 'CB1': { x: baseX, y: 350 }, 'CB2': { x: baseX, y: 450 }, 'LB': { x: baseX, y: 600 },
+            'RM': { x: baseX + (isHome ? 200 : -200), y: 200 }, 'CM1': { x: baseX + (isHome ? 200 : -200), y: 350 },
+            'CM2': { x: baseX + (isHome ? 200 : -200), y: 450 }, 'LM': { x: baseX + (isHome ? 200 : -200), y: 600 },
+            'ST1': { x: baseX + (isHome ? 400 : -400), y: 350 }, 'ST2': { x: baseX + (isHome ? 400 : -400), y: 450 },
+            // Fallbacks for any other positions
+            'default': { x: baseX, y: 400 }
+        };
 
-        // compute opponents for openness checks
-        const opponents = game.players.filter(p => p.isHomeTeam !== this.isHomeTeam);
+        return positions[this.position] || positions.default;
+    }
 
-        for (const p of game.players) {
-            if (p === this) continue;
-            if (p.isHomeTeam !== this.isHomeTeam) continue;
+    attemptShot(ball, game) {
+        if (!this.hasBall || ball.possessedBy !== this) return false;
 
-            // distance constraints
-            const dx = p.x - this.x;
-            const dy = p.y - this.y;
-            const dist = Math.hypot(dx, dy);
-            if (dist < 40 || dist > 380) continue;
-
-            // favor forward progress and central positions for attackers
-            const forwardProgress = this.isHomeTeam ? (p.x - this.x) : (this.x - p.x);
-
-            // openness: measure distance of nearest opponent to the target player
-            let nearestOppDist = Infinity;
-            for (const opp of opponents) {
-                const dOpp = Math.hypot(opp.x - p.x, opp.y - p.y);
-                if (dOpp < nearestOppDist) nearestOppDist = dOpp;
-            }
-
-            // score: combine forward progress, openness, role suitability, randomness
-            let score = 0;
-            score += forwardProgress * 1.6; // prefer forward players
-            score += Math.max(0, nearestOppDist - 60) * 0.6; // reward open players
-            score += (p.role === 'attacker') ? 30 : (p.role === 'midfielder' ? 15 : 5);
-            score -= Math.abs(p.y - 400) * 0.05; // penalize extreme verticals sometimes
-            score += (Math.random() - 0.5) * 20;
-
-            if (score > bestScore) {
-                bestScore = score;
-                best = p;
+        const goalX = this.isHomeTeam ? 1150 : 50;
+        const goalY = 400;
+        
+        const accuracy = this.shooting * 0.8 + 0.2;
+        const randomOffset = (1 - accuracy) * 100;
+        
+        const targetX = goalX;
+        const targetY = goalY + (Math.random() - 0.5) * randomOffset;
+        
+        const dx = targetX - this.x;
+        const dy = targetY - this.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const angle = Math.atan2(dy, dx);
+        
+        const power = Math.min(15, 8 + (distance / 100) * 2) * (0.8 + this.shooting * 0.4);
+        
+        ball.speedX = Math.cos(angle) * power;
+        ball.speedY = Math.sin(angle) * power;
+        ball.possessedBy = null;
+        this.hasBall = false;
+        
+        this.kicking = true;
+        this.kickFrame = 0;
+        
+        // Simple stats update - modify according to your game structure
+        if (game && game.stats) {
+            if (this.isHomeTeam) {
+                game.stats.shots.home = (game.stats.shots.home || 0) + 1;
+            } else {
+                game.stats.shots.away = (game.stats.shots.away || 0) + 1;
             }
         }
+        
+        return true;
+    }
 
-        if (best) {
-            // perform a through ball if best is forward and open
-            this.passBall(ball, best, game);
+    attemptPass(ball, game) {
+        if (!this.hasBall || ball.possessedBy !== this) return false;
+
+        let bestTeammate = null;
+        let bestScore = -1;
+
+        // Find the best teammate to pass to
+        if (game && game.players) {
+            game.players.forEach(player => {
+                if (player !== this && player.isHomeTeam === this.isHomeTeam) {
+                    const dx = player.x - this.x;
+                    const dy = player.y - this.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 300 && distance > 50) {
+                        let score = 0;
+                        
+                        // Prefer players in better positions
+                        const goalX = this.isHomeTeam ? 1150 : 50;
+                        const progress = (player.x - this.x) * (this.isHomeTeam ? 1 : -1);
+                        
+                        if (progress > 0) score += progress * 2;
+                        
+                        // Add some randomness
+                        score += Math.random() * 30;
+                        
+                        if (score > bestScore) {
+                            bestScore = score;
+                            bestTeammate = player;
+                        }
+                    }
+                }
+            });
+        }
+
+        if (bestTeammate) {
+            this.passBall(ball, bestTeammate, game);
             return true;
         }
+        
         return false;
     }
 
@@ -839,68 +850,22 @@ class AnimatedPlayer {
 
         const dx = targetPlayer.x - this.x;
         const dy = targetPlayer.y - this.y;
-        const dist = Math.hypot(dx, dy);
+        const distance = Math.sqrt(dx * dx + dy * dy);
         const angle = Math.atan2(dy, dx);
-
-        const passAccuracy = 0.65 + (this.passing * 0.35);
-        const randomAngle = (Math.random() - 0.5) * (1 - passAccuracy) * 0.6;
-        const power = Math.min(13, 6 + dist / 45);
-
+        
+        const passAccuracy = 0.7 + (this.passing * 0.3);
+        const randomAngle = (Math.random() - 0.5) * (1 - passAccuracy) * 0.8;
+        const power = Math.min(12, 6 + distance / 50);
+        
         ball.speedX = Math.cos(angle + randomAngle) * power;
         ball.speedY = Math.sin(angle + randomAngle) * power;
         ball.possessedBy = null;
         ball.lastTouchedBy = this;
         this.hasBall = false;
-
+        
         this.kicking = true;
         this.kickFrame = 0;
         this.lastBallOwner = this;
-
-        // optionally switch user control - keep existing logic if you have it elsewhere
-        if (game && typeof game.switchUserControl === 'function') {
-            // if target is user-team and game policy allows switching
-            if (targetPlayer.isHomeTeam === this.isHomeTeam &&
-                (game.userControlledTeam === 'both' || (game.userControlledTeam === 'home' && this.isHomeTeam) || (game.userControlledTeam === 'away' && !this.isHomeTeam))) {
-                // small delay before switching
-                setTimeout(() => game.switchUserControl(targetPlayer), 120);
-            }
-        }
-
-        return true;
-    }
-
-    attemptShot(ball, game) {
-        if (!this.hasBall || ball.possessedBy !== this) return false;
-
-        const goalX = this.isHomeTeam ? 1150 : 50;
-        const goalY = 400;
-
-        const accuracy = 0.6 + this.shooting * 0.4;
-        const randomOffset = (1 - accuracy) * 120;
-
-        const targetX = goalX;
-        const targetY = goalY + (Math.random() - 0.5) * randomOffset;
-
-        const dx = targetX - this.x;
-        const dy = targetY - this.y;
-        const dist = Math.hypot(dx, dy);
-        const angle = Math.atan2(dy, dx);
-        const power = Math.min(18, 8 + (dist / 90) * 2) * (0.8 + this.shooting * 0.35);
-
-        ball.speedX = Math.cos(angle) * power;
-        ball.speedY = Math.sin(angle) * power;
-        ball.possessedBy = null;
-        ball.lastTouchedBy = this;
-        this.hasBall = false;
-
-        this.kicking = true;
-        this.kickFrame = 0;
-
-        // record stats if game struct present
-        if (game && game.stats) {
-            if (this.isHomeTeam) game.stats.shots = game.stats.shots || {}, game.stats.shots.home = (game.stats.shots.home || 0) + 1;
-            else game.stats.shots = game.stats.shots || {}, game.stats.shots.away = (game.stats.shots.away || 0) + 1;
-        }
 
         return true;
     }
@@ -911,84 +876,42 @@ class AnimatedPlayer {
         const opponent = ball.possessedBy;
         const dx = opponent.x - this.x;
         const dy = opponent.y - this.y;
-        const dist = Math.hypot(dx, dy);
-        if (dist < 42) {
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < 40) {
             this.tackling = true;
             this.tackleFrame = 0;
-            const successChance = Math.min(0.85, 0.35 + this.tacklingSkill * 0.45 + this.aggression * 0.15);
+            
+            const successChance = this.tacklingSkill * 0.5 + (this.aggression * 0.3);
             if (Math.random() < successChance) {
-                // successful tackle: transfer possession
-                opponent.hasBall = false;
+                ball.possessedBy.hasBall = false;
                 ball.possessedBy = this;
                 this.hasBall = true;
                 ball.lastTouchedBy = this;
-
-                // optionally switch control
-                if (game && typeof game.switchUserControl === 'function') {
-                    if ((this.isHomeTeam && (game.userControlledTeam === 'home' || game.userControlledTeam === 'both')) ||
-                        (!this.isHomeTeam && (game.userControlledTeam === 'away' || game.userControlledTeam === 'both'))) {
-                        game.switchUserControl(this);
-                    }
-                }
                 return true;
-            } else {
-                // fail: small foul chance (you can implement fouls)
-                if (Math.random() < 0.08 && game && game.stats) {
-                    if (this.isHomeTeam) game.stats.fouls = game.stats.fouls || {}, game.stats.fouls.home = (game.stats.fouls.home || 0) + 1;
-                    else game.stats.fouls = game.stats.fouls || {}, game.stats.fouls.away = (game.stats.fouls.away || 0) + 1;
-                }
             }
         }
         return false;
     }
 
-    // -------------------------
-    // helper: formation position (keeps previous API)
-    // -------------------------
-    getFormationPosition() {
-        // try global formations variable
-        if (typeof formations !== 'undefined' && formations[selectedFormation] && formations[selectedFormation].positions) {
-            const posKey = this.position;
-            const fp = formations[selectedFormation].positions[posKey];
-            if (fp) {
-                // if this player is away, mirror horizontally across field center (600)
-                if (!this.isHomeTeam) return { x: 1200 - fp.x, y: fp.y };
-                return { x: fp.x, y: fp.y };
-            }
-        }
-        // fallback mapping similar to earlier code
-        const isHome = this.isHomeTeam;
-        const baseX = isHome ? 200 : 1000;
-        const positions = {
-            'GK': { x: isHome ? 100 : 1100, y: 400 },
-            'RB': { x: baseX, y: 200 }, 'CB1': { x: baseX, y: 350 }, 'CB2': { x: baseX, y: 450 }, 'LB': { x: baseX, y: 600 },
-            'RM': { x: baseX + (isHome ? 200 : -200), y: 200 }, 'CM1': { x: baseX + (isHome ? 200 : -200), y: 350 },
-            'CM2': { x: baseX + (isHome ? 200 : -200), y: 450 }, 'LM': { x: baseX + (isHome ? 200 : -200), y: 600 },
-            'ST1': { x: baseX + (isHome ? 400 : -400), y: 350 }, 'ST2': { x: baseX + (isHome ? 400 : -400), y: 450 },
-            'default': { x: baseX, y: 400 }
-        };
-        return positions[this.position] || positions.default;
-    }
-
-    // -------------------------
-    // draw method - leave as-is (your original)
-    // -------------------------
+    // Keep your existing draw method exactly as it was - it's perfect!
     draw(ctx) {
-        // keep your existing draw method unchanged (copy from original)
         ctx.save();
         ctx.translate(this.x, this.y);
-
+        
         const facingRight = this.isHomeTeam || this.speedX > 0;
         const scaleX = facingRight ? 1 : -1;
         ctx.scale(scaleX, 1);
 
+        // User-controlled player highlight
         if (this.isCurrentUserControlled) {
             ctx.strokeStyle = this.sprinting ? '#FF0000' : '#FFFF00';
             ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.arc(0, 0, this.radius + 5, 0, Math.PI * 2);
             ctx.stroke();
-
+            
+            // Stamina bar
             if (this.sprinting) {
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
                 ctx.fillRect(-20, -this.radius - 15, 40, 5);
@@ -997,6 +920,7 @@ class AnimatedPlayer {
             }
         }
 
+        // Tackle effect
         if (this.tackling) {
             ctx.fillStyle = 'rgba(255, 0, 0, 0.4)';
             ctx.beginPath();
@@ -1004,6 +928,7 @@ class AnimatedPlayer {
             ctx.fill();
         }
 
+        // Celebration effect
         if (this.celebrating) {
             ctx.fillStyle = `rgba(255, 215, 0, ${0.3 + Math.sin(this.celebrationFrame * 0.2) * 0.2})`;
             ctx.beginPath();
@@ -1011,74 +936,80 @@ class AnimatedPlayer {
             ctx.fill();
         }
 
-        // torso
+        // Body (torso) with kit details
         ctx.fillStyle = this.color;
         ctx.fillRect(-6, -25, 12, 25);
-
-        // stripes
+        
+        // Kit stripes for secondary color
         ctx.fillStyle = this.secondaryColor;
         for (let i = -20; i < 0; i += 8) {
             ctx.fillRect(-6, i, 12, 4);
         }
 
-        // head
+        // Head
         ctx.fillStyle = '#FFDBAC';
         ctx.beginPath();
         ctx.arc(0, -35, 10, 0, Math.PI * 2);
         ctx.fill();
 
+        // Hair
         ctx.fillStyle = '#2C3E50';
         ctx.beginPath();
         ctx.arc(0, -38, 8, 0, Math.PI, true);
         ctx.fill();
 
+        // Face features
         ctx.fillStyle = '#2C3E50';
         ctx.beginPath();
         ctx.arc(-4, -37, 2, 0, Math.PI * 2);
         ctx.arc(4, -37, 2, 0, Math.PI * 2);
         ctx.fill();
-
+        
         ctx.beginPath();
         ctx.arc(0, -32, 2.5, 0, Math.PI, false);
         ctx.stroke();
 
-        // arms
+        // Arms with animation
         ctx.fillStyle = this.color;
         const armAngle = this.armSwing;
+        
         ctx.save();
         ctx.rotate(armAngle * Math.PI / 180);
         ctx.fillRect(-12, -22, 8, 3);
         ctx.restore();
+        
         ctx.save();
         ctx.rotate(-armAngle * Math.PI / 180);
         ctx.fillRect(4, -22, 8, 3);
         ctx.restore();
 
-        // legs
+        // Legs with running animation
         ctx.fillStyle = this.secondaryColor;
         const legAngle = this.legSwing;
+        
         ctx.save();
         ctx.rotate(legAngle * Math.PI / 180);
         ctx.fillRect(-4, 0, 4, 25);
         ctx.restore();
+        
         ctx.save();
         ctx.rotate(-legAngle * Math.PI / 180);
         ctx.fillRect(0, 0, 4, 25);
         ctx.restore();
 
-        // shoes
+        // Shoes
         ctx.fillStyle = '#2C3E50';
         ctx.fillRect(-5, 23, 5, 4);
         ctx.fillRect(0, 23, 5, 4);
 
-        // number
+        // Player number on back
         ctx.fillStyle = '#FFFFFF';
         ctx.font = 'bold 12px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(this.number, 0, -12);
 
-        // name
+        // Player name if available
         if (this.playerData) {
             ctx.fillStyle = '#FFFFFF';
             ctx.font = '9px Arial';
@@ -1088,13 +1019,13 @@ class AnimatedPlayer {
             ctx.fillText(lastName, 0, 30);
         }
 
-        // ball indicator
+        // Ball possession indicator
         if (this.hasBall) {
             ctx.fillStyle = '#FFD700';
             ctx.beginPath();
             ctx.arc(25, -15, 6, 0, Math.PI * 2);
             ctx.fill();
-
+            
             ctx.fillStyle = '#000000';
             ctx.font = '8px Arial';
             ctx.textAlign = 'center';
@@ -1105,26 +1036,37 @@ class AnimatedPlayer {
         ctx.restore();
     }
 
-    // user-control helpers
-    startSprint() { if (this.stamina > 0.25) this.sprinting = true; }
-    stopSprint() { this.sprinting = false; }
-    celebrate() { this.celebrating = true; this.celebrationFrame = 0; }
+    startSprint() {
+        if (this.stamina > 0.3) {
+            this.sprinting = true;
+        }
+    }
 
-    // kickBall kept for compatibility
+    stopSprint() {
+        this.sprinting = false;
+    }
+
+    celebrate() {
+        this.celebrating = true;
+        this.celebrationFrame = 0;
+    }
+
     kickBall(ball, power = 10, direction = null) {
         if (!this.hasBall || ball.possessedBy !== this) return false;
+
         const angle = direction || (this.isHomeTeam ? 0 : Math.PI);
         ball.speedX = Math.cos(angle) * power;
         ball.speedY = Math.sin(angle) * power;
         ball.possessedBy = null;
         ball.lastTouchedBy = this;
         this.hasBall = false;
+        
         this.kicking = true;
         this.kickFrame = 0;
+        
         return true;
     }
 }
-
 
 // Enhanced TouchControls for larger field
 class TouchControls {
@@ -2438,103 +2380,6 @@ class FootballGame {
         }
     }
 }
-// === GAME LOOP FIX ===
-
-// Game state
-let gameTime = 0; // seconds
-let lastUpdateTime = Date.now();
-
-// Example player objects (you should already have them)
-const players = [
-  { x: 200, y: 400, color: "#e74c3c", speed: 2, direction: 1 }, // Player-controlled
-  { x: 1000, y: 400, color: "#3498db", speed: 2, direction: -1 } // AI player
-];
-
-// Create a new football ball object
-const ball = new FootballBall(600, 400);
-
-// Main update loop
-function updateGame() {
-  const now = Date.now();
-  const delta = (now - lastUpdateTime) / 1000; // seconds since last frame
-  lastUpdateTime = now;
-  
-  // Update timer
-  gameTime += delta;
-  const timerElement = document.getElementById("gameTimer");
-  if (timerElement) {
-    timerElement.textContent = `⏱️ ${Math.floor(gameTime)}s`;
-  }
-
-  // Update ball
-  ball.update();
-
-  // Move players (basic AI and player movement simulation)
-  players.forEach((p, index) => {
-    if (index === 0) {
-      // Simulate player movement (left-right automatic demo)
-      p.x += Math.sin(gameTime) * p.speed;
-    } else {
-      // Simple AI chasing ball
-      if (ball.x > p.x) p.x += p.speed;
-      else p.x -= p.speed;
-      if (ball.y > p.y) p.y += p.speed;
-      else p.y -= p.speed;
-    }
-  });
-
-  // Draw everything
-  drawGame();
-
-  // Keep looping
-  requestAnimationFrame(updateGame);
-}
-
-// Draw function
-function drawGame() {
-  const ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Draw pitch
-  ctx.fillStyle = "#2ecc71";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Center line
-  ctx.strokeStyle = "white";
-  ctx.lineWidth = 4;
-  ctx.beginPath();
-  ctx.moveTo(canvas.width / 2, 0);
-  ctx.lineTo(canvas.width / 2, canvas.height);
-  ctx.stroke();
-
-  // Draw players
-  players.forEach(p => {
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 20, 0, Math.PI * 2);
-    ctx.fillStyle = p.color;
-    ctx.fill();
-  });
-
-  // Draw ball
-  ball.draw(ctx);
-}
-
-// Start the game loop once page is loaded
-window.addEventListener("load", () => {
-  const timerDisplay = document.createElement("div");
-  timerDisplay.id = "gameTimer";
-  timerDisplay.style.position = "absolute";
-  timerDisplay.style.top = "20px";
-  timerDisplay.style.left = "50%";
-  timerDisplay.style.transform = "translateX(-50%)";
-  timerDisplay.style.color = "white";
-  timerDisplay.style.fontSize = "24px";
-  timerDisplay.style.fontWeight = "bold";
-  document.body.appendChild(timerDisplay);
-
-  updateGame(); // Start loop
-});
-
 
 // Enhanced global game instance
 let game;
