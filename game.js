@@ -92,78 +92,77 @@ const footballClubs = [
     }
 ];
 
-// Available Formations - UPDATED FOR RESPONSIVE
+// Available Formations
 const formations = {
     '4-4-2': {
         name: '4-4-2',
         description: 'Classic balanced formation',
         positions: {
-            'GK': { x: 0.0625, y: 0.5 },      // 50/800, 250/500
-            'RB': { x: 0.125, y: 0.2 },       // 100/800, 100/500
-            'CB1': { x: 0.125, y: 0.4 },      // 100/800, 200/500
-            'CB2': { x: 0.125, y: 0.6 },      // 100/800, 300/500
-            'LB': { x: 0.125, y: 0.8 },       // 100/800, 400/500
-            'RM': { x: 0.225, y: 0.2 },       // 180/800, 100/500
-            'CM1': { x: 0.225, y: 0.4 },      // 180/800, 200/500
-            'CM2': { x: 0.225, y: 0.6 },      // 180/800, 300/500
-            'LM': { x: 0.225, y: 0.8 },       // 180/800, 400/500
-            'ST1': { x: 0.325, y: 0.45 },     // 260/800, 225/500
-            'ST2': { x: 0.325, y: 0.55 }      // 260/800, 275/500
+            'GK': { x: 50, y: 250 },
+            'RB': { x: 100, y: 100 },
+            'CB1': { x: 100, y: 200 },
+            'CB2': { x: 100, y: 300 },
+            'LB': { x: 100, y: 400 },
+            'RM': { x: 180, y: 100 },
+            'CM1': { x: 180, y: 200 },
+            'CM2': { x: 180, y: 300 },
+            'LM': { x: 180, y: 400 },
+            'ST1': { x: 260, y: 225 },
+            'ST2': { x: 260, y: 275 }
         }
     },
     '4-3-3': {
         name: '4-3-3',
         description: 'Attacking formation with wingers',
         positions: {
-            'GK': { x: 0.0625, y: 0.5 },
-            'RB': { x: 0.125, y: 0.2 },
-            'CB1': { x: 0.125, y: 0.4 },
-            'CB2': { x: 0.125, y: 0.6 },
-            'LB': { x: 0.125, y: 0.8 },
-            'CM1': { x: 0.225, y: 0.3 },
-            'CM2': { x: 0.225, y: 0.5 },
-            'CM3': { x: 0.225, y: 0.7 },
-            'RW': { x: 0.325, y: 0.2 },
-            'ST': { x: 0.325, y: 0.5 },
-            'LW': { x: 0.325, y: 0.8 }
+            'GK': { x: 50, y: 250 },
+            'RB': { x: 100, y: 100 },
+            'CB1': { x: 100, y: 200 },
+            'CB2': { x: 100, y: 300 },
+            'LB': { x: 100, y: 400 },
+            'CM1': { x: 180, y: 150 },
+            'CM2': { x: 180, y: 250 },
+            'CM3': { x: 180, y: 350 },
+            'RW': { x: 260, y: 100 },
+            'ST': { x: 260, y: 250 },
+            'LW': { x: 260, y: 400 }
         }
     },
     '3-5-2': {
         name: '3-5-2',
         description: 'Midfield dominance formation',
         positions: {
-            'GK': { x: 0.0625, y: 0.5 },
-            'CB1': { x: 0.125, y: 0.3 },
-            'CB2': { x: 0.125, y: 0.5 },
-            'CB3': { x: 0.125, y: 0.7 },
-            'RM': { x: 0.225, y: 0.2 },
-            'CM1': { x: 0.225, y: 0.4 },
-            'CM2': { x: 0.225, y: 0.5 },
-            'CM3': { x: 0.225, y: 0.6 },
-            'LM': { x: 0.225, y: 0.8 },
-            'ST1': { x: 0.325, y: 0.4 },
-            'ST2': { x: 0.325, y: 0.6 }
+            'GK': { x: 50, y: 250 },
+            'CB1': { x: 100, y: 150 },
+            'CB2': { x: 100, y: 250 },
+            'CB3': { x: 100, y: 350 },
+            'RM': { x: 180, y: 100 },
+            'CM1': { x: 180, y: 200 },
+            'CM2': { x: 180, y: 250 },
+            'CM3': { x: 180, y: 300 },
+            'LM': { x: 180, y: 400 },
+            'ST1': { x: 260, y: 200 },
+            'ST2': { x: 260, y: 300 }
         }
     },
     '4-2-3-1': {
         name: '4-2-3-1',
         description: 'Modern attacking formation',
         positions: {
-            'GK': { x: 0.0625, y: 0.5 },
-            'RB': { x: 0.125, y: 0.2 },
-            'CB1': { x: 0.125, y: 0.4 },
-            'CB2': { x: 0.125, y: 0.6 },
-            'LB': { x: 0.125, y: 0.8 },
-            'CDM1': { x: 0.2, y: 0.4 },
-            'CDM2': { x: 0.2, y: 0.6 },
-            'CAM': { x: 0.275, y: 0.5 },
-            'RW': { x: 0.325, y: 0.3 },
-            'LW': { x: 0.325, y: 0.7 },
-            'ST': { x: 0.375, y: 0.5 }
+            'GK': { x: 50, y: 250 },
+            'RB': { x: 100, y: 100 },
+            'CB1': { x: 100, y: 200 },
+            'CB2': { x: 100, y: 300 },
+            'LB': { x: 100, y: 400 },
+            'CDM1': { x: 160, y: 200 },
+            'CDM2': { x: 160, y: 300 },
+            'CAM': { x: 220, y: 250 },
+            'RW': { x: 260, y: 150 },
+            'LW': { x: 260, y: 350 },
+            'ST': { x: 300, y: 250 }
         }
     }
 };
-
 
 // Game Mode Selection
 let selectedGameMode = 'player-vs-computer';
@@ -205,25 +204,12 @@ const teamPlays = [
     }
 ];
 
-
-
-
-// Game Timer State
-const gameTimer = {
-    totalTime: 300, // 5 minutes in seconds
-    currentTime: 0,
-    isGameEnded: false,
-    gameTimerInterval: null
-};
-
-// Enhanced FootballBall class - UPDATED FOR RESPONSIVE
+// Enhanced FootballBall class
 class FootballBall {
-    constructor(x, y, fieldWidth, fieldHeight) {
+    constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.fieldWidth = fieldWidth;
-        this.fieldHeight = fieldHeight;
-        this.radius = fieldWidth * 0.015; // Responsive radius
+        this.radius = 12;
         this.speedX = 0;
         this.speedY = 0;
         this.friction = 0.98;
@@ -261,21 +247,20 @@ class FootballBall {
         this.rotation += this.speedX * 0.1;
         this.spin += this.speedY * 0.1;
 
-        // Use field boundaries
         if (this.x - this.radius < 0) {
             this.x = this.radius;
             this.speedX *= -0.7;
         }
-        if (this.x + this.radius > this.fieldWidth) {
-            this.x = this.fieldWidth - this.radius;
+        if (this.x + this.radius > 800) {
+            this.x = 800 - this.radius;
             this.speedX *= -0.7;
         }
         if (this.y - this.radius < 0) {
             this.y = this.radius;
             this.speedY *= -0.7;
         }
-        if (this.y + this.radius > this.fieldHeight) {
-            this.y = this.fieldHeight - this.radius;
+        if (this.y + this.radius > 500) {
+            this.y = 500 - this.radius;
             this.speedY *= -0.7;
         }
 
@@ -287,8 +272,7 @@ class FootballBall {
         this.isMovingAutomatically = true;
         this.autoMoveTimer = 60 + Math.random() * 120;
         
-        const centerX = this.fieldWidth / 2;
-        const centerY = this.fieldHeight / 2;
+        const centerX = 400, centerY = 250;
         const dx = centerX - this.x;
         const dy = centerY - this.y;
         
@@ -301,9 +285,8 @@ class FootballBall {
         this.autoMoveDirection.x /= length;
         this.autoMoveDirection.y /= length;
         
-        const speedMultiplier = 2 + Math.random() * 3;
-        this.speedX = this.autoMoveDirection.x * speedMultiplier;
-        this.speedY = this.autoMoveDirection.y * speedMultiplier;
+        this.speedX = this.autoMoveDirection.x * (2 + Math.random() * 3);
+        this.speedY = this.autoMoveDirection.y * (2 + Math.random() * 3);
     }
 
     draw(ctx) {
@@ -342,14 +325,12 @@ class FootballBall {
     }
 }
 
-// Enhanced AnimatedPlayer class with new controls - UPDATED FOR RESPONSIVE
+// Enhanced AnimatedPlayer class with new controls
 class AnimatedPlayer {
     constructor(config) {
         this.x = config.x;
         this.y = config.y;
-        this.fieldWidth = config.fieldWidth;
-        this.fieldHeight = config.fieldHeight;
-        this.radius = this.fieldWidth * 0.01875; // Responsive radius (15px on 800px width)
+        this.radius = 15;
         this.color = config.color;
         this.secondaryColor = config.secondaryColor;
         this.number = config.number;
@@ -380,9 +361,8 @@ class AnimatedPlayer {
         this.userInputX = 0;
         this.userInputY = 0;
         
-        // Player attributes - make speed relative to field size
-        const baseSpeedFactor = this.fieldWidth / 800; // Scale speed based on field size
-        this.baseSpeed = (2 + Math.random() * 1) * baseSpeedFactor;
+        // Player attributes
+        this.baseSpeed = 2 + Math.random() * 1;
         this.speed = this.baseSpeed;
         this.aggression = 0.5 + Math.random() * 0.5;
         this.control = 0.5 + Math.random() * 0.5;
@@ -446,12 +426,11 @@ class AnimatedPlayer {
             }
         }
 
-        // Use dynamic field boundaries
-        this.x = Math.max(this.radius, Math.min(this.fieldWidth - this.radius, this.x));
-        this.y = Math.max(this.radius, Math.min(this.fieldHeight - this.radius, this.y));
+        this.x = Math.max(this.radius, Math.min(800 - this.radius, this.x));
+        this.y = Math.max(this.radius, Math.min(500 - this.radius, this.y));
 
         if (this.hasBall && ball.possessedBy === this) {
-            ball.x = this.x + (this.isHomeTeam ? this.fieldWidth * 0.03125 : -this.fieldWidth * 0.03125); // 25px on 800px width
+            ball.x = this.x + (this.isHomeTeam ? 25 : -25);
             ball.y = this.y;
         }
     }
@@ -472,7 +451,7 @@ class AnimatedPlayer {
             }
         } else {
             // Ball is free
-            if (distance < this.fieldWidth * 0.1875 && this.aggression > 0.3) { // 150px on 800px width
+            if (distance < 150 && this.aggression > 0.3) {
                 this.targetX = ball.x;
                 this.targetY = ball.y;
                 this.running = true;
@@ -500,7 +479,7 @@ class AnimatedPlayer {
 
         // Attempt tackle if close to opponent with ball
         if (ball.possessedBy && ball.possessedBy.isHomeTeam !== this.isHomeTeam && 
-            distance < this.fieldWidth * 0.0375 && Math.random() < 0.02) { // 30px on 800px width
+            distance < 30 && Math.random() < 0.02) {
             this.attemptTackle(ball, game);
         }
     }
@@ -512,19 +491,19 @@ class AnimatedPlayer {
             this.running = true;
         } else {
             // Find intelligent support position based on role
-            const goalX = this.isHomeTeam ? this.fieldWidth * 0.9375 : this.fieldWidth * 0.0625; // 750px or 50px on 800px width
-            let supportDistance = this.fieldWidth * 0.075; // 60px on 800px width
+            const goalX = this.isHomeTeam ? 750 : 50;
+            let supportDistance = 60;
             
             if (this.role === 'defender') {
                 // Defenders stay back
-                supportDistance = this.fieldWidth * 0.125; // 100px on 800px width
+                supportDistance = 100;
                 this.targetX = this.getFormationPosition().x;
                 this.targetY = this.getFormationPosition().y;
             } else if (this.role === 'attacker') {
                 // Attackers move forward
-                supportDistance = this.fieldWidth * 0.05; // 40px on 800px width
+                supportDistance = 40;
                 const dx = goalX - ballOwner.x;
-                const dy = this.fieldHeight * 0.5 - ballOwner.y; // 250px on 500px height
+                const dy = 250 - ballOwner.y;
                 const distanceToGoal = Math.sqrt(dx * dx + dy * dy);
                 
                 if (distanceToGoal > 0) {
@@ -543,14 +522,11 @@ class AnimatedPlayer {
 
     findSpace(ballOwner, game) {
         // Simple space finding - move to open area
-        const offsetX = this.fieldWidth * 0.1; // 80px on 800px width
-        const offsetY = this.fieldHeight * 0.12; // 60px on 500px height
-        
         const possiblePositions = [
-            { x: ballOwner.x + offsetX, y: ballOwner.y - offsetY },
-            { x: ballOwner.x + offsetX, y: ballOwner.y + offsetY },
-            { x: ballOwner.x - offsetX, y: ballOwner.y - offsetY },
-            { x: ballOwner.x - offsetX, y: ballOwner.y + offsetY }
+            { x: ballOwner.x + 80, y: ballOwner.y - 60 },
+            { x: ballOwner.x + 80, y: ballOwner.y + 60 },
+            { x: ballOwner.x - 80, y: ballOwner.y - 60 },
+            { x: ballOwner.x - 80, y: ballOwner.y + 60 }
         ];
         
         let bestPosition = possiblePositions[0];
@@ -578,9 +554,9 @@ class AnimatedPlayer {
     defend(ball, distance) {
         if (this.role === 'goalkeeper') {
             // GK stays in goal area
-            this.targetX = this.isHomeTeam ? this.fieldWidth * 0.0625 : this.fieldWidth * 0.9375; // 50px or 750px on 800px width
-            this.targetY = this.fieldHeight * 0.5; // 250px on 500px height
-        } else if (this.role === 'defender' && distance < this.fieldWidth * 0.25) { // 200px on 800px width
+            this.targetX = this.isHomeTeam ? 50 : 750;
+            this.targetY = 250;
+        } else if (this.role === 'defender' && distance < 200) {
             // Defenders actively defend
             this.targetX = ball.x;
             this.targetY = ball.y;
@@ -600,32 +576,26 @@ class AnimatedPlayer {
     getFormationPosition() {
         const formation = formations[selectedFormation];
         const isHome = this.isHomeTeam;
-        const baseX = isHome ? this.fieldWidth * 0.125 : this.fieldWidth * 0.875; // 100px or 700px on 800px width
+        const baseX = isHome ? 100 : 700;
         
         if (formation && formation.positions[this.position]) {
             const pos = formation.positions[this.position];
             return {
-                x: isHome ? pos.x * this.fieldWidth : this.fieldWidth - (pos.x * this.fieldWidth),
-                y: pos.y * this.fieldHeight
+                x: isHome ? pos.x : 800 - pos.x,
+                y: pos.y
             };
         }
         
-        // Fallback positions (relative)
+        // Fallback positions
         const positions = {
-            'GK': { x: isHome ? this.fieldWidth * 0.0625 : this.fieldWidth * 0.9375, y: this.fieldHeight * 0.5 },
-            'RB': { x: baseX, y: this.fieldHeight * 0.2 }, 
-            'CB1': { x: baseX, y: this.fieldHeight * 0.4 }, 
-            'CB2': { x: baseX, y: this.fieldHeight * 0.6 }, 
-            'LB': { x: baseX, y: this.fieldHeight * 0.8 },
-            'RM': { x: baseX + (isHome ? this.fieldWidth * 0.1 : -this.fieldWidth * 0.1), y: this.fieldHeight * 0.2 },
-            'CM1': { x: baseX + (isHome ? this.fieldWidth * 0.1 : -this.fieldWidth * 0.1), y: this.fieldHeight * 0.4 },
-            'CM2': { x: baseX + (isHome ? this.fieldWidth * 0.1 : -this.fieldWidth * 0.1), y: this.fieldHeight * 0.6 },
-            'LM': { x: baseX + (isHome ? this.fieldWidth * 0.1 : -this.fieldWidth * 0.1), y: this.fieldHeight * 0.8 },
-            'ST1': { x: baseX + (isHome ? this.fieldWidth * 0.2 : -this.fieldWidth * 0.2), y: this.fieldHeight * 0.45 },
-            'ST2': { x: baseX + (isHome ? this.fieldWidth * 0.2 : -this.fieldWidth * 0.2), y: this.fieldHeight * 0.55 }
+            'GK': { x: isHome ? 50 : 750, y: 250 },
+            'RB': { x: baseX, y: 100 }, 'CB1': { x: baseX, y: 200 }, 'CB2': { x: baseX, y: 300 }, 'LB': { x: baseX, y: 400 },
+            'RM': { x: baseX + (isHome ? 80 : -80), y: 100 }, 'CM1': { x: baseX + (isHome ? 80 : -80), y: 200 },
+            'CM2': { x: baseX + (isHome ? 80 : -80), y: 300 }, 'LM': { x: baseX + (isHome ? 80 : -80), y: 400 },
+            'ST1': { x: baseX + (isHome ? 160 : -160), y: 225 }, 'ST2': { x: baseX + (isHome ? 160 : -160), y: 275 }
         };
 
-        return positions[this.position] || { x: baseX, y: this.fieldHeight * 0.5 };
+        return positions[this.position] || { x: baseX, y: 250 };
     }
 
     kickBall(ball, power = 8, direction = null) {
@@ -679,7 +649,7 @@ class AnimatedPlayer {
         const dy = opponent.y - this.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance < this.fieldWidth * 0.0375) { // 30px on 800px width
+        if (distance < 30) {
             this.tackling = true;
             this.tackleFrame = 0;
             
@@ -823,54 +793,22 @@ class AnimatedPlayer {
     }
 }
 
-// Enhanced TouchControls with new buttons - UPDATED FOR RESPONSIVE
+// Enhanced TouchControls with new buttons
 class TouchControls {
     constructor(canvas, game) {
         this.canvas = canvas;
         this.game = game;
-        this.fieldWidth = canvas.width;
-        this.fieldHeight = canvas.height;
-        
-        // Make controls responsive
         this.joystick = {
-            x: this.fieldWidth * 0.125, 
-            y: this.fieldHeight * 0.8, 
-            radius: this.fieldWidth * 0.05, 
-            baseX: this.fieldWidth * 0.125, 
-            baseY: this.fieldHeight * 0.8, 
-            isActive: false, 
-            touchId: null
+            x: 100, y: 400, radius: 40, baseX: 100, baseY: 400, isActive: false, touchId: null
         };
-        this.shootButton = { 
-            x: this.fieldWidth * 0.875, 
-            y: this.fieldHeight * 0.8, 
-            radius: this.fieldWidth * 0.04375, 
-            isActive: false 
-        };
-        this.passButton = { 
-            x: this.fieldWidth * 0.875, 
-            y: this.fieldHeight * 0.68, 
-            radius: this.fieldWidth * 0.04375, 
-            isActive: false 
-        };
-        this.tackleButton = { 
-            x: this.fieldWidth * 0.875, 
-            y: this.fieldHeight * 0.56, 
-            radius: this.fieldWidth * 0.04375, 
-            isActive: false 
-        };
-        this.sprintButton = { 
-            x: this.fieldWidth * 0.125, 
-            y: this.fieldHeight * 0.68, 
-            radius: this.fieldWidth * 0.04375, 
-            isActive: false 
-        };
+        this.shootButton = { x: 700, y: 400, radius: 35, isActive: false };
+        this.passButton = { x: 700, y: 340, radius: 35, isActive: false };
+        this.tackleButton = { x: 700, y: 280, radius: 35, isActive: false };
+        this.sprintButton = { x: 100, y: 340, radius: 35, isActive: false };
         this.userInput = { x: 0, y: 0 };
         
         this.setupEventListeners();
     }
-
-    // ... (keep all your existing TouchControls methods the same, they'll work with the new responsive positions)
 
     setupEventListeners() {
         this.canvas.addEventListener('touchstart', this.handleTouchStart.bind(this));
@@ -1035,7 +973,7 @@ class TouchControls {
         
         ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
         ctx.beginPath();
-        ctx.arc(this.joystick.x, this.joystick.y, this.fieldWidth * 0.025, 0, Math.PI * 2); // 20px on 800px width
+        ctx.arc(this.joystick.x, this.joystick.y, 20, 0, Math.PI * 2);
         ctx.fill();
         
         // Draw action buttons
@@ -1052,7 +990,7 @@ class TouchControls {
         ctx.fill();
         
         ctx.fillStyle = '#FFFFFF';
-        ctx.font = `${this.fieldWidth * 0.015}px Arial`; // 12px on 800px width
+        ctx.font = '12px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(text, button.x, button.y);
@@ -1063,7 +1001,7 @@ class TouchControls {
     }
 }
 
-// Enhanced KeyboardControls with new keys - NO CHANGES NEEDED
+// Enhanced KeyboardControls with new keys
 class KeyboardControls {
     constructor(game) {
         this.game = game;
@@ -1120,7 +1058,7 @@ class KeyboardControls {
     }
 }
 
-// Formation Selection Overlay - NO CHANGES NEEDED
+// Formation Selection Overlay
 class FormationOverlay {
     constructor(game) {
         this.game = game;
@@ -1212,7 +1150,7 @@ class FormationOverlay {
     }
 }
 
-// Team Plays Overlay - NO CHANGES NEEDED
+// Team Plays Overlay
 class TeamPlaysOverlay {
     constructor(game) {
         this.game = game;
@@ -1279,7 +1217,7 @@ class TeamPlaysOverlay {
     }
 }
 
-// Main Football Game Class - UPDATED FOR RESPONSIVE
+// Main Football Game Class
 class FootballGame {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
@@ -1289,9 +1227,8 @@ class FootballGame {
         }
         
         this.ctx = this.canvas.getContext('2d');
-        
-        // Set responsive canvas dimensions
-        this.setupResponsiveCanvas();
+        this.fieldWidth = this.canvas.width;
+        this.fieldHeight = this.canvas.height;
         
         this.homeTeam = null;
         this.awayTeam = null;
@@ -1333,94 +1270,6 @@ class FootballGame {
         this.loadTeams();
         this.setupField();
         this.assignPlayersToTeams();
-        
-        // Handle window resize
-        window.addEventListener('resize', () => this.handleResize());
-        window.addEventListener('orientationchange', () => {
-            setTimeout(() => this.handleResize(), 100);
-        });
-    }
-
-    setupResponsiveCanvas() {
-        const container = this.canvas.parentElement;
-        const containerWidth = container.clientWidth;
-        const containerHeight = container.clientHeight;
-        
-        // Set canvas dimensions to fill container
-        this.canvas.width = containerWidth;
-        this.canvas.height = containerHeight;
-        
-        this.fieldWidth = this.canvas.width;
-        this.fieldHeight = this.canvas.height;
-        
-        console.log('Canvas resized to:', this.fieldWidth, 'x', this.fieldHeight);
-    }
-
-    handleResize() {
-        if (!this.matchStarted) return;
-        
-        const oldWidth = this.fieldWidth;
-        const oldHeight = this.fieldHeight;
-        
-        this.setupResponsiveCanvas();
-        
-        // Scale player positions
-        const scaleX = this.fieldWidth / oldWidth;
-        const scaleY = this.fieldHeight / oldHeight;
-        
-        this.players.forEach(player => {
-            player.x *= scaleX;
-            player.y *= scaleY;
-            player.fieldWidth = this.fieldWidth;
-            player.fieldHeight = this.fieldHeight;
-            player.radius = this.fieldWidth * 0.01875;
-            
-            // Update base speed based on new field size
-            const baseSpeedFactor = this.fieldWidth / 800;
-            player.baseSpeed = (2 + Math.random() * 1) * baseSpeedFactor;
-            player.speed = player.sprinting ? player.baseSpeed * 1.8 : player.baseSpeed;
-        });
-        
-        // Update ball
-        if (this.ball) {
-            this.ball.x *= scaleX;
-            this.ball.y *= scaleY;
-            this.ball.fieldWidth = this.fieldWidth;
-            this.ball.fieldHeight = this.fieldHeight;
-            this.ball.radius = this.fieldWidth * 0.015;
-        }
-        
-        // Update field
-        this.setupField();
-        
-        // Update touch controls
-        if (this.touchControls) {
-            this.touchControls.fieldWidth = this.fieldWidth;
-            this.touchControls.fieldHeight = this.fieldHeight;
-            
-            // Update control positions
-            this.touchControls.joystick.baseX = this.fieldWidth * 0.125;
-            this.touchControls.joystick.baseY = this.fieldHeight * 0.8;
-            this.touchControls.joystick.radius = this.fieldWidth * 0.05;
-            this.touchControls.joystick.x = this.touchControls.joystick.baseX;
-            this.touchControls.joystick.y = this.touchControls.joystick.baseY;
-            
-            this.touchControls.shootButton.x = this.fieldWidth * 0.875;
-            this.touchControls.shootButton.y = this.fieldHeight * 0.8;
-            this.touchControls.shootButton.radius = this.fieldWidth * 0.04375;
-            
-            this.touchControls.passButton.x = this.fieldWidth * 0.875;
-            this.touchControls.passButton.y = this.fieldHeight * 0.68;
-            this.touchControls.passButton.radius = this.fieldWidth * 0.04375;
-            
-            this.touchControls.tackleButton.x = this.fieldWidth * 0.875;
-            this.touchControls.tackleButton.y = this.fieldHeight * 0.56;
-            this.touchControls.tackleButton.radius = this.fieldWidth * 0.04375;
-            
-            this.touchControls.sprintButton.x = this.fieldWidth * 0.125;
-            this.touchControls.sprintButton.y = this.fieldHeight * 0.68;
-            this.touchControls.sprintButton.radius = this.fieldWidth * 0.04375;
-        }
     }
 
     detectMobile() {
@@ -1432,7 +1281,6 @@ class FootballGame {
         this.setupPlayers();
         this.setupBall();
         this.setupControls();
-        this.startGameTimer();
         this.startGameLoop();
         this.updateUI();
     }
@@ -1508,8 +1356,8 @@ class FootballGame {
             width: this.fieldWidth,
             height: this.fieldHeight,
             center: { x: this.fieldWidth / 2, y: this.fieldHeight / 2 },
-            goalWidth: this.fieldWidth * 0.1, // 80px on 800px width
-            goalHeight: this.fieldHeight * 0.04 // 20px on 500px height
+            goalWidth: 80,
+            goalHeight: 20
         };
     }
     
@@ -1533,8 +1381,6 @@ class FootballGame {
             const player = new AnimatedPlayer({
                 x: formationPos.x,
                 y: formationPos.y,
-                fieldWidth: this.fieldWidth,
-                fieldHeight: this.fieldHeight,
                 color: this.homeTeam.color,
                 secondaryColor: this.homeTeam.secondaryColor,
                 number: index + 1,
@@ -1567,8 +1413,6 @@ class FootballGame {
             const player = new AnimatedPlayer({
                 x: formationPos.x,
                 y: formationPos.y,
-                fieldWidth: this.fieldWidth,
-                fieldHeight: this.fieldHeight,
                 color: this.awayTeam.color,
                 secondaryColor: this.awayTeam.secondaryColor,
                 number: index + 1,
@@ -1590,36 +1434,29 @@ class FootballGame {
 
     getFormationPosition(position, isHomeTeam) {
         const formation = formations[selectedFormation];
+        const baseX = isHomeTeam ? 100 : 700;
         
         if (formation && formation.positions[position]) {
             const pos = formation.positions[position];
             return {
-                x: isHomeTeam ? pos.x * this.fieldWidth : this.fieldWidth - (pos.x * this.fieldWidth),
-                y: pos.y * this.fieldHeight
+                x: isHomeTeam ? pos.x : 800 - pos.x,
+                y: pos.y
             };
         }
         
-        // Fallback positions (relative)
-        const baseX = isHomeTeam ? this.fieldWidth * 0.125 : this.fieldWidth * 0.875;
         const positions = {
-            'GK': { x: isHomeTeam ? this.fieldWidth * 0.0625 : this.fieldWidth * 0.9375, y: this.fieldHeight * 0.5 },
-            'RB': { x: baseX, y: this.fieldHeight * 0.2 }, 
-            'CB1': { x: baseX, y: this.fieldHeight * 0.4 }, 
-            'CB2': { x: baseX, y: this.fieldHeight * 0.6 }, 
-            'LB': { x: baseX, y: this.fieldHeight * 0.8 },
-            'RM': { x: baseX + (isHomeTeam ? this.fieldWidth * 0.1 : -this.fieldWidth * 0.1), y: this.fieldHeight * 0.2 },
-            'CM1': { x: baseX + (isHomeTeam ? this.fieldWidth * 0.1 : -this.fieldWidth * 0.1), y: this.fieldHeight * 0.4 },
-            'CM2': { x: baseX + (isHomeTeam ? this.fieldWidth * 0.1 : -this.fieldWidth * 0.1), y: this.fieldHeight * 0.6 },
-            'LM': { x: baseX + (isHomeTeam ? this.fieldWidth * 0.1 : -this.fieldWidth * 0.1), y: this.fieldHeight * 0.8 },
-            'ST1': { x: baseX + (isHomeTeam ? this.fieldWidth * 0.2 : -this.fieldWidth * 0.2), y: this.fieldHeight * 0.45 },
-            'ST2': { x: baseX + (isHomeTeam ? this.fieldWidth * 0.2 : -this.fieldWidth * 0.2), y: this.fieldHeight * 0.55 }
+            'GK': { x: isHomeTeam ? 50 : 750, y: 250 },
+            'RB': { x: baseX, y: 100 }, 'CB1': { x: baseX, y: 200 }, 'CB2': { x: baseX, y: 300 }, 'LB': { x: baseX, y: 400 },
+            'RM': { x: baseX + (isHomeTeam ? 80 : -80), y: 100 }, 'CM1': { x: baseX + (isHomeTeam ? 80 : -80), y: 200 },
+            'CM2': { x: baseX + (isHomeTeam ? 80 : -80), y: 300 }, 'LM': { x: baseX + (isHomeTeam ? 80 : -80), y: 400 },
+            'ST1': { x: baseX + (isHomeTeam ? 160 : -160), y: 225 }, 'ST2': { x: baseX + (isHomeTeam ? 160 : -160), y: 275 }
         };
 
-        return positions[this.position] || { x: baseX, y: this.fieldHeight * 0.5 };
+        return positions[position] || { x: baseX, y: 250 };
     }
     
     setupBall() {
-        this.ball = new FootballBall(this.field.center.x, this.field.center.y, this.fieldWidth, this.fieldHeight);
+        this.ball = new FootballBall(this.field.center.x, this.field.center.y);
     }
     
     startGameLoop() {
@@ -1633,120 +1470,6 @@ class FootballGame {
             requestAnimationFrame(gameLoop);
         };
         gameLoop();
-    }
-
-    startGameTimer() {
-        gameTimer.currentTime = 0;
-        gameTimer.isGameEnded = false;
-        
-        if (gameTimer.gameTimerInterval) {
-            clearInterval(gameTimer.gameTimerInterval);
-        }
-        
-        gameTimer.gameTimerInterval = setInterval(() => {
-            if (!this.isPaused && this.matchStarted && !gameTimer.isGameEnded) {
-                gameTimer.currentTime++;
-                
-                // Update time display
-                this.updateUI();
-                
-                // Check if game time is over (5 minutes)
-                if (gameTimer.currentTime >= gameTimer.totalTime) {
-                    this.endGame();
-                }
-            }
-        }, 1000);
-    }
-
-    endGame() {
-        gameTimer.isGameEnded = true;
-        this.matchStarted = false;
-        
-        if (gameTimer.gameTimerInterval) {
-            clearInterval(gameTimer.gameTimerInterval);
-        }
-        
-        this.showGameEndOverlay();
-    }
-
-    showGameEndOverlay() {
-        const overlay = document.createElement('div');
-        overlay.id = 'gameEndOverlay';
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            color: white;
-            font-family: Arial, sans-serif;
-        `;
-        
-        const winner = this.score.home > this.score.away ? this.homeTeam.name : 
-                      this.score.away > this.score.home ? this.awayTeam.name : 'Draw';
-        
-        overlay.innerHTML = `
-            <div style="text-align: center; padding: 40px; background: #2c3e50; border-radius: 20px; border: 3px solid #ecf0f1;">
-                <h1 style="font-size: 3rem; margin-bottom: 20px; color: #f39c12;">🏆 FULL TIME! 🏆</h1>
-                <div style="font-size: 4rem; margin: 30px 0; font-weight: bold;">
-                    ${this.score.home} - ${this.score.away}
-                </div>
-                <div style="font-size: 2rem; margin-bottom: 30px; color: #2ecc71;">
-                    ${winner} ${winner === 'Draw' ? '' : 'Wins!'}
-                </div>
-                <button id="playAgainBtn" style="
-                    padding: 20px 50px;
-                    font-size: 1.5rem;
-                    background: linear-gradient(45deg, #00b09b, #96c93d);
-                    color: white;
-                    border: none;
-                    border-radius: 50px;
-                    cursor: pointer;
-                    font-weight: bold;
-                    transition: all 0.3s ease;
-                ">Play Again</button>
-            </div>
-        `;
-        
-        document.body.appendChild(overlay);
-        
-        document.getElementById('playAgainBtn').addEventListener('click', () => {
-            this.restartGame();
-        });
-    }
-
-    restartGame() {
-        // Remove overlay
-        const overlay = document.getElementById('gameEndOverlay');
-        if (overlay) overlay.remove();
-        
-        // Reset game state
-        gameTimer.isGameEnded = false;
-        gameTimer.currentTime = 0;
-        this.isPaused = false;
-        this.matchStarted = false;
-        
-        // Reset score and stats
-        this.score = { home: 0, away: 0 };
-        this.stats = {
-            possession: { home: 50, away: 50 },
-            shots: { home: 0, away: 0 },
-            fouls: { home: 0, away: 0 }
-        };
-        
-        // Reset players and ball
-        this.resetPlay();
-        
-        // Update UI
-        this.updateUI();
-        
-        // Show formation overlay to start new game
-        this.formationOverlay.show();
     }
     
     update() {
@@ -1800,13 +1523,13 @@ class FootballGame {
                 const dy = player.y - this.ball.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
-                if (distance < this.fieldWidth * 0.0375 && distance < closestDistance) { // 30px on 800px width
+                if (distance < 30 && distance < closestDistance) {
                     closestDistance = distance;
                     closestPlayer = player;
                 }
             });
 
-            if (closestPlayer && closestDistance < this.fieldWidth * 0.0375) {
+            if (closestPlayer && closestDistance < 30) {
                 this.ball.possessedBy = closestPlayer;
                 closestPlayer.hasBall = true;
                 this.ball.speedX = 0;
@@ -1846,6 +1569,10 @@ class FootballGame {
     }
 
     userPass() {
+        this.passPressed = true;
+    }
+
+    userPass() {
         if (this.userControlledPlayer && this.userControlledPlayer.hasBall) {
             let closestTeammate = null;
             let closestDistance = Infinity;
@@ -1857,7 +1584,7 @@ class FootballGame {
                     const dy = player.y - this.userControlledPlayer.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
                     
-                    if (distance < closestDistance && distance < this.fieldWidth * 0.25) { // 200px on 800px width
+                    if (distance < closestDistance && distance < 200) {
                         closestDistance = distance;
                         closestTeammate = player;
                     }
@@ -1868,6 +1595,10 @@ class FootballGame {
                 this.userControlledPlayer.passBall(this.ball, closestTeammate, this);
             }
         }
+    }
+
+    userTackle() {
+        this.tacklePressed = true;
     }
 
     userTackle() {
@@ -1903,20 +1634,16 @@ class FootballGame {
     }
     
     checkGoals() {
-        const goalLine = this.fieldWidth * 0.025; // 20px on 800px width
-        const goalTop = this.fieldHeight / 2 - this.fieldHeight * 0.08; // 40px on 500px height
-        const goalBottom = this.fieldHeight / 2 + this.fieldHeight * 0.08; // 40px on 500px height
-        
-        if (this.ball.x - this.ball.radius < goalLine && 
-            this.ball.y > goalTop && 
-            this.ball.y < goalBottom) {
+        if (this.ball.x - this.ball.radius < 20 && 
+            this.ball.y > this.fieldHeight / 2 - 40 && 
+            this.ball.y < this.fieldHeight / 2 + 40) {
             this.score.away++;
             this.resetPlay();
         }
         
-        if (this.ball.x + this.ball.radius > this.fieldWidth - goalLine && 
-            this.ball.y > goalTop && 
-            this.ball.y < goalBottom) {
+        if (this.ball.x + this.ball.radius > this.fieldWidth - 20 && 
+            this.ball.y > this.fieldHeight / 2 - 40 && 
+            this.ball.y < this.fieldHeight / 2 + 40) {
             this.score.home++;
             this.resetPlay();
         }
@@ -1967,16 +1694,16 @@ class FootballGame {
 
         if (this.currentTactic) {
             this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-            this.ctx.fillRect(this.fieldWidth * 0.375, 10, this.fieldWidth * 0.25, 30); // 300px, 200px on 800px width
+            this.ctx.fillRect(300, 10, 200, 30);
             this.ctx.fillStyle = '#FFFFFF';
             this.ctx.font = '14px Arial';
             this.ctx.textAlign = 'center';
-            this.ctx.fillText(`Active Play: ${this.currentTactic.name}`, this.fieldWidth * 0.5, 30); // 400px on 800px width
+            this.ctx.fillText(`Active Play: ${this.currentTactic.name}`, 400, 30);
         }
 
         if (this.matchStarted) {
             this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-            this.ctx.fillRect(10, this.fieldHeight - 40, this.fieldWidth * 0.25, 30); // 200px on 800px width
+            this.ctx.fillRect(10, this.fieldHeight - 40, 200, 30);
             this.ctx.fillStyle = '#FFFFFF';
             this.ctx.font = '12px Arial';
             this.ctx.textAlign = 'left';
@@ -1988,7 +1715,7 @@ class FootballGame {
         if (!this.matchStarted) return;
 
         this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        this.ctx.fillRect(10, 10, this.fieldWidth * 0.35, this.isMobile ? 120 : 100); // 280px on 800px width
+        this.ctx.fillRect(10, 10, 280, this.isMobile ? 120 : 100);
         
         this.ctx.fillStyle = '#FFFFFF';
         this.ctx.font = '12px Arial';
@@ -2016,12 +1743,11 @@ class FootballGame {
         this.ctx.strokeStyle = '#229954';
         this.ctx.lineWidth = 1;
         
-        const patternSize = this.fieldWidth * 0.025; // 20px on 800px width
-        for (let i = 0; i < this.fieldWidth; i += patternSize) {
-            for (let j = 0; j < this.fieldHeight; j += patternSize) {
+        for (let i = 0; i < this.fieldWidth; i += 20) {
+            for (let j = 0; j < this.fieldHeight; j += 20) {
                 this.ctx.beginPath();
                 this.ctx.moveTo(i, j);
-                this.ctx.lineTo(i + patternSize * 0.5, j + patternSize * 0.5);
+                this.ctx.lineTo(i + 10, j + 10);
                 this.ctx.stroke();
             }
         }
@@ -2032,17 +1758,15 @@ class FootballGame {
         this.ctx.lineWidth = 2;
         this.ctx.setLineDash([]);
         
-        const border = this.fieldWidth * 0.025; // 20px on 800px width
-        this.ctx.strokeRect(border, border, this.fieldWidth - border * 2, this.fieldHeight - border * 2);
+        this.ctx.strokeRect(20, 20, this.fieldWidth - 40, this.fieldHeight - 40);
         
         this.ctx.beginPath();
-        this.ctx.moveTo(this.fieldWidth / 2, border);
-        this.ctx.lineTo(this.fieldWidth / 2, this.fieldHeight - border);
+        this.ctx.moveTo(this.fieldWidth / 2, 20);
+        this.ctx.lineTo(this.fieldWidth / 2, this.fieldHeight - 20);
         this.ctx.stroke();
         
-        const centerCircleRadius = this.fieldWidth * 0.075; // 60px on 800px width
         this.ctx.beginPath();
-        this.ctx.arc(this.field.center.x, this.field.center.y, centerCircleRadius, 0, Math.PI * 2);
+        this.ctx.arc(this.field.center.x, this.field.center.y, 60, 0, Math.PI * 2);
         this.ctx.stroke();
 
         this.ctx.beginPath();
@@ -2051,20 +1775,14 @@ class FootballGame {
         this.ctx.fill();
         
         this.ctx.fillStyle = '#ffffff';
-        const goalPostWidth = this.fieldWidth * 0.00625; // 5px on 800px width
-        const goalHeight = this.fieldHeight * 0.16; // 80px on 500px height
-        this.ctx.fillRect(border, this.fieldHeight / 2 - goalHeight / 2, goalPostWidth, goalHeight);
-        this.ctx.fillRect(this.fieldWidth - border - goalPostWidth, this.fieldHeight / 2 - goalHeight / 2, goalPostWidth, goalHeight);
+        this.ctx.fillRect(20, this.fieldHeight / 2 - 40, 5, 80);
+        this.ctx.fillRect(this.fieldWidth - 25, this.fieldHeight / 2 - 40, 5, 80);
 
-        const goalAreaWidth = this.fieldWidth * 0.05; // 40px on 800px width
-        const goalAreaHeight = this.fieldHeight * 0.32; // 160px on 500px height
-        this.ctx.strokeRect(border, this.fieldHeight / 2 - goalAreaHeight / 2, goalAreaWidth, goalAreaHeight);
-        this.ctx.strokeRect(this.fieldWidth - border - goalAreaWidth, this.fieldHeight / 2 - goalAreaHeight / 2, goalAreaWidth, goalAreaHeight);
+        this.ctx.strokeRect(20, this.fieldHeight / 2 - 80, 40, 160);
+        this.ctx.strokeRect(this.fieldWidth - 60, this.fieldHeight / 2 - 80, 40, 160);
 
-        const penaltyAreaWidth = this.fieldWidth * 0.15; // 120px on 800px width
-        const penaltyAreaHeight = this.fieldHeight * 0.64; // 320px on 500px height
-        this.ctx.strokeRect(border, this.fieldHeight / 2 - penaltyAreaHeight / 2, penaltyAreaWidth, penaltyAreaHeight);
-        this.ctx.strokeRect(this.fieldWidth - border - penaltyAreaWidth, this.fieldHeight / 2 - penaltyAreaHeight / 2, penaltyAreaWidth, penaltyAreaHeight);
+        this.ctx.strokeRect(20, this.fieldHeight / 2 - 160, 120, 320);
+        this.ctx.strokeRect(this.fieldWidth - 140, this.fieldHeight / 2 - 160, 120, 320);
     }
     
     updateUI() {
@@ -2073,9 +1791,8 @@ class FootballGame {
         document.getElementById('homeScore').textContent = this.score.home;
         document.getElementById('awayScore').textContent = this.score.away;
         
-        // Use the game timer instead of this.time
-        const minutes = Math.floor(gameTimer.currentTime / 60);
-        const seconds = Math.floor(gameTimer.currentTime % 60);
+        const minutes = Math.floor(this.time / 60);
+        const seconds = Math.floor(this.time % 60);
         document.getElementById('matchTime').textContent = 
             `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         
@@ -2141,270 +1858,8 @@ window.addEventListener('load', () => {
     game = new FootballGame();
 });
 
-// Enhanced CSS for new features - ADD RESPONSIVE CSS
+// Enhanced CSS for new features
 const additionalCSS = `
-/* Responsive base styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
-}
-
-body {
-    font-family: 'Arial', sans-serif;
-    background: linear-gradient(135deg, #1e3c72, #2a5298);
-    color: white;
-    overflow: hidden;
-    width: 100vw;
-    height: 100vh;
-    position: fixed;
-}
-
-/* Responsive game container */
-.game-container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    width: 100vw;
-    padding: 10px;
-    gap: 10px;
-}
-
-/* Responsive canvas container */
-.field-container {
-    flex: 1;
-    width: 100%;
-    position: relative;
-    background: #27ae60;
-    border-radius: 10px;
-    overflow: hidden;
-    border: 3px solid #ecf0f1;
-    min-height: 200px;
-}
-
-#gameCanvas {
-    width: 100% !important;
-    height: 100% !important;
-    display: block;
-}
-
-/* Responsive scoreboard */
-.scoreboard {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(0, 0, 0, 0.7);
-    padding: 15px;
-    border-radius: 15px;
-    width: 100%;
-    min-height: 80px;
-}
-
-.team {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 1;
-}
-
-.team-name {
-    font-size: clamp(14px, 4vw, 20px);
-    font-weight: bold;
-    margin-bottom: 5px;
-    text-align: center;
-}
-
-.team-score {
-    font-size: clamp(24px, 8vw, 36px);
-    font-weight: bold;
-}
-
-.match-info {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 1;
-}
-
-.match-time {
-    font-size: clamp(18px, 6vw, 28px);
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
-.match-half {
-    font-size: clamp(12px, 3vw, 16px);
-    color: #ccc;
-}
-
-/* Responsive game controls */
-.game-controls {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    width: 100%;
-    padding: 10px 0;
-}
-
-.game-controls button {
-    padding: clamp(8px, 3vw, 12px);
-    background: linear-gradient(45deg, #3498db, #2980b9);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: clamp(12px, 3.5vw, 16px);
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    min-height: 44px;
-}
-
-.game-controls button:active {
-    transform: scale(0.95);
-    background: linear-gradient(45deg, #2980b9, #1f618d);
-}
-
-/* Responsive match stats */
-.match-stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    width: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    padding: 15px;
-    border-radius: 15px;
-}
-
-.stat {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-}
-
-.stat span:first-child {
-    font-size: clamp(12px, 3vw, 14px);
-    margin-bottom: 5px;
-    color: #ccc;
-}
-
-.possession-bar {
-    width: 100%;
-    height: 20px;
-    background: #34495e;
-    border-radius: 10px;
-    overflow: hidden;
-    display: flex;
-    margin-top: 5px;
-}
-
-.home-possession, .away-possession {
-    height: 100%;
-    transition: width 0.5s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    font-weight: bold;
-    color: white;
-}
-
-.home-possession {
-    background: #e74c3c;
-}
-
-.away-possession {
-    background: #3498db;
-}
-
-/* Landscape orientation */
-@media (orientation: landscape) {
-    .game-container {
-        flex-direction: row;
-        flex-wrap: wrap;
-        padding: 5px;
-        gap: 5px;
-    }
-
-    .scoreboard {
-        order: 1;
-        width: 100%;
-        min-height: 60px;
-    }
-
-    .field-container {
-        order: 2;
-        flex: 2;
-        min-height: auto;
-    }
-
-    .game-controls {
-        order: 3;
-        width: auto;
-        grid-template-columns: 1fr;
-        grid-template-rows: repeat(4, 1fr);
-    }
-
-    .match-stats {
-        order: 4;
-        flex: 1;
-        grid-template-columns: 1fr;
-        grid-template-rows: repeat(3, 1fr);
-        min-width: 120px;
-    }
-
-    .team {
-        flex-direction: row;
-        justify-content: space-around;
-    }
-
-    .team-name {
-        margin-bottom: 0;
-        margin-right: 10px;
-    }
-}
-
-/* Small screens */
-@media (max-width: 320px) {
-    .game-container {
-        padding: 5px;
-        gap: 5px;
-    }
-    
-    .scoreboard {
-        padding: 10px;
-    }
-    
-    .game-controls button {
-        padding: 6px;
-        font-size: 11px;
-    }
-}
-
-/* Large screens */
-@media (min-width: 768px) {
-    .game-container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-}
-
-/* Safe area support */
-@supports(padding: max(0px)) {
-    .game-container {
-        padding-left: max(10px, env(safe-area-inset-left));
-        padding-right: max(10px, env(safe-area-inset-right));
-        padding-top: max(10px, env(safe-area-inset-top));
-        padding-bottom: max(10px, env(safe-area-inset-bottom));
-    }
-}
-
-/* Keep all your existing overlay styles */
 .formation-overlay {
     position: fixed;
     top: 0;
@@ -2629,21 +2084,6 @@ body {
 .game-mode-btn.selected {
     background: #2ecc71;
     border: 3px solid #27ae60;
-}
-
-#gameEndOverlay {
-    animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.8); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-#playAgainBtn:hover {
-    transform: scale(1.1);
-    background: linear-gradient(45deg, #96c93d, #00b09b) !important;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
 }
 `;
 
