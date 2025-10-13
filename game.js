@@ -443,112 +443,132 @@ class AnimatedPlayer {
         return 'midfielder';
     }
 
-    update(ball, userInput = null, game = null) {
-        // Handle stamina
-        if (this.running) {
-            this.stamina = Math.max(0.3, this.stamina - 0.001);
-        } else {
-            this.stamina = Math.min(1.0, this.stamina + 0.002);
-        }
+    // In AnimatedPlayer class, update the update method:
+update(ball, userInput = null, game = null) {
+    // Handle stamina
+    if (this.running) {
+        this.stamina = Math.max(0.3, this.stamina - 0.001);
+    } else {
+        this.stamina = Math.min(1.0, this.stamina + 0.002);
+    }
 
-        // Handle sprinting
-        if (this.sprinting && this.isCurrentUserControlled && this.stamina > 0.3) {
-            this.speed = this.baseSpeed * 1.8;
-            this.stamina -= 0.003;
-        } else {
-            this.speed = this.baseSpeed * (0.8 + this.stamina * 0.2);
-        }
+    // Handle sprinting
+    if (this.sprinting && this.isCurrentUserControlled && this.stamina > 0.3) {
+        this.speed = this.baseSpeed * 1.8;
+        this.stamina -= 0.003;
+    } else {
+        this.speed = this.baseSpeed * (0.8 + this.stamina * 0.2);
+    }
 
-        if (this.isCurrentUserControlled && userInput) {
-            this.userInputX = userInput.x;
-            this.userInputY = userInput.y;
-            
+    if (this.isCurrentUserControlled && userInput) {
+        this.userInputX = userInput.x;
+        this.userInputY = userInput.y;
+        
+        // SMOOTH MOVEMENT: Only move if there's significant input
+        if (Math.abs(this.userInputX) > 0.1 || Math.abs(this.userInputY) > 0.1) {
             this.speedX = this.userInputX * this.speed;
             this.speedY = this.userInputY * this.speed;
             
             this.x += this.speedX;
             this.y += this.speedY;
-            this.running = (this.userInputX !== 0 || this.userInputY !== 0);
-            
+            this.running = true;
         } else {
-            this.updateAI(ball, game);
+            this.speedX *= 0.8;
+            this.speedY *= 0.8;
+            this.running = false;
         }
+        
+    } else {
+        this.updateAI(ball, game);
+    }
 
-        // Update animations
-        this.animationFrame++;
-        if (this.running) {
-            this.legSwing = Math.sin(this.animationFrame * 0.3) * 20;
-            this.armSwing = Math.sin(this.animationFrame * 0.3 + Math.PI) * 15;
+    // SMOOTH ANIMATIONS: Update animations only when moving
+    this.animationFrame++;
+    if (this.running && (Math.abs(this.speedX) > 0.5 || Math.abs(this.speedY) > 0.5)) {
+        this.legSwing = Math.sin(this.animationFrame * 0.3) * 20;
+        this.armSwing = Math.sin(this.animationFrame * 0.3 + Math.PI) * 15;
+    } else {
+        this.legSwing *= 0.9;
+        this.armSwing *= 0.9;
+    }
+
+    // Boundary checks
+    this.x = Math.max(this.radius, Math.min(1200 - this.radius, this.x));
+    this.y = Math.max(this.radius, Math.min(800 - this.radius, this.y));
+
+    if (this.hasBall && ball.possessedBy === this) {
+        ball.x = this.x + (this.isHomeTeam ? 25 : -25);
+        ball.y = this.y;
+        ball.lastTouchedBy = this;
+    }
+}// In AnimatedPlayer class, update the updateAI method:
+updateAI(ball, game) {
+    this.actionTimer--;
+
+    const dx = ball.x - this.x;
+    const dy = ball.y - this.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    // ENHANCED AI: More aggressive and strategic
+    if (ball.possessedBy) {
+        if (ball.possessedBy.isHomeTeam === this.isHomeTeam) {
+            // Teammate has ball - provide intelligent support
+            this.supportTeammate(ball.possessedBy, ball, game);
         } else {
-            this.legSwing *= 0.8;
-            this.armSwing *= 0.8;
+            // Opponent has ball - aggressive defense
+            this.defendAgainstOpponent(ball, distance, game);
         }
-
-        // Update tackle animation
-        if (this.tackling) {
-            this.tackleFrame++;
-            if (this.tackleFrame > 25) {
-                this.tackling = false;
-                this.tackleFrame = 0;
-            }
-        }
-
-        // Update celebration
-        if (this.celebrating) {
-            this.celebrationFrame++;
-            if (this.celebrationFrame > 100) {
-                this.celebrating = false;
-                this.celebrationFrame = 0;
-            }
-        }
-
-        // Boundary checks
-        this.x = Math.max(this.radius, Math.min(1200 - this.radius, this.x));
-        this.y = Math.max(this.radius, Math.min(800 - this.radius, this.y));
-
-        if (this.hasBall && ball.possessedBy === this) {
-            ball.x = this.x + (this.isHomeTeam ? 30 : -30);
-            ball.y = this.y;
-            ball.lastTouchedBy = this;
+    } else {
+        // Ball is free - be more aggressive in going for it
+        if (distance < 200 && this.shouldGoForLooseBall(ball)) {
+            this.targetX = ball.x;
+            this.targetY = ball.y;
+            this.running = true;
+        } else {
+            this.returnToPosition(ball, game);
         }
     }
 
-    updateAI(ball, game) {
-        this.actionTimer--;
+    // Move towards target
+    this.moveToTarget();
 
-        const dx = ball.x - this.x;
-        const dy = ball.y - this.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+    // Make decisions more frequently for better AI
+    if (this.actionTimer <= 0) {
+        this.makeAIDecision(ball, game, distance);
+        this.actionTimer = 20 + Math.random() * 30; // More frequent decisions
+    }
+}
 
-        // SIMPLIFIED AI LOGIC - This will fix the blank screen issue
-        if (ball.possessedBy) {
-            if (ball.possessedBy.isHomeTeam === this.isHomeTeam) {
-                // Teammate has ball - find good support position
-                this.supportTeammate(ball.possessedBy, ball, game);
-            } else {
-                // Opponent has ball - defend intelligently
-                this.defendAgainstOpponent(ball, distance, game);
-            }
-        } else {
-            // Ball is free - only go for it if it's your job
-            if (distance < 150 && this.shouldGoForLooseBall(ball)) {
-                this.targetX = ball.x;
-                this.targetY = ball.y;
-                this.running = true;
-            } else {
-                this.returnToPosition(ball, game);
-            }
+// Enhanced AI decision making
+makeAIDecision(ball, game, distance) {
+    // More frequent tackle attempts
+    if (ball.possessedBy && ball.possessedBy.isHomeTeam !== this.isHomeTeam && 
+        distance < 45 && Math.random() < this.aggression * 0.08) {
+        this.attemptTackle(ball, game);
+    }
+    
+    // ENHANCED: More frequent and intelligent shooting/passing
+    if (this.hasBall && ball.possessedBy === this) {
+        const goalX = this.isHomeTeam ? 1150 : 50;
+        const dxToGoal = goalX - this.x;
+        const distanceToGoal = Math.abs(dxToGoal);
+        
+        // Shoot more often and from better positions
+        if (distanceToGoal < 350 && Math.random() < this.shooting * 0.05) {
+            this.attemptShot(ball, game);
+        } else if (Math.random() < this.passing * 0.06) {
+            this.attemptPass(ball, game);
         }
-
-        // Move towards target
-        this.moveToTarget();
-
-        // Occasionally make decisions
-        if (this.actionTimer <= 0) {
-            this.makeAIDecision(ball, game, distance);
-            this.actionTimer = 30 + Math.random() * 40;
+        
+        // ENHANCED: Dribble or move toward goal
+        if (Math.random() < 0.1) {
+            const goalDirection = Math.atan2(400 - this.y, goalX - this.x);
+            const randomVariation = (Math.random() - 0.5) * 0.5;
+            this.targetX = this.x + Math.cos(goalDirection + randomVariation) * 50;
+            this.targetY = this.y + Math.sin(goalDirection + randomVariation) * 50;
         }
     }
+}
 
    supportTeammate(ballOwner, ball, game) {
     // Don't crowd the ball owner
@@ -775,23 +795,35 @@ class AnimatedPlayer {
     // attemptShot, attemptPass, passBall, attemptTackle, kickBall, 
     // distanceToLine, getFormationPosition, startSprint, stopSprint, celebrate
 
-    getFormationPosition() {
-        // Simple fallback formation if the main one isn't available
+ // In the AnimatedPlayer class, update the getFormationPosition method:
+getFormationPosition() {
+    const formation = formations[selectedFormation];
+    if (!formation || !formation.positions[this.position]) {
+        // Fallback positions
         const isHome = this.isHomeTeam;
         const baseX = isHome ? 200 : 1000;
         
         const positions = {
             'GK': { x: isHome ? 100 : 1100, y: 400 },
-            'RB': { x: baseX, y: 200 }, 'CB1': { x: baseX, y: 350 }, 'CB2': { x: baseX, y: 450 }, 'LB': { x: baseX, y: 600 },
-            'RM': { x: baseX + (isHome ? 200 : -200), y: 200 }, 'CM1': { x: baseX + (isHome ? 200 : -200), y: 350 },
-            'CM2': { x: baseX + (isHome ? 200 : -200), y: 450 }, 'LM': { x: baseX + (isHome ? 200 : -200), y: 600 },
-            'ST1': { x: baseX + (isHome ? 400 : -400), y: 350 }, 'ST2': { x: baseX + (isHome ? 400 : -400), y: 450 },
-            // Fallbacks for any other positions
-            'default': { x: baseX, y: 400 }
+            'RB': { x: baseX, y: 200 }, 'CB1': { x: baseX, y: 350 }, 'CB2': { x: baseX, y: 450 }, 
+            'LB': { x: baseX, y: 600 }, 'RM': { x: baseX + (isHome ? 200 : -200), y: 200 },
+            'CM1': { x: baseX + (isHome ? 200 : -200), y: 350 }, 'CM2': { x: baseX + (isHome ? 200 : -200), y: 450 },
+            'LM': { x: baseX + (isHome ? 200 : -200), y: 600 }, 'ST1': { x: baseX + (isHome ? 400 : -400), y: 350 },
+            'ST2': { x: baseX + (isHome ? 400 : -400), y: 450 }, 'RW': { x: baseX + (isHome ? 400 : -400), y: 200 },
+            'LW': { x: baseX + (isHome ? 400 : -400), y: 600 }, 'ST': { x: baseX + (isHome ? 400 : -400), y: 400 },
+            'CAM': { x: baseX + (isHome ? 300 : -300), y: 400 }, 'CDM1': { x: baseX + (isHome ? 150 : -150), y: 300 },
+            'CDM2': { x: baseX + (isHome ? 150 : -150), y: 500 }, 'CB3': { x: baseX, y: 400 }
         };
-
-        return positions[this.position] || positions.default;
+        
+        return positions[this.position] || { x: baseX, y: 400 };
     }
+    
+    const pos = formation.positions[this.position];
+    return {
+        x: this.isHomeTeam ? pos.x : 1200 - pos.x,
+        y: pos.y
+    };
+}
 
     attemptShot(ball, game) {
     if (!this.hasBall || ball.possessedBy !== this) return false;
@@ -1762,81 +1794,95 @@ class FootballGame {
         };
     }
     
-    setupPlayers() {
-        this.players = [];
-        const formation = formations[selectedFormation];
-        const homePositions = Object.keys(formation.positions);
-        const awayPositions = Object.keys(formation.positions);
-
-        // Create home team players
-        homePositions.forEach((position, index) => {
-            const formationPos = this.getFormationPosition(position, true);
-            const playerData = this.homeTeamPlayers[index];
-            let isUserControlled = false;
-            
-            if (this.gameMode === 'player-vs-player') {
-                isUserControlled = (index === 9); // ST1 or similar
-            } else {
-                isUserControlled = (this.userControlledTeam === 'home' || this.userControlledTeam === 'both') && 
-                                 (position.includes('ST') || position.includes('S') || index === 9);
-            }
-            
-            const player = new AnimatedPlayer({
-                x: formationPos.x,
-                y: formationPos.y,
-                color: this.homeTeam.color,
-                secondaryColor: this.homeTeam.secondaryColor,
-                number: index + 1,
-                position: position,
-                isHomeTeam: true,
-                teamName: this.homeTeam.name,
-                isUserControlled: isUserControlled,
-                isCurrentUserControlled: isUserControlled,
-                playerData: playerData
-            });
-            
-            this.players.push(player);
-            
-            if (isUserControlled) {
-                this.userControlledPlayer = player;
-            }
-        });
-
-        // Create away team players
-        awayPositions.forEach((position, index) => {
-            const formationPos = this.getFormationPosition(position, false);
-            const playerData = this.awayTeamPlayers[index];
-            let isUserControlled = false;
-            
-            if (this.gameMode === 'player-vs-player') {
-                isUserControlled = (index === 9); // ST1 or similar
-            } else {
-                isUserControlled = (this.userControlledTeam === 'away' || this.userControlledTeam === 'both') && 
-                                 (position.includes('ST') || position.includes('S') || index === 9);
-            }
-            
-            const player = new AnimatedPlayer({
-                x: formationPos.x,
-                y: formationPos.y,
-                color: this.awayTeam.color,
-                secondaryColor: this.awayTeam.secondaryColor,
-                number: index + 1,
-                position: position,
-                isHomeTeam: false,
-                teamName: this.awayTeam.name,
-                isUserControlled: isUserControlled,
-                isCurrentUserControlled: isUserControlled,
-                playerData: playerData
-            });
-            
-            this.players.push(player);
-            
-            if (isUserControlled && !this.userControlledPlayer) {
-                this.userControlledPlayer = player;
-            }
-        });
+  // In FootballGame class, update setupPlayers method:
+setupPlayers() {
+    this.players = [];
+    const formation = formations[selectedFormation];
+    if (!formation) {
+        console.error('Formation not found:', selectedFormation);
+        return;
     }
+    
+    const homePositions = Object.keys(formation.positions);
+    const awayPositions = Object.keys(formation.positions);
 
+    // Reset user control
+    this.userControlledPlayer = null;
+
+    // Create home team players
+    homePositions.forEach((position, index) => {
+        const formationPos = this.getFormationPosition(position, true);
+        const playerData = this.homeTeamPlayers[index];
+        
+        // Only set ONE user controlled player initially
+        let isUserControlled = false;
+        let isCurrentUserControlled = false;
+        
+        if (this.gameMode === 'player-vs-computer' && this.userControlledTeam === 'home') {
+            // Start with controlling an attacker
+            if (position.includes('ST') || position.includes('S') || position === 'CAM') {
+                isUserControlled = true;
+                isCurrentUserControlled = true;
+            }
+        }
+        
+        const player = new AnimatedPlayer({
+            x: formationPos.x,
+            y: formationPos.y,
+            color: this.homeTeam.color,
+            secondaryColor: this.homeTeam.secondaryColor,
+            number: index + 1,
+            position: position,
+            isHomeTeam: true,
+            teamName: this.homeTeam.name,
+            isUserControlled: isUserControlled,
+            isCurrentUserControlled: isCurrentUserControlled,
+            playerData: playerData
+        });
+        
+        this.players.push(player);
+        
+        if (isCurrentUserControlled) {
+            this.userControlledPlayer = player;
+        }
+    });
+
+    // Create away team players (similar logic)
+    awayPositions.forEach((position, index) => {
+        const formationPos = this.getFormationPosition(position, false);
+        const playerData = this.awayTeamPlayers[index];
+        
+        let isUserControlled = false;
+        let isCurrentUserControlled = false;
+        
+        if (this.gameMode === 'player-vs-computer' && this.userControlledTeam === 'away') {
+            if (position.includes('ST') || position.includes('S') || position === 'CAM') {
+                isUserControlled = true;
+                isCurrentUserControlled = true;
+            }
+        }
+        
+        const player = new AnimatedPlayer({
+            x: formationPos.x,
+            y: formationPos.y,
+            color: this.awayTeam.color,
+            secondaryColor: this.awayTeam.secondaryColor,
+            number: index + 1,
+            position: position,
+            isHomeTeam: false,
+            teamName: this.awayTeam.name,
+            isUserControlled: isUserControlled,
+            isCurrentUserControlled: isCurrentUserControlled,
+            playerData: playerData
+        });
+        
+        this.players.push(player);
+        
+        if (isCurrentUserControlled && !this.userControlledPlayer) {
+            this.userControlledPlayer = player;
+        }
+    });
+}
     getFormationPosition(position, isHomeTeam) {
         const formation = formations[selectedFormation];
         const baseX = isHomeTeam ? 200 : 1000;
@@ -1933,9 +1979,10 @@ class FootballGame {
         this.checkCorners();
     }
 
-   checkBallPossession() {
+  // In FootballGame class, update the checkBallPossession method:
+checkBallPossession() {
     // If ball is moving too fast, no one can possess it
-    if (Math.abs(this.ball.speedX) > 3 || Math.abs(this.ball.speedY) > 3) {
+    if (Math.abs(this.ball.speedX) > 5 || Math.abs(this.ball.speedY) > 5) {
         if (this.ball.possessedBy) {
             this.ball.possessedBy.hasBall = false;
             this.ball.possessedBy = null;
@@ -1953,25 +2000,34 @@ class FootballGame {
             const distance = Math.sqrt(dx * dx + dy * dy);
             
             // Increased possession range and added skill factor
-            if (distance < 40 && distance < closestDistance && Math.random() < player.control) {
+            if (distance < 35 && distance < closestDistance && Math.random() < player.control) {
                 closestDistance = distance;
                 closestPlayer = player;
             }
         });
 
-        if (closestPlayer && closestDistance < 40) {
+        if (closestPlayer && closestDistance < 35) {
             this.ball.possessedBy = closestPlayer;
             closestPlayer.hasBall = true;
             this.ball.speedX = 0;
             this.ball.speedY = 0;
 
-            // Switch control if appropriate
-            if ((closestPlayer.isHomeTeam && (this.userControlledTeam === 'home' || this.userControlledTeam === 'both' || this.gameMode === 'player-vs-player')) ||
-                (!closestPlayer.isHomeTeam && (this.userControlledTeam === 'away' || this.userControlledTeam === 'both' || this.gameMode === 'player-vs-player'))) {
+            // TRANSFER CONTROL: Switch control to the player who has the ball
+            if ((closestPlayer.isHomeTeam && (this.userControlledTeam === 'home' || this.userControlledTeam === 'both')) ||
+                (!closestPlayer.isHomeTeam && (this.userControlledTeam === 'away' || this.userControlledTeam === 'both'))) {
                 this.switchUserControl(closestPlayer);
             }
         }
     }
+}
+
+// Add this method to FootballGame class:
+switchUserControl(newPlayer) {
+    if (this.userControlledPlayer) {
+        this.userControlledPlayer.isCurrentUserControlled = false;
+    }
+    this.userControlledPlayer = newPlayer;
+    this.userControlledPlayer.isCurrentUserControlled = true;
 }
 
     switchUserControl(newPlayer) {
@@ -2086,14 +2142,14 @@ class FootballGame {
         }
     }
     
-   checkGoals() {
+   // In FootballGame class, update checkGoals method:
+checkGoals() {
     // Check for goal on the left side (away team scores)
     if (this.ball.x - this.ball.radius < 50 && 
-        this.ball.y > this.fieldHeight / 2 - 80 && 
-        this.ball.y < this.fieldHeight / 2 + 80) {
+        this.ball.y > 320 && this.ball.y < 480) {
         
-        // Check if ball is moving toward goal and has enough power
-        if ((this.ball.speedX < -2 || this.ball.x < 30) && Math.random() < 0.8) {
+        // More lenient goal detection
+        if ((this.ball.speedX < -3 || this.ball.x < 20) && Math.random() < 0.9) {
             this.score.away++;
             this.handleGoal(false);
             return;
@@ -2101,12 +2157,11 @@ class FootballGame {
     }
     
     // Check for goal on the right side (home team scores)
-    if (this.ball.x + this.ball.radius > this.fieldWidth - 50 && 
-        this.ball.y > this.fieldHeight / 2 - 80 && 
-        this.ball.y < this.fieldHeight / 2 + 80) {
+    if (this.ball.x + this.ball.radius > 1150 && 
+        this.ball.y > 320 && this.ball.y < 480) {
         
-        // Check if ball is moving toward goal and has enough power
-        if ((this.ball.speedX > 2 || this.ball.x > this.fieldWidth - 30) && Math.random() < 0.8) {
+        // More lenient goal detection
+        if ((this.ball.speedX > 3 || this.ball.x > 1180) && Math.random() < 0.9) {
             this.score.home++;
             this.handleGoal(true);
             return;
