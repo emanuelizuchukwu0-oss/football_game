@@ -323,76 +323,1250 @@ class FootballBall {
     }
 }
 
+// In FootballGame class, update the constructor and add time management:
+class FootballGame {
+    constructor() {
+        this.canvas = document.getElementById('gameCanvas');
+        if (!this.canvas) {
+            console.error('Canvas element not found!');
+            return;
+        }
+        
+        this.ctx = this.canvas.getContext('2d');
+        this.fieldWidth = this.canvas.width;
+        this.fieldHeight = this.canvas.height;
+        
+        this.homeTeam = null;
+        this.awayTeam = null;
+        this.ball = null;
+        this.players = [];
+        this.userControlledPlayer = null;
+        this.userControlledTeam = null;
+        this.gameMode = 'player-vs-computer';
+        this.matchStarted = false;
+        
+        // Enhanced features
+        this.formationOverlay = new FormationOverlay(this);
+        this.teamPlaysOverlay = new TeamPlaysOverlay(this);
+        this.currentTactic = null;
+        this.homeTeamPlayers = [];
+        this.awayTeamPlayers = [];
+        
+        // Enhanced controls
+        this.touchControls = null;
+        this.keyboardControls = null;
+        this.isMobile = this.detectMobile();
+        
+        // Enhanced game state with proper timing
+        this.score = { home: 0, away: 0 };
+        this.gameTime = 0; // Current game time in seconds
+        this.isPaused = false;
+        this.isFirstHalf = true;
+        this.halfTimeDuration = 150; // 2.5 minutes in seconds
+        this.fullTimeDuration = 300; // 5 minutes in seconds
+        this.halfTimeBreak = false;
+        this.matchEnded = false;
+        
+        // Enhanced stats
+        this.stats = {
+            possession: { home: 50, away: 50 },
+            shots: { home: 0, away: 0 },
+            fouls: { home: 0, away: 0 },
+            corners: { home: 0, away: 0 },
+            saves: { home: 0, away: 0 },
+            passes: { home: 0, away: 0 },
+            tackles: { home: 0, away: 0 }
+        };
 
-// Enhanced AnimatedPlayer class with realistic football positioning
+        this.lastPossession = 'home';
+        this.passPressed = false;
+        this.tacklePressed = false;
+        this.lastGoalTime = 0;
+        this.celebrationTime = 0;
+        this.halfTimeMessageTime = 0;
+        
+        this.loadGameMode();
+        this.loadTeams();
+        this.setupField();
+        this.assignPlayersToTeams();
+        
+        // Handle window resize
+        window.addEventListener('resize', () => this.handleResize());
+    }
+
+    update() {
+        if (!this.matchStarted || this.isPaused || this.matchEnded) return;
+
+        // Handle celebration period after goal
+        if (this.celebrationTime > 0) {
+            this.celebrationTime--;
+            if (this.celebrationTime === 0) {
+                this.resetPlay();
+            }
+            return;
+        }
+
+        // Handle half-time message
+        if (this.halfTimeMessageTime > 0) {
+            this.halfTimeMessageTime--;
+            if (this.halfTimeMessageTime === 0) {
+                this.startSecondHalf();
+            }
+            return;
+        }
+
+        // Update game time (real-time seconds)
+        this.gameTime += 1/60; // 60 FPS
+
+        // Check for half-time
+        if (this.isFirstHalf && this.gameTime >= this.halfTimeDuration && !this.halfTimeBreak) {
+            this.handleHalfTime();
+            return;
+        }
+
+        // Check for full-time
+        if (!this.isFirstHalf && this.gameTime >= this.fullTimeDuration && !this.matchEnded) {
+            this.handleFullTime();
+            return;
+        }
+
+        let userInput;
+        if (this.isMobile) {
+            userInput = this.touchControls.getUserInput();
+        } else {
+            userInput = this.keyboardControls.getUserInput();
+        }
+
+        // Update all players
+        this.players.forEach(player => {
+            if (player.isCurrentUserControlled) {
+                player.update(this.ball, userInput, this);
+            } else {
+                player.update(this.ball, null, this);
+            }
+        });
+
+        // Update ball
+        this.ball.update();
+        
+        // Check for ball possession changes
+        this.checkBallPossession();
+        
+        // Check for goals
+        this.checkGoals();
+        
+        // Update possession stats
+        this.updatePossession();
+        
+        // Handle user input actions
+        if (this.passPressed) {
+            this.userPass();
+            this.passPressed = false;
+        }
+        
+        if (this.tacklePressed) {
+            this.userTackle();
+            this.tacklePressed = false;
+        }
+        
+        // Check for corner kicks
+        this.checkCorners();
+    }
+
+    handleHalfTime() {
+        this.halfTimeBreak = true;
+        this.halfTimeMessageTime = 180; // 3 seconds display
+        this.showMatchMessage("HALF TIME!");
+        
+        // Reset for second half
+        setTimeout(() => {
+            this.resetPlay();
+            this.isFirstHalf = false;
+            this.gameTime = 0;
+            this.halfTimeBreak = false;
+        }, 3000);
+    }
+
+    handleFullTime() {
+        this.matchEnded = true;
+        this.showMatchMessage("FULL TIME!");
+        
+        // Show final result
+        setTimeout(() => {
+            const winner = this.score.home > this.score.away ? this.homeTeam.shortName : 
+                          this.score.away > this.score.home ? this.awayTeam.shortName : "DRAW";
+            this.showMatchMessage(`FINAL: ${this.score.home}-${this.score.away} (${winner})`);
+        }, 2000);
+    }
+
+    startSecondHalf() {
+        this.showMatchMessage("SECOND HALF!");
+        this.resetPlay();
+    }
+
+    showMatchMessage(message) {
+        const msgElement = document.createElement('div');
+        msgElement.className = 'match-message';
+        msgElement.textContent = message;
+        msgElement.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 25px 50px;
+            border-radius: 15px;
+            font-size: 32px;
+            font-weight: bold;
+            z-index: 1000;
+            border: 3px solid gold;
+            text-align: center;
+        `;
+        
+        document.body.appendChild(msgElement);
+        
+        setTimeout(() => {
+            if (document.body.contains(msgElement)) {
+                document.body.removeChild(msgElement);
+            }
+        }, 3000);
+    }
+
+    handleResize() {
+        // Adjust touch controls for new screen size
+        if (this.touchControls && this.matchStarted) {
+            // Recalculate control positions based on new canvas size
+            const rect = this.canvas.getBoundingClientRect();
+            const scaleX = this.canvas.width / rect.width;
+            const scaleY = this.canvas.height / rect.height;
+            
+            // Update control positions (simplified - in real implementation, you'd want more sophisticated scaling)
+            this.touchControls.joystick.baseX = 120 * scaleX;
+            this.touchControls.joystick.baseY = 600 * scaleY;
+            this.touchControls.shootButton.x = 1080 * scaleX;
+            this.touchControls.shootButton.y = 600 * scaleY;
+            this.touchControls.passButton.x = 1080 * scaleX;
+            this.touchControls.passButton.y = 520 * scaleY;
+            this.touchControls.tackleButton.x = 1080 * scaleX;
+            this.touchControls.tackleButton.y = 440 * scaleY;
+            this.touchControls.sprintButton.x = 120 * scaleX;
+            this.touchControls.sprintButton.y = 520 * scaleY;
+        }
+    }
+
+    detectMobile() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+
+    startMatch() {
+        this.matchStarted = true;
+        this.setupPlayers();
+        this.setupBall();
+        this.setupControls();
+        this.startGameLoop();
+        this.updateUI();
+    }
+
+    setupControls() {
+        this.touchControls = new TouchControls(this.canvas, this);
+        this.keyboardControls = new KeyboardControls(this);
+    }
+    
+    loadGameMode() {
+        try {
+            const gameModeData = localStorage.getItem('gameMode');
+            if (gameModeData) {
+                this.gameMode = gameModeData;
+            }
+        } catch (error) {
+            console.error('Error loading game mode:', error);
+        }
+    }
+    
+    loadTeams() {
+        try {
+            const homeData = localStorage.getItem('homeTeam');
+            const awayData = localStorage.getItem('awayTeam');
+            const userControlledTeamData = localStorage.getItem('userControlledTeam');
+            
+            if (homeData && awayData) {
+                this.homeTeam = JSON.parse(homeData);
+                this.awayTeam = JSON.parse(awayData);
+                this.userControlledTeam = userControlledTeamData;
+                
+                if (document.getElementById('homeTeamName')) {
+                    document.getElementById('homeTeamName').textContent = this.homeTeam.shortName;
+                }
+                if (document.getElementById('awayTeamName')) {
+                    document.getElementById('awayTeamName').textContent = this.awayTeam.shortName;
+                }
+            } else {
+                this.homeTeam = footballClubs[0];
+                this.awayTeam = footballClubs[1];
+                this.userControlledTeam = 'home';
+                if (document.getElementById('homeTeamName')) {
+                    document.getElementById('homeTeamName').textContent = this.homeTeam.shortName;
+                }
+                if (document.getElementById('awayTeamName')) {
+                    document.getElementById('awayTeamName').textContent = this.awayTeam.shortName;
+                }
+            }
+        } catch (error) {
+            console.error('Error loading teams:', error);
+            this.homeTeam = footballClubs[0];
+            this.awayTeam = footballClubs[1];
+            this.userControlledTeam = 'home';
+        }
+    }
+
+    assignPlayersToTeams() {
+        const shuffledPlayers = [...footballPlayers].sort(() => Math.random() - 0.5);
+        
+        this.homeTeamPlayers = shuffledPlayers.slice(0, 5);
+        this.awayTeamPlayers = shuffledPlayers.slice(5, 10);
+        
+        // Fill remaining spots with generated players
+        while (this.homeTeamPlayers.length < 11) {
+            this.homeTeamPlayers.push(this.generatePlayer(this.homeTeamPlayers.length + 1));
+        }
+        while (this.awayTeamPlayers.length < 11) {
+            this.awayTeamPlayers.push(this.generatePlayer(this.awayTeamPlayers.length + 1));
+        }
+    }
+
+    generatePlayer(number) {
+        const firstNames = ['John', 'Mike', 'David', 'Chris', 'Alex', 'James', 'Paul', 'Mark', 'Steve', 'Tom'];
+        const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Miller', 'Davis', 'Garcia', 'Rodriguez', 'Wilson'];
+        const positions = ['CB', 'RB', 'LB', 'CM', 'RM', 'LM', 'CAM', 'CDM', 'ST', 'RW', 'LW'];
+        
+        const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+        const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+        const position = positions[Math.floor(Math.random() * positions.length)];
+        
+        return { 
+            name: `${firstName} ${lastName}`, 
+            position: position, 
+            rating: 70 + Math.floor(Math.random() * 20),
+            speed: 60 + Math.floor(Math.random() * 30),
+            shooting: 60 + Math.floor(Math.random() * 30),
+            passing: 60 + Math.floor(Math.random() * 30)
+        };
+    }
+    
+    setupField() {
+        this.field = {
+            width: this.fieldWidth,
+            height: this.fieldHeight,
+            center: { x: this.fieldWidth / 2, y: this.fieldHeight / 2 },
+            goalWidth: 120, // Bigger goals
+            goalHeight: 40
+        };
+    }
+    
+    setupPlayers() {
+        this.players = [];
+        const formation = formations[selectedFormation];
+        if (!formation) {
+            console.error('Formation not found:', selectedFormation);
+            return;
+        }
+        
+        const homePositions = Object.keys(formation.positions);
+        const awayPositions = Object.keys(formation.positions);
+
+        // Reset user control
+        this.userControlledPlayer = null;
+
+        // Create home team players
+        homePositions.forEach((position, index) => {
+            const formationPos = this.getFormationPosition(position, true);
+            const playerData = this.homeTeamPlayers[index];
+            
+            // Only set ONE user controlled player initially
+            let isUserControlled = false;
+            let isCurrentUserControlled = false;
+            
+            if (this.gameMode === 'player-vs-computer' && this.userControlledTeam === 'home') {
+                // Start with controlling an attacker
+                if (position.includes('ST') || position.includes('S') || position === 'CAM') {
+                    isUserControlled = true;
+                    isCurrentUserControlled = true;
+                }
+            }
+            
+            const player = new AnimatedPlayer({
+                x: formationPos.x,
+                y: formationPos.y,
+                color: this.homeTeam.color,
+                secondaryColor: this.homeTeam.secondaryColor,
+                number: index + 1,
+                position: position,
+                isHomeTeam: true,
+                teamName: this.homeTeam.name,
+                isUserControlled: isUserControlled,
+                isCurrentUserControlled: isCurrentUserControlled,
+                playerData: playerData
+            });
+            
+            this.players.push(player);
+            
+            if (isCurrentUserControlled) {
+                this.userControlledPlayer = player;
+            }
+        });
+
+        // Create away team players (similar logic)
+        awayPositions.forEach((position, index) => {
+            const formationPos = this.getFormationPosition(position, false);
+            const playerData = this.awayTeamPlayers[index];
+            
+            let isUserControlled = false;
+            let isCurrentUserControlled = false;
+            
+            if (this.gameMode === 'player-vs-computer' && this.userControlledTeam === 'away') {
+                if (position.includes('ST') || position.includes('S') || position === 'CAM') {
+                    isUserControlled = true;
+                    isCurrentUserControlled = true;
+                }
+            }
+            
+            const player = new AnimatedPlayer({
+                x: formationPos.x,
+                y: formationPos.y,
+                color: this.awayTeam.color,
+                secondaryColor: this.awayTeam.secondaryColor,
+                number: index + 1,
+                position: position,
+                isHomeTeam: false,
+                teamName: this.awayTeam.name,
+                isUserControlled: isUserControlled,
+                isCurrentUserControlled: isCurrentUserControlled,
+                playerData: playerData
+            });
+            
+            this.players.push(player);
+            
+            if (isCurrentUserControlled && !this.userControlledPlayer) {
+                this.userControlledPlayer = player;
+            }
+        });
+    }
+
+    getFormationPosition(position, isHomeTeam) {
+        const formation = formations[selectedFormation];
+        const baseX = isHomeTeam ? 200 : 1000;
+        
+        if (formation && formation.positions[position]) {
+            const pos = formation.positions[position];
+            return {
+                x: isHomeTeam ? pos.x : 1200 - pos.x,
+                y: pos.y
+            };
+        }
+        
+        // Fallback positions for larger field
+        const positions = {
+            'GK': { x: isHomeTeam ? 100 : 1100, y: 400 },
+            'RB': { x: baseX, y: 200 }, 'CB1': { x: baseX, y: 350 }, 'CB2': { x: baseX, y: 450 }, 'LB': { x: baseX, y: 600 },
+            'RM': { x: baseX + (isHomeTeam ? 200 : -200), y: 200 }, 'CM1': { x: baseX + (isHomeTeam ? 200 : -200), y: 350 },
+            'CM2': { x: baseX + (isHomeTeam ? 200 : -200), y: 450 }, 'LM': { x: baseX + (isHomeTeam ? 200 : -200), y: 600 },
+            'ST1': { x: baseX + (isHomeTeam ? 400 : -400), y: 350 }, 'ST2': { x: baseX + (isHomeTeam ? 400 : -400), y: 450 }
+        };
+
+        return positions[position] || { x: baseX, y: 400 };
+    }
+    
+    setupBall() {
+        this.ball = new FootballBall(this.field.center.x, this.field.center.y);
+    }
+    
+    startGameLoop() {
+        const gameLoop = () => {
+            if (!this.isPaused && this.matchStarted) {
+                this.update();
+                this.render();
+                this.time += 0.016;
+                this.updateUI();
+            }
+            requestAnimationFrame(gameLoop);
+        };
+        gameLoop();
+    }
+
+    checkBallPossession() {
+        // If ball is moving too fast, no one can possess it
+        if (Math.abs(this.ball.speedX) > 5 || Math.abs(this.ball.speedY) > 5) {
+            if (this.ball.possessedBy) {
+                this.ball.possessedBy.hasBall = false;
+                this.ball.possessedBy = null;
+            }
+            return;
+        }
+
+        if (!this.ball.possessedBy) {
+            let closestPlayer = null;
+            let closestDistance = Infinity;
+
+            this.players.forEach(player => {
+                const dx = player.x - this.ball.x;
+                const dy = player.y - this.ball.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // Increased possession range and added skill factor
+                if (distance < 35 && distance < closestDistance && Math.random() < player.control) {
+                    closestDistance = distance;
+                    closestPlayer = player;
+                }
+            });
+
+            if (closestPlayer && closestDistance < 35) {
+                this.ball.possessedBy = closestPlayer;
+                closestPlayer.hasBall = true;
+                this.ball.speedX = 0;
+                this.ball.speedY = 0;
+
+                // TRANSFER CONTROL: Switch control to the player who has the ball
+                if ((closestPlayer.isHomeTeam && (this.userControlledTeam === 'home' || this.userControlledTeam === 'both')) ||
+                    (!closestPlayer.isHomeTeam && (this.userControlledTeam === 'away' || this.userControlledTeam === 'both'))) {
+                    this.switchUserControl(closestPlayer);
+                }
+            }
+        }
+    }
+
+    switchUserControl(newPlayer) {
+        if (this.userControlledPlayer) {
+            this.userControlledPlayer.isCurrentUserControlled = false;
+        }
+        this.userControlledPlayer = newPlayer;
+        this.userControlledPlayer.isCurrentUserControlled = true;
+    }
+
+    userShoot() {
+        if (this.userControlledPlayer && this.userControlledPlayer.hasBall) {
+            const direction = Math.atan2(
+                this.userControlledPlayer.speedY,
+                this.userControlledPlayer.speedX
+            ) || (this.userControlledPlayer.isHomeTeam ? 0 : Math.PI);
+            
+            this.userControlledPlayer.kickBall(this.ball, 12, direction);
+            
+            if (this.userControlledPlayer.isHomeTeam) {
+                this.stats.shots.home++;
+            } else {
+                this.stats.shots.away++;
+            }
+        }
+    }
+
+    userPass() {
+        this.passPressed = true;
+    }
+
+    userTackle() {
+        this.tacklePressed = true;
+    }
+
+    startSprint() {
+        if (this.userControlledPlayer) {
+            this.userControlledPlayer.startSprint();
+        }
+    }
+
+    stopSprint() {
+        if (this.userControlledPlayer) {
+            this.userControlledPlayer.stopSprint();
+        }
+    }
+    
+    updatePossession() {
+        if (this.ball.possessedBy) {
+            this.lastPossession = this.ball.possessedBy.isHomeTeam ? 'home' : 'away';
+        }
+
+        // Update possession stats
+        if (this.lastPossession === 'home') {
+            this.stats.possession.home = Math.min(100, this.stats.possession.home + 0.08);
+            this.stats.possession.away = Math.max(0, this.stats.possession.away - 0.08);
+        } else {
+            this.stats.possession.away = Math.min(100, this.stats.possession.away + 0.08);
+            this.stats.possession.home = Math.max(0, this.stats.possession.home - 0.08);
+        }
+    }
+    
+    checkGoals() {
+        // Check for goal on the left side (away team scores)
+        if (this.ball.x - this.ball.radius < 50 && 
+            this.ball.y > 320 && this.ball.y < 480) {
+            
+            // More lenient goal detection
+            if ((this.ball.speedX < -3 || this.ball.x < 20) && Math.random() < 0.9) {
+                this.score.away++;
+                this.handleGoal(false);
+                return;
+            }
+        }
+        
+        // Check for goal on the right side (home team scores)
+        if (this.ball.x + this.ball.radius > 1150 && 
+            this.ball.y > 320 && this.ball.y < 480) {
+            
+            // More lenient goal detection
+            if ((this.ball.speedX > 3 || this.ball.x > 1180) && Math.random() < 0.9) {
+                this.score.home++;
+                this.handleGoal(true);
+                return;
+            }
+        }
+    }
+    
+    handleGoal(isHomeTeam) {
+        this.lastGoalTime = this.time;
+        this.celebrationTime = 180; // 3 seconds of celebration
+        
+        // Make scoring team celebrate
+        this.players.forEach(player => {
+            if (player.isHomeTeam === isHomeTeam) {
+                player.celebrate();
+            }
+        });
+        
+        // Update UI immediately
+        this.updateUI();
+        
+        // Show goal message
+        this.showGoalMessage(isHomeTeam);
+    }
+    
+    showGoalMessage(isHomeTeam) {
+        const scoringTeam = isHomeTeam ? this.homeTeam.shortName : this.awayTeam.shortName;
+        const message = `GOAL! ${scoringTeam} scores!`;
+        
+        // Create goal message element
+        const goalMsg = document.createElement('div');
+        goalMsg.className = 'goal-message';
+        goalMsg.textContent = message;
+        goalMsg.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 1000;
+        `;
+        
+        document.body.appendChild(goalMsg);
+        
+        // Remove message after 2 seconds
+        setTimeout(() => {
+            if (document.body.contains(goalMsg)) {
+                document.body.removeChild(goalMsg);
+            }
+        }, 2000);
+    }
+    
+    checkCorners() {
+        // Check for corners
+        if ((this.ball.x < 0 && this.ball.y > 0 && this.ball.y < this.fieldHeight) ||
+            (this.ball.x > this.fieldWidth && this.ball.y > 0 && this.ball.y < this.fieldHeight)) {
+            
+            const isHomeTeam = this.ball.lastTouchedBy ? !this.ball.lastTouchedBy.isHomeTeam : this.lastPossession === 'away';
+            
+            if (isHomeTeam) {
+                this.stats.corners.home++;
+            } else {
+                this.stats.corners.away++;
+            }
+        }
+    }
+    
+    resetPlay() {
+        this.ball.x = this.field.center.x;
+        this.ball.y = this.field.center.y;
+        this.ball.speedX = 0;
+        this.ball.speedY = 0;
+        this.ball.possessedBy = null;
+        this.ball.lastTouchedBy = null;
+        
+        this.players.forEach(player => {
+            player.hasBall = false;
+        });
+        
+        // Reset players to formation positions
+        this.setupPlayers();
+    }
+
+    showTeamPlays() {
+        this.teamPlaysOverlay.show();
+    }
+
+    hideTeamPlays() {
+        this.teamPlaysOverlay.hide();
+    }
+
+    applyTeamPlay(play) {
+        this.currentTactic = play;
+        
+        // Apply tactic effects to players
+        this.players.forEach(player => {
+            if (player.isHomeTeam) {
+                if (play.effect.speed) player.baseSpeed *= (1 + play.effect.speed / 100);
+                if (play.effect.passing) player.passing *= (1 + play.effect.passing / 100);
+                if (play.effect.shooting) player.shooting *= (1 + play.effect.shooting / 100);
+                if (play.effect.aggression) player.aggression *= (1 + play.effect.aggression / 100);
+            }
+        });
+    }
+    
+    render() {
+        // Clear canvas
+        this.ctx.clearRect(0, 0, this.fieldWidth, this.fieldHeight);
+        
+        // Draw field
+        this.drawGrass();
+        this.drawField();
+        
+        // Draw players
+        this.players.forEach(player => player.draw(this.ctx));
+        
+        // Draw ball
+        this.ball.draw(this.ctx);
+
+        // Draw controls if on mobile
+        if (this.isMobile && this.matchStarted) {
+            this.touchControls.draw(this.ctx);
+        }
+
+        // Draw game info
+        this.drawGameInfo();
+
+        // Draw active tactic
+        if (this.currentTactic) {
+            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+            this.ctx.fillRect(500, 10, 200, 30);
+            this.ctx.fillStyle = '#FFFFFF';
+            this.ctx.font = '16px Arial';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText(`Active Play: ${this.currentTactic.name}`, 600, 30);
+        }
+
+        // Draw celebration effect if needed
+        if (this.celebrationTime > 0) {
+            this.ctx.fillStyle = `rgba(255, 215, 0, ${0.3 + Math.sin(this.time * 10) * 0.2})`;
+            this.ctx.fillRect(0, 0, this.fieldWidth, this.fieldHeight);
+        }
+    }
+
+    drawGameInfo() {
+        if (!this.matchStarted) return;
+
+        // Draw controls info box
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        this.ctx.fillRect(10, 10, 300, this.isMobile ? 140 : 120);
+        
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.font = '14px Arial';
+        this.ctx.textAlign = 'left';
+        
+        if (this.isMobile) {
+            this.ctx.fillText('CONTROLS:', 20, 30);
+            this.ctx.fillText('• Left side: Move player', 20, 50);
+            this.ctx.fillText('• Green: Shoot | Blue: Pass', 20, 70);
+            this.ctx.fillText('• Orange: Tackle | Light Green: Sprint', 20, 90);
+            this.ctx.fillText(`Formation: ${selectedFormation}`, 20, 120);
+        } else {
+            this.ctx.fillText('CONTROLS:', 20, 30);
+            this.ctx.fillText('• Arrow Keys/WASD: Move player', 20, 50);
+            this.ctx.fillText('• Space: Shoot | X: Pass | C: Tackle', 20, 70);
+            this.ctx.fillText('• Shift: Sprint (1.8x speed)', 20, 90);
+            this.ctx.fillText(`Formation: ${selectedFormation}`, 20, 110);
+        }
+
+        // Draw match info
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        this.ctx.fillRect(10, this.fieldHeight - 50, 250, 40);
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.font = '14px Arial';
+        this.ctx.textAlign = 'left';
+        this.ctx.fillText(`Mode: ${this.getGameModeText()}`, 20, this.fieldHeight - 25);
+    }
+
+    getGameModeText() {
+        switch(this.gameMode) {
+            case 'player-vs-player': return 'Player vs Player';
+            case 'player-vs-computer': return 'Player vs Computer';
+            case 'computer-vs-computer': return 'Computer vs Computer';
+            default: return 'Player vs Computer';
+        }
+    }
+
+    drawGrass() {
+        // Draw green background
+        this.ctx.fillStyle = '#27ae60';
+        this.ctx.fillRect(0, 0, this.fieldWidth, this.fieldHeight);
+
+        // Draw grass pattern
+        this.ctx.strokeStyle = '#229954';
+        this.ctx.lineWidth = 1;
+        
+        for (let i = 0; i < this.fieldWidth; i += 25) {
+            for (let j = 0; j < this.fieldHeight; j += 25) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(i, j);
+                this.ctx.lineTo(i + 12, j + 12);
+                this.ctx.stroke();
+            }
+        }
+
+        // Draw center circle shadow
+        this.ctx.fillStyle = 'rgba(34, 153, 84, 0.3)';
+        this.ctx.beginPath();
+        this.ctx.arc(this.field.center.x + 3, this.field.center.y + 3, 75, 0, Math.PI * 2);
+        this.ctx.fill();
+    }
+    
+    drawField() {
+        this.ctx.strokeStyle = '#ffffff';
+        this.ctx.lineWidth = 3;
+        this.ctx.setLineDash([]);
+        
+        // Outer boundary
+        this.ctx.strokeRect(30, 30, this.fieldWidth - 60, this.fieldHeight - 60);
+        
+        // Center line
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.fieldWidth / 2, 30);
+        this.ctx.lineTo(this.fieldWidth / 2, this.fieldHeight - 30);
+        this.ctx.stroke();
+        
+        // Center circle
+        this.ctx.beginPath();
+        this.ctx.arc(this.field.center.x, this.field.center.y, 75, 0, Math.PI * 2);
+        this.ctx.stroke();
+
+        // Center spot
+        this.ctx.beginPath();
+        this.ctx.arc(this.field.center.x, this.field.center.y, 3, 0, Math.PI * 2);
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.fill();
+        
+        // Goals
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.fillRect(30, this.fieldHeight / 2 - 60, 5, 120);
+        this.ctx.fillRect(this.fieldWidth - 35, this.fieldHeight / 2 - 60, 5, 120);
+
+        // Goal areas
+        this.ctx.strokeRect(30, this.fieldHeight / 2 - 120, 60, 240);
+        this.ctx.strokeRect(this.fieldWidth - 90, this.fieldHeight / 2 - 120, 60, 240);
+
+        // Penalty areas
+        this.ctx.strokeRect(30, this.fieldHeight / 2 - 240, 180, 480);
+        this.ctx.strokeRect(this.fieldWidth - 210, this.fieldHeight / 2 - 240, 180, 480);
+
+        // Penalty spots
+        this.ctx.beginPath();
+        this.ctx.arc(210, this.fieldHeight / 2, 3, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        this.ctx.beginPath();
+        this.ctx.arc(this.fieldWidth - 210, this.fieldHeight / 2, 3, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Penalty arcs
+        this.ctx.beginPath();
+        this.ctx.arc(210, this.fieldHeight / 2, 75, -Math.PI * 0.35, Math.PI * 0.35);
+        this.ctx.stroke();
+        
+        this.ctx.beginPath();
+        this.ctx.arc(this.fieldWidth - 210, this.fieldHeight / 2, 75, Math.PI * 0.65, Math.PI * 1.35);
+        this.ctx.stroke();
+    }
+    
+    updateUI() {
+        if (!this.matchStarted) return;
+        
+        // Update score
+        if (document.getElementById('homeScore')) {
+            document.getElementById('homeScore').textContent = this.score.home;
+        }
+        if (document.getElementById('awayScore')) {
+            document.getElementById('awayScore').textContent = this.score.away;
+        }
+        
+        // Update match time with proper formatting
+        if (document.getElementById('matchTime')) {
+            const currentHalfTime = this.isFirstHalf ? this.halfTimeDuration : this.fullTimeDuration;
+            const remainingTime = Math.max(0, currentHalfTime - this.gameTime);
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = Math.floor(remainingTime % 60);
+            
+            let timeDisplay = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Add half indicator
+            if (this.isFirstHalf) {
+                timeDisplay += " 1H";
+            } else {
+                timeDisplay += " 2H";
+            }
+            
+            document.getElementById('matchTime').textContent = timeDisplay;
+        }
+        
+        // Update possession
+        if (document.getElementById('homePossession')) {
+            document.getElementById('homePossession').style.width = `${this.stats.possession.home}%`;
+            document.getElementById('homePossession').textContent = `${Math.round(this.stats.possession.home)}%`;
+        }
+        if (document.getElementById('awayPossession')) {
+            document.getElementById('awayPossession').style.width = `${this.stats.possession.away}%`;
+            document.getElementById('awayPossession').textContent = `${Math.round(this.stats.possession.away)}%`;
+        }
+        
+        // Update shots
+        if (document.getElementById('homeShots')) {
+            document.getElementById('homeShots').textContent = Math.floor(this.stats.shots.home);
+        }
+        if (document.getElementById('awayShots')) {
+            document.getElementById('awayShots').textContent = Math.floor(this.stats.shots.away);
+        }
+        
+        // Update fouls
+        if (document.getElementById('homeFouls')) {
+            document.getElementById('homeFouls').textContent = Math.floor(this.stats.fouls.home);
+        }
+        if (document.getElementById('awayFouls')) {
+            document.getElementById('awayFouls').textContent = Math.floor(this.stats.fouls.away);
+        }
+    }
+}
+
+// Enhanced AnimatedPlayer class with realistic movement
 class AnimatedPlayer {
     constructor(config) {
         this.x = config.x;
         this.y = config.y;
-        this.radius = 18;
         this.color = config.color;
         this.secondaryColor = config.secondaryColor;
         this.number = config.number;
         this.position = config.position;
         this.isHomeTeam = config.isHomeTeam;
         this.teamName = config.teamName;
-        this.isUserControlled = config.isUserControlled || false;
-        this.isCurrentUserControlled = config.isCurrentUserControlled || false;
-        this.playerData = config.playerData || null;
+        this.isUserControlled = config.isUserControlled;
+        this.isCurrentUserControlled = config.isCurrentUserControlled;
+        this.playerData = config.playerData;
         
-        // Animation properties
+        this.radius = 20;
+        this.speedX = 0;
+        this.speedY = 0;
+        this.baseSpeed = 3;
+        this.speed = this.baseSpeed;
+        this.hasBall = false;
+        this.running = false;
+        this.sprinting = false;
+        this.stamina = 1.0;
         this.animationFrame = 0;
         this.legSwing = 0;
         this.armSwing = 0;
-        this.running = false;
         this.kicking = false;
         this.kickFrame = 0;
-        this.hasBall = false;
-        this.sprinting = false;
         this.tackling = false;
         this.tackleFrame = 0;
         this.celebrating = false;
         this.celebrationFrame = 0;
+        this.control = 0.7;
+        this.passing = 0.7;
+        this.shooting = 0.7;
+        this.tacklingSkill = 0.5;
+        this.aggression = 0.5;
         
-        // Movement
-        this.speedX = 0;
-        this.speedY = 0;
         this.targetX = this.x;
         this.targetY = this.y;
-        this.userInputX = 0;
-        this.userInputY = 0;
-        
-        // Player attributes
-        if (this.playerData) {
-            this.baseSpeed = 2 + (this.playerData.speed / 100) * 3;
-            this.shooting = 0.5 + (this.playerData.shooting / 100) * 0.5;
-            this.passing = 0.5 + (this.playerData.passing / 100) * 0.5;
-        } else {
-            this.baseSpeed = 2 + Math.random() * 1.5;
-            this.shooting = 0.5 + Math.random() * 0.5;
-            this.passing = 0.5 + Math.random() * 0.5;
-        }
-        
-        this.speed = this.baseSpeed;
-        this.aggression = 0.5 + Math.random() * 0.5;
-        this.control = 0.5 + Math.random() * 0.5;
-        this.tacklingSkill = 0.5 + Math.random() * 0.5;
-        this.stamina = 1.0;
-        
-        // AI behavior
-        this.lastBallOwner = null;
-        this.supportPosition = { x: this.x, y: this.y };
-        this.role = this.determineRole();
-        this.attackIntent = 0;
-        this.defenseIntent = 0;
-        this.patience = Math.random() * 100;
         this.actionTimer = 0;
         this.formationPosition = this.getFormationPosition();
         
-        // Position behavior
+        this.role = this.determineRole();
         this.setPositionBehavior();
-        this.positionDiscipline = 0.8 + Math.random() * 0.2;
         this.ballChasingUrgency = this.calculateBallChasingUrgency();
+        
+        // Enhanced movement properties
+        this.momentum = { x: 0, y: 0 };
+        this.acceleration = 0.2;
+        this.deceleration = 0.15;
+        this.maxSpeed = this.baseSpeed;
+        this.turningSpeed = 0.1;
+        this.dribblingSpeedMultiplier = 0.7;
+        
+        // Player-specific attributes based on real football roles
+        this.setPlayerAttributes();
+        
+        // AI behavior enhancements
+        this.decisionMaking = 0.5 + Math.random() * 0.5;
+        this.positioning = 0.5 + Math.random() * 0.5;
+        this.vision = 0.5 + Math.random() * 0.5;
+        
+        // Movement states
+        this.movementState = 'idle'; // idle, walking, running, sprinting
+        this.lastMovementUpdate = 0;
+    }
+
+    setPlayerAttributes() {
+        // Set attributes based on player position and data
+        if (this.playerData) {
+            // Use real player attributes
+            this.acceleration = 0.15 + (this.playerData.speed / 100) * 0.15;
+            this.maxSpeed = 2 + (this.playerData.speed / 100) * 4;
+            this.agility = 0.5 + (this.playerData.speed / 100) * 0.5;
+        } else {
+            // Set based on position
+            switch(this.role) {
+                case 'goalkeeper':
+                    this.acceleration = 0.1;
+                    this.maxSpeed = 1.5;
+                    this.agility = 0.3;
+                    break;
+                case 'defender':
+                    this.acceleration = 0.12;
+                    this.maxSpeed = 2.5;
+                    this.agility = 0.4;
+                    break;
+                case 'midfielder':
+                    this.acceleration = 0.18;
+                    this.maxSpeed = 3.5;
+                    this.agility = 0.7;
+                    break;
+                case 'attacker':
+                    this.acceleration = 0.2;
+                    this.maxSpeed = 4.0;
+                    this.agility = 0.8;
+                    break;
+            }
+        }
+        
+        // Apply stamina effect
+        this.currentMaxSpeed = this.maxSpeed * (0.7 + this.stamina * 0.3);
+    }
+
+    update(ball, userInput = null, game = null) {
+        // Handle stamina
+        if (this.running) {
+            this.stamina = Math.max(0.3, this.stamina - 0.001);
+        } else {
+            this.stamina = Math.min(1.0, this.stamina + 0.002);
+        }
+
+        // Handle sprinting
+        if (this.sprinting && this.isCurrentUserControlled && this.stamina > 0.3) {
+            this.speed = this.baseSpeed * 1.8;
+            this.stamina -= 0.003;
+        } else {
+            this.speed = this.baseSpeed * (0.8 + this.stamina * 0.2);
+        }
+
+        if (this.isCurrentUserControlled && userInput) {
+            this.userInputX = userInput.x;
+            this.userInputY = userInput.y;
+            
+            // SMOOTH MOVEMENT: Only move if there's significant input
+            if (Math.abs(this.userInputX) > 0.1 || Math.abs(this.userInputY) > 0.1) {
+                this.speedX = this.userInputX * this.speed;
+                this.speedY = this.userInputY * this.speed;
+                
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.running = true;
+            } else {
+                this.speedX *= 0.8;
+                this.speedY *= 0.8;
+                this.running = false;
+            }
+            
+        } else {
+            this.updateAI(ball, game);
+        }
+
+        // SMOOTH ANIMATIONS: Update animations only when moving
+        this.animationFrame++;
+        if (this.running && (Math.abs(this.speedX) > 0.5 || Math.abs(this.speedY) > 0.5)) {
+            this.legSwing = Math.sin(this.animationFrame * 0.3) * 20;
+            this.armSwing = Math.sin(this.animationFrame * 0.3 + Math.PI) * 15;
+        } else {
+            this.legSwing *= 0.9;
+            this.armSwing *= 0.9;
+        }
+
+        // Boundary checks
+        this.x = Math.max(this.radius, Math.min(1200 - this.radius, this.x));
+        this.y = Math.max(this.radius, Math.min(800 - this.radius, this.y));
+
+        if (this.hasBall && ball.possessedBy === this) {
+            ball.x = this.x + (this.isHomeTeam ? 25 : -25);
+            ball.y = this.y;
+            ball.lastTouchedBy = this;
+        }
+    }
+
+    updateAI(ball, game) {
+        this.actionTimer--;
+
+        const ballDistance = Math.sqrt(Math.pow(ball.x - this.x, 2) + Math.pow(ball.y - this.y, 2));
+        
+        // Make strategic decisions based on game situation
+        if (this.actionTimer <= 0) {
+            this.makeStrategicDecision(ball, game, ballDistance);
+            this.actionTimer = 30 + Math.random() * 40;
+        }
+
+        // Execute current behavior
+        if (ball.possessedBy) {
+            if (ball.possessedBy.isHomeTeam === this.isHomeTeam) {
+                this.supportTeammateWithBall(ball.possessedBy, ball, game);
+            } else {
+                this.defendAgainstBallCarrier(ball.possessedBy, ball, game);
+            }
+        } else {
+            this.reactToLooseBall(ball, game, ballDistance);
+        }
+
+        // Move towards target with realistic physics
+        this.moveToTargetWithIntelligence();
+    }
+
+    makeStrategicDecision(ball, game, ballDistance) {
+        // Only certain players make proactive decisions
+        if (Math.random() > this.decisionMaking) return;
+
+        if (this.hasBall) {
+            this.makeAttackingDecision(ball, game);
+        } else if (ball.possessedBy && ball.possessedBy.isHomeTeam !== this.isHomeTeam) {
+            this.makeDefensiveDecision(ball, game, ballDistance);
+        } else {
+            this.makePositioningDecision(ball, game);
+        }
+    }
+
+    makeAttackingDecision(ball, game) {
+        const goalX = this.isHomeTeam ? 1150 : 50;
+        const distanceToGoal = Math.abs(goalX - this.x);
+        
+        // Decision making based on position and skills
+        if (distanceToGoal < 250 && Math.random() < this.shooting * 0.1) {
+            this.attemptShot(ball, game);
+        } else if (Math.random() < this.passing * 0.08) {
+            this.attemptIntelligentPass(ball, game);
+        } else if (Math.random() < this.agility * 0.05) {
+            this.attemptDribble(ball, game);
+        }
+    }
+
+    supportTeammateWithBall(ballOwner, ball, game) {
+        // Intelligent support positioning based on role
+        const supportDistance = this.getOptimalSupportDistance();
+        const supportAngle = this.calculateSupportAngle(ballOwner, ball);
+        
+        this.targetX = ballOwner.x + Math.cos(supportAngle) * supportDistance;
+        this.targetY = ballOwner.y + Math.sin(supportAngle) * supportDistance;
+        
+        // Add some randomness to make it look natural
+        this.targetX += (Math.random() - 0.5) * 20;
+        this.targetY += (Math.random() - 0.5) * 15;
+        
+        this.applyPositionConstraints();
+    }
+
+    getOptimalSupportDistance() {
+        switch(this.role) {
+            case 'defender': return 60 + Math.random() * 40;
+            case 'midfielder': return 40 + Math.random() * 30;
+            case 'attacker': return 30 + Math.random() * 25;
+            default: return 50;
+        }
+    }
+
+    calculateSupportAngle(ballOwner, ball) {
+        const goalX = this.isHomeTeam ? 1150 : 50;
+        const baseAngle = Math.atan2(400 - ballOwner.y, goalX - ballOwner.x);
+        
+        // Vary angle based on position and situation
+        let angleVariation = (Math.random() - 0.5) * 1.0; // ±90 degrees
+        
+        // Wingers stay wide, strikers make central runs
+        if (this.position.includes('W')) {
+            angleVariation = this.isHomeTeam ? -0.8 : 0.8;
+        } else if (this.position.includes('ST')) {
+            angleVariation *= 0.3; // More central
+        }
+        
+        return baseAngle + angleVariation;
+    }
+
+    moveToTargetWithIntelligence() {
+        const dx = this.targetX - this.x;
+        const dy = this.targetY - this.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance > 10) {
+            // Calculate desired speed based on distance and role
+            let desiredSpeed = this.currentMaxSpeed;
+            
+            if (distance < 50) {
+                desiredSpeed *= 0.5; // Slow down when close
+            }
+            
+            // Smooth movement towards target
+            const angle = Math.atan2(dy, dx);
+            const targetSpeedX = Math.cos(angle) * desiredSpeed;
+            const targetSpeedY = Math.sin(angle) * desiredSpeed;
+            
+            this.speedX += (targetSpeedX - this.speedX) * 0.1;
+            this.speedY += (targetSpeedY - this.speedY) * 0.1;
+            
+            this.movementState = distance > 30 ? 'running' : 'walking';
+        } else {
+            // Decelerate when reaching target
+            this.speedX *= 0.8;
+            this.speedY *= 0.8;
+            this.movementState = 'idle';
+        }
+        
+        this.x += this.speedX;
+        this.y += this.speedY;
+    }
+
+    // Enhanced AI decision making
+    makeAIDecision(ball, game, distance) {
+        // More frequent tackle attempts
+        if (ball.possessedBy && ball.possessedBy.isHomeTeam !== this.isHomeTeam && 
+            distance < 45 && Math.random() < this.aggression * 0.08) {
+            this.attemptTackle(ball, game);
+        }
+        
+        // ENHANCED: More frequent and intelligent shooting/passing
+        if (this.hasBall && ball.possessedBy === this) {
+            const goalX = this.isHomeTeam ? 1150 : 50;
+            const dxToGoal = goalX - this.x;
+            const distanceToGoal = Math.abs(dxToGoal);
+            
+            // Shoot more often and from better positions
+            if (distanceToGoal < 350 && Math.random() < this.shooting * 0.05) {
+                this.attemptShot(ball, game);
+            } else if (Math.random() < this.passing * 0.06) {
+                this.attemptPass(ball, game);
+            }
+            
+            // ENHANCED: Dribble or move toward goal
+            if (Math.random() < 0.1) {
+                const goalDirection = Math.atan2(400 - this.y, goalX - this.x);
+                const randomVariation = (Math.random() - 0.5) * 0.5;
+                this.targetX = this.x + Math.cos(goalDirection + randomVariation) * 50;
+                this.targetY = this.y + Math.sin(goalDirection + randomVariation) * 50;
+            }
+        }
     }
 
     setPositionBehavior() {
@@ -443,201 +1617,74 @@ class AnimatedPlayer {
         return 'midfielder';
     }
 
-    // In AnimatedPlayer class, update the update method:
-update(ball, userInput = null, game = null) {
-    // Handle stamina
-    if (this.running) {
-        this.stamina = Math.max(0.3, this.stamina - 0.001);
-    } else {
-        this.stamina = Math.min(1.0, this.stamina + 0.002);
-    }
+    supportTeammate(ballOwner, ball, game) {
+        // Don't crowd the ball owner
+        const distanceToOwner = Math.sqrt(
+            Math.pow(this.x - ballOwner.x, 2) + Math.pow(this.y - ballOwner.y, 2)
+        );
 
-    // Handle sprinting
-    if (this.sprinting && this.isCurrentUserControlled && this.stamina > 0.3) {
-        this.speed = this.baseSpeed * 1.8;
-        this.stamina -= 0.003;
-    } else {
-        this.speed = this.baseSpeed * (0.8 + this.stamina * 0.2);
-    }
-
-    if (this.isCurrentUserControlled && userInput) {
-        this.userInputX = userInput.x;
-        this.userInputY = userInput.y;
-        
-        // SMOOTH MOVEMENT: Only move if there's significant input
-        if (Math.abs(this.userInputX) > 0.1 || Math.abs(this.userInputY) > 0.1) {
-            this.speedX = this.userInputX * this.speed;
-            this.speedY = this.userInputY * this.speed;
-            
-            this.x += this.speedX;
-            this.y += this.speedY;
-            this.running = true;
+        if (distanceToOwner < 60) {
+            // Move away to create space
+            const angleAway = Math.atan2(this.y - ballOwner.y, this.x - ballOwner.x);
+            this.targetX = ballOwner.x + Math.cos(angleAway) * 80;
+            this.targetY = ballOwner.y + Math.sin(angleAway) * 80;
         } else {
-            this.speedX *= 0.8;
-            this.speedY *= 0.8;
-            this.running = false;
-        }
-        
-    } else {
-        this.updateAI(ball, game);
-    }
-
-    // SMOOTH ANIMATIONS: Update animations only when moving
-    this.animationFrame++;
-    if (this.running && (Math.abs(this.speedX) > 0.5 || Math.abs(this.speedY) > 0.5)) {
-        this.legSwing = Math.sin(this.animationFrame * 0.3) * 20;
-        this.armSwing = Math.sin(this.animationFrame * 0.3 + Math.PI) * 15;
-    } else {
-        this.legSwing *= 0.9;
-        this.armSwing *= 0.9;
-    }
-
-    // Boundary checks
-    this.x = Math.max(this.radius, Math.min(1200 - this.radius, this.x));
-    this.y = Math.max(this.radius, Math.min(800 - this.radius, this.y));
-
-    if (this.hasBall && ball.possessedBy === this) {
-        ball.x = this.x + (this.isHomeTeam ? 25 : -25);
-        ball.y = this.y;
-        ball.lastTouchedBy = this;
-    }
-}// In AnimatedPlayer class, update the updateAI method:
-updateAI(ball, game) {
-    this.actionTimer--;
-
-    const dx = ball.x - this.x;
-    const dy = ball.y - this.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-
-    // ENHANCED AI: More aggressive and strategic
-    if (ball.possessedBy) {
-        if (ball.possessedBy.isHomeTeam === this.isHomeTeam) {
-            // Teammate has ball - provide intelligent support
-            this.supportTeammate(ball.possessedBy, ball, game);
-        } else {
-            // Opponent has ball - aggressive defense
-            this.defendAgainstOpponent(ball, distance, game);
-        }
-    } else {
-        // Ball is free - be more aggressive in going for it
-        if (distance < 200 && this.shouldGoForLooseBall(ball)) {
-            this.targetX = ball.x;
-            this.targetY = ball.y;
-            this.running = true;
-        } else {
-            this.returnToPosition(ball, game);
-        }
-    }
-
-    // Move towards target
-    this.moveToTarget();
-
-    // Make decisions more frequently for better AI
-    if (this.actionTimer <= 0) {
-        this.makeAIDecision(ball, game, distance);
-        this.actionTimer = 20 + Math.random() * 30; // More frequent decisions
-    }
-}
-
-// Enhanced AI decision making
-makeAIDecision(ball, game, distance) {
-    // More frequent tackle attempts
-    if (ball.possessedBy && ball.possessedBy.isHomeTeam !== this.isHomeTeam && 
-        distance < 45 && Math.random() < this.aggression * 0.08) {
-        this.attemptTackle(ball, game);
-    }
-    
-    // ENHANCED: More frequent and intelligent shooting/passing
-    if (this.hasBall && ball.possessedBy === this) {
-        const goalX = this.isHomeTeam ? 1150 : 50;
-        const dxToGoal = goalX - this.x;
-        const distanceToGoal = Math.abs(dxToGoal);
-        
-        // Shoot more often and from better positions
-        if (distanceToGoal < 350 && Math.random() < this.shooting * 0.05) {
-            this.attemptShot(ball, game);
-        } else if (Math.random() < this.passing * 0.06) {
-            this.attemptPass(ball, game);
-        }
-        
-        // ENHANCED: Dribble or move toward goal
-        if (Math.random() < 0.1) {
-            const goalDirection = Math.atan2(400 - this.y, goalX - this.x);
-            const randomVariation = (Math.random() - 0.5) * 0.5;
-            this.targetX = this.x + Math.cos(goalDirection + randomVariation) * 50;
-            this.targetY = this.y + Math.sin(goalDirection + randomVariation) * 50;
-        }
-    }
-}
-
-   supportTeammate(ballOwner, ball, game) {
-    // Don't crowd the ball owner
-    const distanceToOwner = Math.sqrt(
-        Math.pow(this.x - ballOwner.x, 2) + Math.pow(this.y - ballOwner.y, 2)
-    );
-
-    if (distanceToOwner < 60) {
-        // Move away to create space
-        const angleAway = Math.atan2(this.y - ballOwner.y, this.x - ballOwner.x);
-        this.targetX = ballOwner.x + Math.cos(angleAway) * 80;
-        this.targetY = ballOwner.y + Math.sin(angleAway) * 80;
-    } else {
-        // ENHANCED: More intelligent positioning based on role and situation
-        switch(this.role) {
-            case 'defender':
-                // Defenders provide cover and passing options
-                this.targetX = this.isHomeTeam ? 300 : 900;
-                this.targetY = ball.y + (Math.random() - 0.5) * 50;
-                break;
-            case 'midfielder':
-                // Midfielders find intelligent support positions
-                const supportDistance = 60 + Math.random() * 40;
-                const angleToGoal = Math.atan2(400 - ballOwner.y, (this.isHomeTeam ? 1150 : 50) - ballOwner.x);
-                const supportAngle = angleToGoal + (Math.random() - 0.5) * 1.0;
-                
-                this.targetX = ballOwner.x + Math.cos(supportAngle) * supportDistance;
-                this.targetY = ballOwner.y + Math.sin(supportAngle) * supportDistance;
-                break;
-            case 'attacker':
-                // ENHANCED: Attackers make more varied and intelligent runs
-                if (Math.random() < 0.05) {
-                    const runTypes = ['behind', 'channel', 'post', 'drop'];
-                    const runType = runTypes[Math.floor(Math.random() * runTypes.length)];
-                    const goalX = this.isHomeTeam ? 1150 : 50;
+            // ENHANCED: More intelligent positioning based on role and situation
+            switch(this.role) {
+                case 'defender':
+                    // Defenders provide cover and passing options
+                    this.targetX = this.isHomeTeam ? 300 : 900;
+                    this.targetY = ball.y + (Math.random() - 0.5) * 50;
+                    break;
+                case 'midfielder':
+                    // Midfielders find intelligent support positions
+                    const supportDistance = 60 + Math.random() * 40;
+                    const angleToGoal = Math.atan2(400 - ballOwner.y, (this.isHomeTeam ? 1150 : 50) - ballOwner.x);
+                    const supportAngle = angleToGoal + (Math.random() - 0.5) * 1.0;
                     
-                    switch(runType) {
-                        case 'behind':
-                            this.targetX = goalX - (this.isHomeTeam ? -100 : 100);
-                            this.targetY = 350 + Math.random() * 100;
-                            break;
-                        case 'channel':
-                            this.targetX = goalX - (this.isHomeTeam ? -200 : 200);
-                            this.targetY = this.isHomeTeam ? 250 + Math.random() * 300 : 250 + Math.random() * 300;
-                            break;
-                        case 'post':
-                            this.targetX = goalX - (this.isHomeTeam ? -30 : 30);
-                            this.targetY = Math.random() < 0.5 ? 320 : 480;
-                            break;
-                        case 'drop':
-                            this.targetX = this.isHomeTeam ? 700 : 500;
-                            this.targetY = 300 + Math.random() * 200;
-                            break;
+                    this.targetX = ballOwner.x + Math.cos(supportAngle) * supportDistance;
+                    this.targetY = ballOwner.y + Math.sin(supportAngle) * supportDistance;
+                    break;
+                case 'attacker':
+                    // ENHANCED: Attackers make more varied and intelligent runs
+                    if (Math.random() < 0.05) {
+                        const runTypes = ['behind', 'channel', 'post', 'drop'];
+                        const runType = runTypes[Math.floor(Math.random() * runTypes.length)];
+                        const goalX = this.isHomeTeam ? 1150 : 50;
+                        
+                        switch(runType) {
+                            case 'behind':
+                                this.targetX = goalX - (this.isHomeTeam ? -100 : 100);
+                                this.targetY = 350 + Math.random() * 100;
+                                break;
+                            case 'channel':
+                                this.targetX = goalX - (this.isHomeTeam ? -200 : 200);
+                                this.targetY = this.isHomeTeam ? 250 + Math.random() * 300 : 250 + Math.random() * 300;
+                                break;
+                            case 'post':
+                                this.targetX = goalX - (this.isHomeTeam ? -30 : 30);
+                                this.targetY = Math.random() < 0.5 ? 320 : 480;
+                                break;
+                            case 'drop':
+                                this.targetX = this.isHomeTeam ? 700 : 500;
+                                this.targetY = 300 + Math.random() * 200;
+                                break;
+                        }
+                        this.actionTimer = 120 + Math.random() * 60;
+                    } else {
+                        this.targetX = this.formationPosition.x;
+                        this.targetY = this.formationPosition.y;
                     }
-                    this.actionTimer = 120 + Math.random() * 60;
-                } else {
+                    break;
+                default:
                     this.targetX = this.formationPosition.x;
                     this.targetY = this.formationPosition.y;
-                }
-                break;
-            default:
-                this.targetX = this.formationPosition.x;
-                this.targetY = this.formationPosition.y;
+            }
         }
+        
+        this.applyPositionConstraints();
+        this.running = true;
     }
-    
-    this.applyPositionConstraints();
-    this.running = true;
-}
 
     defendAgainstOpponent(ball, distance, game) {
         if (this.role === 'goalkeeper') {
@@ -700,25 +1747,25 @@ makeAIDecision(ball, game, distance) {
         this.running = true;
     }
 
-   actAsGoalkeeper(ball, game) {
-    const goalX = this.isHomeTeam ? 50 : 1150;
-    const goalY = 400;
-    
-    // ENHANCED: Better goalkeeper positioning with some imperfection
-    this.targetX = goalX;
-    
-    // Predict ball movement for better positioning but add some error
-    if ((this.isHomeTeam && ball.x < 400) || (!this.isHomeTeam && ball.x > 800)) {
-        const predictedY = ball.y + (ball.speedY * 5);
-        // Add some error to make goalkeeping less perfect
-        const error = (Math.random() - 0.5) * 40;
-        this.targetY = Math.max(200, Math.min(600, predictedY + error));
-    } else {
-        this.targetY = goalY;
+    actAsGoalkeeper(ball, game) {
+        const goalX = this.isHomeTeam ? 50 : 1150;
+        const goalY = 400;
+        
+        // ENHANCED: Better goalkeeper positioning with some imperfection
+        this.targetX = goalX;
+        
+        // Predict ball movement for better positioning but add some error
+        if ((this.isHomeTeam && ball.x < 400) || (!this.isHomeTeam && ball.x > 800)) {
+            const predictedY = ball.y + (ball.speedY * 5);
+            // Add some error to make goalkeeping less perfect
+            const error = (Math.random() - 0.5) * 40;
+            this.targetY = Math.max(200, Math.min(600, predictedY + error));
+        } else {
+            this.targetY = goalY;
+        }
+        
+        this.applyPositionConstraints();
     }
-    
-    this.applyPositionConstraints();
-}
 
     applyPositionConstraints() {
         // Keep players in sensible areas
@@ -769,110 +1816,54 @@ makeAIDecision(ball, game, distance) {
         }
     }
 
-  makeAIDecision(ball, game, distance) {
-    // Attempt tackle more frequently
-    if (ball.possessedBy && ball.possessedBy.isHomeTeam !== this.isHomeTeam && 
-        distance < 40 && Math.random() < this.aggression * 0.05) {
-        this.attemptTackle(ball, game);
-    }
-    
-    // ENHANCED: Attempt shot or pass if has ball - MORE FREQUENTLY
-    if (this.hasBall && ball.possessedBy === this) {
-        const goalX = this.isHomeTeam ? 1150 : 50;
-        const dxToGoal = goalX - this.x;
-        const distanceToGoal = Math.abs(dxToGoal);
-        
-        // Shoot more often and from further out
-        if (distanceToGoal < 400 && Math.random() < this.shooting * 0.04) {
-            this.attemptShot(ball, game);
-        } else if (Math.random() < this.passing * 0.05) {
-            this.attemptPass(ball, game);
-        }
-    }
-}
-
-    // Keep all your existing methods below - they should work fine:
-    // attemptShot, attemptPass, passBall, attemptTackle, kickBall, 
-    // distanceToLine, getFormationPosition, startSprint, stopSprint, celebrate
-
- // In the AnimatedPlayer class, update the getFormationPosition method:
-getFormationPosition() {
-    const formation = formations[selectedFormation];
-    if (!formation || !formation.positions[this.position]) {
-        // Fallback positions
-        const isHome = this.isHomeTeam;
-        const baseX = isHome ? 200 : 1000;
-        
-        const positions = {
-            'GK': { x: isHome ? 100 : 1100, y: 400 },
-            'RB': { x: baseX, y: 200 }, 'CB1': { x: baseX, y: 350 }, 'CB2': { x: baseX, y: 450 }, 
-            'LB': { x: baseX, y: 600 }, 'RM': { x: baseX + (isHome ? 200 : -200), y: 200 },
-            'CM1': { x: baseX + (isHome ? 200 : -200), y: 350 }, 'CM2': { x: baseX + (isHome ? 200 : -200), y: 450 },
-            'LM': { x: baseX + (isHome ? 200 : -200), y: 600 }, 'ST1': { x: baseX + (isHome ? 400 : -400), y: 350 },
-            'ST2': { x: baseX + (isHome ? 400 : -400), y: 450 }, 'RW': { x: baseX + (isHome ? 400 : -400), y: 200 },
-            'LW': { x: baseX + (isHome ? 400 : -400), y: 600 }, 'ST': { x: baseX + (isHome ? 400 : -400), y: 400 },
-            'CAM': { x: baseX + (isHome ? 300 : -300), y: 400 }, 'CDM1': { x: baseX + (isHome ? 150 : -150), y: 300 },
-            'CDM2': { x: baseX + (isHome ? 150 : -150), y: 500 }, 'CB3': { x: baseX, y: 400 }
-        };
-        
-        return positions[this.position] || { x: baseX, y: 400 };
-    }
-    
-    const pos = formation.positions[this.position];
-    return {
-        x: this.isHomeTeam ? pos.x : 1200 - pos.x,
-        y: pos.y
-    };
-}
-
     attemptShot(ball, game) {
-    if (!this.hasBall || ball.possessedBy !== this) return false;
+        if (!this.hasBall || ball.possessedBy !== this) return false;
 
-    const goalX = this.isHomeTeam ? 1150 : 50;
-    const goalY = 400;
-    
-    // ENHANCED: Much more powerful and realistic shooting
-    const dxToGoal = goalX - this.x;
-    const dyToGoal = goalY - this.y;
-    const distanceToGoal = Math.sqrt(dxToGoal * dxToGoal + dyToGoal * dyToGoal);
-    
-    // Much more power - especially for long shots!
-    const basePower = 20 + (distanceToGoal / 50); // More power for distance
-    const powerMultiplier = 0.8 + this.shooting * 0.8; // Skill affects power more
-    const accuracy = this.shooting * 0.6 + 0.4;
-    
-    const randomOffset = (1 - accuracy) * 80; // Reduced randomness for better shots
-    const targetX = goalX;
-    const targetY = goalY + (Math.random() - 0.5) * randomOffset;
-    
-    const dx = targetX - this.x;
-    const dy = targetY - this.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    const angle = Math.atan2(dy, dx);
-    
-    // ENHANCED: Apply power with curve for realism
-    const power = Math.min(35, basePower * powerMultiplier); // MUCH higher max power
-    const curve = (Math.random() - 0.5) * 0.2; // Slight curve
-    
-    ball.speedX = Math.cos(angle + curve) * power;
-    ball.speedY = Math.sin(angle + curve) * power;
-    ball.possessedBy = null;
-    this.hasBall = false;
-    
-    this.kicking = true;
-    this.kickFrame = 0;
-    
-    // Update stats
-    if (game && game.stats) {
-        if (this.isHomeTeam) {
-            game.stats.shots.home = (game.stats.shots.home || 0) + 1;
-        } else {
-            game.stats.shots.away = (game.stats.shots.away || 0) + 1;
+        const goalX = this.isHomeTeam ? 1150 : 50;
+        const goalY = 400;
+        
+        // ENHANCED: Much more powerful and realistic shooting
+        const dxToGoal = goalX - this.x;
+        const dyToGoal = goalY - this.y;
+        const distanceToGoal = Math.sqrt(dxToGoal * dxToGoal + dyToGoal * dyToGoal);
+        
+        // Much more power - especially for long shots!
+        const basePower = 20 + (distanceToGoal / 50); // More power for distance
+        const powerMultiplier = 0.8 + this.shooting * 0.8; // Skill affects power more
+        const accuracy = this.shooting * 0.6 + 0.4;
+        
+        const randomOffset = (1 - accuracy) * 80; // Reduced randomness for better shots
+        const targetX = goalX;
+        const targetY = goalY + (Math.random() - 0.5) * randomOffset;
+        
+        const dx = targetX - this.x;
+        const dy = targetY - this.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const angle = Math.atan2(dy, dx);
+        
+        // ENHANCED: Apply power with curve for realism
+        const power = Math.min(35, basePower * powerMultiplier); // MUCH higher max power
+        const curve = (Math.random() - 0.5) * 0.2; // Slight curve
+        
+        ball.speedX = Math.cos(angle + curve) * power;
+        ball.speedY = Math.sin(angle + curve) * power;
+        ball.possessedBy = null;
+        this.hasBall = false;
+        
+        this.kicking = true;
+        this.kickFrame = 0;
+        
+        // Update stats
+        if (game && game.stats) {
+            if (this.isHomeTeam) {
+                game.stats.shots.home = (game.stats.shots.home || 0) + 1;
+            } else {
+                game.stats.shots.away = (game.stats.shots.away || 0) + 1;
+            }
         }
+        
+        return true;
     }
-    
-    return true;
-}
 
     attemptPass(ball, game) {
         if (!this.hasBall || ball.possessedBy !== this) return false;
@@ -966,7 +1957,35 @@ getFormationPosition() {
         return false;
     }
 
-    // Keep your existing draw method exactly as it was - it's perfect!
+    getFormationPosition() {
+        const formation = formations[selectedFormation];
+        if (!formation || !formation.positions[this.position]) {
+            // Fallback positions
+            const isHome = this.isHomeTeam;
+            const baseX = isHome ? 200 : 1000;
+            
+            const positions = {
+                'GK': { x: isHome ? 100 : 1100, y: 400 },
+                'RB': { x: baseX, y: 200 }, 'CB1': { x: baseX, y: 350 }, 'CB2': { x: baseX, y: 450 }, 
+                'LB': { x: baseX, y: 600 }, 'RM': { x: baseX + (isHome ? 200 : -200), y: 200 },
+                'CM1': { x: baseX + (isHome ? 200 : -200), y: 350 }, 'CM2': { x: baseX + (isHome ? 200 : -200), y: 450 },
+                'LM': { x: baseX + (isHome ? 200 : -200), y: 600 }, 'ST1': { x: baseX + (isHome ? 400 : -400), y: 350 },
+                'ST2': { x: baseX + (isHome ? 400 : -400), y: 450 }, 'RW': { x: baseX + (isHome ? 400 : -400), y: 200 },
+                'LW': { x: baseX + (isHome ? 400 : -400), y: 600 }, 'ST': { x: baseX + (isHome ? 400 : -400), y: 400 },
+                'CAM': { x: baseX + (isHome ? 300 : -300), y: 400 }, 'CDM1': { x: baseX + (isHome ? 150 : -150), y: 300 },
+                'CDM2': { x: baseX + (isHome ? 150 : -150), y: 500 }, 'CB3': { x: baseX, y: 400 }
+            };
+            
+            return positions[this.position] || { x: baseX, y: 400 };
+        }
+        
+        const pos = formation.positions[this.position];
+        return {
+            x: this.isHomeTeam ? pos.x : 1200 - pos.x,
+            y: pos.y
+        };
+    }
+
     draw(ctx) {
         ctx.save();
         ctx.translate(this.x, this.y);
@@ -991,8 +2010,6 @@ getFormationPosition() {
                 ctx.fillRect(-20, -this.radius - 15, 40 * this.stamina, 5);
             }
         }
-        game.teamPossession = null;
-
 
         // Tackle effect
         if (this.tackling) {
@@ -1171,7 +2188,6 @@ class TouchControls {
         // Prevent context menu on long press
         this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
     }
-    
 
     handleTouchStart(e) {
         e.preventDefault();
@@ -1597,892 +2613,6 @@ class TeamPlaysOverlay {
         this.overlay.style.display = 'none';
     }
 }
-
-// Enhanced Main Football Game Class
-class FootballGame {
-    constructor() {
-        this.canvas = document.getElementById('gameCanvas');
-        if (!this.canvas) {
-            console.error('Canvas element not found!');
-            return;
-        }
-        
-        this.ctx = this.canvas.getContext('2d');
-        this.fieldWidth = this.canvas.width;
-        this.fieldHeight = this.canvas.height;
-        
-        this.homeTeam = null;
-        this.awayTeam = null;
-        this.ball = null;
-        this.players = [];
-        this.userControlledPlayer = null;
-        this.userControlledTeam = null;
-        this.gameMode = 'player-vs-computer';
-        this.matchStarted = false;
-        
-        // Enhanced features
-        this.formationOverlay = new FormationOverlay(this);
-        this.teamPlaysOverlay = new TeamPlaysOverlay(this);
-        this.currentTactic = null;
-        this.homeTeamPlayers = [];
-        this.awayTeamPlayers = [];
-        
-        // Enhanced controls
-        this.touchControls = null;
-        this.keyboardControls = null;
-        this.isMobile = this.detectMobile();
-        
-        // Enhanced game state
-        this.score = { home: 0, away: 0 };
-        this.time = 0;
-        this.isPaused = false;
-        this.isFirstHalf = true;
-        this.halfTime = 45 * 60; // 45 minutes in seconds
-        
-        // Enhanced stats
-        this.stats = {
-            possession: { home: 50, away: 50 },
-            shots: { home: 0, away: 0 },
-            fouls: { home: 0, away: 0 },
-            corners: { home: 0, away: 0 },
-            saves: { home: 0, away: 0 }
-        };
-
-        this.lastPossession = 'home';
-        this.passPressed = false;
-        this.tacklePressed = false;
-        this.lastGoalTime = 0;
-        this.celebrationTime = 0;
-        
-        this.loadGameMode();
-        this.loadTeams();
-        this.setupField();
-        this.assignPlayersToTeams();
-        
-        // Handle window resize
-        window.addEventListener('resize', () => this.handleResize());
-    }
-
-    handleResize() {
-        // Adjust touch controls for new screen size
-        if (this.touchControls && this.matchStarted) {
-            // Recalculate control positions based on new canvas size
-            const rect = this.canvas.getBoundingClientRect();
-            const scaleX = this.canvas.width / rect.width;
-            const scaleY = this.canvas.height / rect.height;
-            
-            // Update control positions (simplified - in real implementation, you'd want more sophisticated scaling)
-            this.touchControls.joystick.baseX = 120 * scaleX;
-            this.touchControls.joystick.baseY = 600 * scaleY;
-            this.touchControls.shootButton.x = 1080 * scaleX;
-            this.touchControls.shootButton.y = 600 * scaleY;
-            this.touchControls.passButton.x = 1080 * scaleX;
-            this.touchControls.passButton.y = 520 * scaleY;
-            this.touchControls.tackleButton.x = 1080 * scaleX;
-            this.touchControls.tackleButton.y = 440 * scaleY;
-            this.touchControls.sprintButton.x = 120 * scaleX;
-            this.touchControls.sprintButton.y = 520 * scaleY;
-        }
-    }
-
-    detectMobile() {
-        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    }
-
-    startMatch() {
-        this.matchStarted = true;
-        this.setupPlayers();
-        this.setupBall();
-        this.setupControls();
-        this.startGameLoop();
-        this.updateUI();
-    }
-
-    setupControls() {
-        this.touchControls = new TouchControls(this.canvas, this);
-        this.keyboardControls = new KeyboardControls(this);
-    }
-    
-    loadGameMode() {
-        try {
-            const gameModeData = localStorage.getItem('gameMode');
-            if (gameModeData) {
-                this.gameMode = gameModeData;
-            }
-        } catch (error) {
-            console.error('Error loading game mode:', error);
-        }
-    }
-    
-    loadTeams() {
-        try {
-            const homeData = localStorage.getItem('homeTeam');
-            const awayData = localStorage.getItem('awayTeam');
-            const userControlledTeamData = localStorage.getItem('userControlledTeam');
-            
-            if (homeData && awayData) {
-                this.homeTeam = JSON.parse(homeData);
-                this.awayTeam = JSON.parse(awayData);
-                this.userControlledTeam = userControlledTeamData;
-                
-                if (document.getElementById('homeTeamName')) {
-                    document.getElementById('homeTeamName').textContent = this.homeTeam.shortName;
-                }
-                if (document.getElementById('awayTeamName')) {
-                    document.getElementById('awayTeamName').textContent = this.awayTeam.shortName;
-                }
-            } else {
-                this.homeTeam = footballClubs[0];
-                this.awayTeam = footballClubs[1];
-                this.userControlledTeam = 'home';
-                if (document.getElementById('homeTeamName')) {
-                    document.getElementById('homeTeamName').textContent = this.homeTeam.shortName;
-                }
-                if (document.getElementById('awayTeamName')) {
-                    document.getElementById('awayTeamName').textContent = this.awayTeam.shortName;
-                }
-            }
-        } catch (error) {
-            console.error('Error loading teams:', error);
-            this.homeTeam = footballClubs[0];
-            this.awayTeam = footballClubs[1];
-            this.userControlledTeam = 'home';
-        }
-    }
-
-    assignPlayersToTeams() {
-        const shuffledPlayers = [...footballPlayers].sort(() => Math.random() - 0.5);
-        
-        this.homeTeamPlayers = shuffledPlayers.slice(0, 5);
-        this.awayTeamPlayers = shuffledPlayers.slice(5, 10);
-        
-        // Fill remaining spots with generated players
-        while (this.homeTeamPlayers.length < 11) {
-            this.homeTeamPlayers.push(this.generatePlayer(this.homeTeamPlayers.length + 1));
-        }
-        while (this.awayTeamPlayers.length < 11) {
-            this.awayTeamPlayers.push(this.generatePlayer(this.awayTeamPlayers.length + 1));
-        }
-    }
-
-    generatePlayer(number) {
-        const firstNames = ['John', 'Mike', 'David', 'Chris', 'Alex', 'James', 'Paul', 'Mark', 'Steve', 'Tom'];
-        const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Miller', 'Davis', 'Garcia', 'Rodriguez', 'Wilson'];
-        const positions = ['CB', 'RB', 'LB', 'CM', 'RM', 'LM', 'CAM', 'CDM', 'ST', 'RW', 'LW'];
-        
-        const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-        const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-        const position = positions[Math.floor(Math.random() * positions.length)];
-        
-        return { 
-            name: `${firstName} ${lastName}`, 
-            position: position, 
-            rating: 70 + Math.floor(Math.random() * 20),
-            speed: 60 + Math.floor(Math.random() * 30),
-            shooting: 60 + Math.floor(Math.random() * 30),
-            passing: 60 + Math.floor(Math.random() * 30)
-        };
-    }
-    
-    setupField() {
-        this.field = {
-            width: this.fieldWidth,
-            height: this.fieldHeight,
-            center: { x: this.fieldWidth / 2, y: this.fieldHeight / 2 },
-            goalWidth: 120, // Bigger goals
-            goalHeight: 40
-        };
-    }
-    
-  // In FootballGame class, update setupPlayers method:
-setupPlayers() {
-    this.players = [];
-    const formation = formations[selectedFormation];
-    if (!formation) {
-        console.error('Formation not found:', selectedFormation);
-        return;
-    }
-    
-    const homePositions = Object.keys(formation.positions);
-    const awayPositions = Object.keys(formation.positions);
-
-    // Reset user control
-    this.userControlledPlayer = null;
-
-    // Create home team players
-    homePositions.forEach((position, index) => {
-        const formationPos = this.getFormationPosition(position, true);
-        const playerData = this.homeTeamPlayers[index];
-        
-        // Only set ONE user controlled player initially
-        let isUserControlled = false;
-        let isCurrentUserControlled = false;
-        
-        if (this.gameMode === 'player-vs-computer' && this.userControlledTeam === 'home') {
-            // Start with controlling an attacker
-            if (position.includes('ST') || position.includes('S') || position === 'CAM') {
-                isUserControlled = true;
-                isCurrentUserControlled = true;
-            }
-        }
-        
-        const player = new AnimatedPlayer({
-            x: formationPos.x,
-            y: formationPos.y,
-            color: this.homeTeam.color,
-            secondaryColor: this.homeTeam.secondaryColor,
-            number: index + 1,
-            position: position,
-            isHomeTeam: true,
-            teamName: this.homeTeam.name,
-            isUserControlled: isUserControlled,
-            isCurrentUserControlled: isCurrentUserControlled,
-            playerData: playerData
-        });
-        
-        this.players.push(player);
-        
-        if (isCurrentUserControlled) {
-            this.userControlledPlayer = player;
-        }
-    });
-
-    // Create away team players (similar logic)
-    awayPositions.forEach((position, index) => {
-        const formationPos = this.getFormationPosition(position, false);
-        const playerData = this.awayTeamPlayers[index];
-        
-        let isUserControlled = false;
-        let isCurrentUserControlled = false;
-        
-        if (this.gameMode === 'player-vs-computer' && this.userControlledTeam === 'away') {
-            if (position.includes('ST') || position.includes('S') || position === 'CAM') {
-                isUserControlled = true;
-                isCurrentUserControlled = true;
-            }
-        }
-        
-        const player = new AnimatedPlayer({
-            x: formationPos.x,
-            y: formationPos.y,
-            color: this.awayTeam.color,
-            secondaryColor: this.awayTeam.secondaryColor,
-            number: index + 1,
-            position: position,
-            isHomeTeam: false,
-            teamName: this.awayTeam.name,
-            isUserControlled: isUserControlled,
-            isCurrentUserControlled: isCurrentUserControlled,
-            playerData: playerData
-        });
-        
-        this.players.push(player);
-        
-        if (isCurrentUserControlled && !this.userControlledPlayer) {
-            this.userControlledPlayer = player;
-        }
-    });
-}
-    getFormationPosition(position, isHomeTeam) {
-        const formation = formations[selectedFormation];
-        const baseX = isHomeTeam ? 200 : 1000;
-        
-        if (formation && formation.positions[position]) {
-            const pos = formation.positions[position];
-            return {
-                x: isHomeTeam ? pos.x : 1200 - pos.x,
-                y: pos.y
-            };
-        }
-        
-        // Fallback positions for larger field
-        const positions = {
-            'GK': { x: isHomeTeam ? 100 : 1100, y: 400 },
-            'RB': { x: baseX, y: 200 }, 'CB1': { x: baseX, y: 350 }, 'CB2': { x: baseX, y: 450 }, 'LB': { x: baseX, y: 600 },
-            'RM': { x: baseX + (isHomeTeam ? 200 : -200), y: 200 }, 'CM1': { x: baseX + (isHomeTeam ? 200 : -200), y: 350 },
-            'CM2': { x: baseX + (isHomeTeam ? 200 : -200), y: 450 }, 'LM': { x: baseX + (isHomeTeam ? 200 : -200), y: 600 },
-            'ST1': { x: baseX + (isHomeTeam ? 400 : -400), y: 350 }, 'ST2': { x: baseX + (isHomeTeam ? 400 : -400), y: 450 }
-        };
-
-        return positions[position] || { x: baseX, y: 400 };
-    }
-    
-    setupBall() {
-        this.ball = new FootballBall(this.field.center.x, this.field.center.y);
-    }
-    
-    startGameLoop() {
-        const gameLoop = () => {
-            if (!this.isPaused && this.matchStarted) {
-                this.update();
-                this.render();
-                this.time += 0.016;
-                this.updateUI();
-            }
-            requestAnimationFrame(gameLoop);
-        };
-        gameLoop();
-    }
-    
-    update() {
-        if (!this.matchStarted) return;
-
-        // Handle celebration period after goal
-        if (this.celebrationTime > 0) {
-            this.celebrationTime--;
-            if (this.celebrationTime === 0) {
-                this.resetPlay();
-            }
-            return;
-        }
-
-        let userInput;
-        if (this.isMobile) {
-            userInput = this.touchControls.getUserInput();
-        } else {
-            userInput = this.keyboardControls.getUserInput();
-        }
-
-        // Update all players
-        this.players.forEach(player => {
-            if (player.isCurrentUserControlled) {
-                player.update(this.ball, userInput, this);
-            } else {
-                player.update(this.ball, null, this);
-            }
-        });
-
-        // Update ball
-        this.ball.update();
-        
-        // Check for ball possession changes
-        this.checkBallPossession();
-        
-        // Check for goals
-        this.checkGoals();
-        
-        // Update possession stats
-        this.updatePossession();
-        
-        // Handle user input actions
-        if (this.passPressed) {
-            this.userPass();
-            this.passPressed = false;
-        }
-        
-        if (this.tacklePressed) {
-            this.userTackle();
-            this.tacklePressed = false;
-        }
-        
-        // Check for corner kicks
-        this.checkCorners();
-    }
-
-  // In FootballGame class, update the checkBallPossession method:
-checkBallPossession() {
-    // If ball is moving too fast, no one can possess it
-    if (Math.abs(this.ball.speedX) > 5 || Math.abs(this.ball.speedY) > 5) {
-        if (this.ball.possessedBy) {
-            this.ball.possessedBy.hasBall = false;
-            this.ball.possessedBy = null;
-        }
-        return;
-    }
-
-    if (!this.ball.possessedBy) {
-        let closestPlayer = null;
-        let closestDistance = Infinity;
-
-        this.players.forEach(player => {
-            const dx = player.x - this.ball.x;
-            const dy = player.y - this.ball.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            
-            // Increased possession range and added skill factor
-            if (distance < 35 && distance < closestDistance && Math.random() < player.control) {
-                closestDistance = distance;
-                closestPlayer = player;
-            }
-        });
-
-        if (closestPlayer && closestDistance < 35) {
-            this.ball.possessedBy = closestPlayer;
-            closestPlayer.hasBall = true;
-            this.ball.speedX = 0;
-            this.ball.speedY = 0;
-
-            // TRANSFER CONTROL: Switch control to the player who has the ball
-            if ((closestPlayer.isHomeTeam && (this.userControlledTeam === 'home' || this.userControlledTeam === 'both')) ||
-                (!closestPlayer.isHomeTeam && (this.userControlledTeam === 'away' || this.userControlledTeam === 'both'))) {
-                this.switchUserControl(closestPlayer);
-            }
-        }
-    }
-}
-
-// Add this method to FootballGame class:
-switchUserControl(newPlayer) {
-    if (this.userControlledPlayer) {
-        this.userControlledPlayer.isCurrentUserControlled = false;
-    }
-    this.userControlledPlayer = newPlayer;
-    this.userControlledPlayer.isCurrentUserControlled = true;
-}
-
-    switchUserControl(newPlayer) {
-        if (this.userControlledPlayer) {
-            this.userControlledPlayer.isCurrentUserControlled = false;
-        }
-        this.userControlledPlayer = newPlayer;
-        this.userControlledPlayer.isCurrentUserControlled = true;
-    }
-
-    userShoot() {
-        if (this.userControlledPlayer && this.userControlledPlayer.hasBall) {
-            const direction = Math.atan2(
-                this.userControlledPlayer.speedY,
-                this.userControlledPlayer.speedX
-            ) || (this.userControlledPlayer.isHomeTeam ? 0 : Math.PI);
-            
-            this.userControlledPlayer.kickBall(this.ball, 12, direction);
-            
-            if (this.userControlledPlayer.isHomeTeam) {
-                this.stats.shots.home++;
-            } else {
-                this.stats.shots.away++;
-            }
-        }
-    }
-
-    userPass() {
-        this.passPressed = true;
-    }
-
-    userPass() {
-        if (this.userControlledPlayer && this.userControlledPlayer.hasBall) {
-            let bestTeammate = null;
-            let bestScore = -1;
-
-            this.players.forEach(player => {
-                if (player !== this.userControlledPlayer && 
-                    player.isHomeTeam === this.userControlledPlayer.isHomeTeam) {
-                    const dx = player.x - this.userControlledPlayer.x;
-                    const dy = player.y - this.userControlledPlayer.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    
-                    if (distance < 250 && distance > 30) {
-                        let score = 100 - distance; // Prefer closer players
-                        
-                        // Bonus for players in better positions (ahead for attackers, etc.)
-                        const progress = (player.x - this.userControlledPlayer.x) * (this.userControlledPlayer.isHomeTeam ? 1 : -1);
-                        if (progress > 0) score += 50;
-                        
-                        // Bonus for open players
-                        let opponentCount = 0;
-                        this.players.forEach(opponent => {
-                            if (opponent.isHomeTeam !== this.userControlledPlayer.isHomeTeam) {
-                                const oppDist = Math.sqrt(
-                                    Math.pow(opponent.x - player.x, 2) + 
-                                    Math.pow(opponent.y - player.y, 2)
-                                );
-                                if (oppDist < 60) opponentCount++;
-                            }
-                        });
-                        score -= opponentCount * 30;
-                        
-                        if (score > bestScore) {
-                            bestScore = score;
-                            bestTeammate = player;
-                        }
-                    }
-                }
-            });
-
-            if (bestTeammate) {
-                this.userControlledPlayer.passBall(this.ball, bestTeammate, this);
-            }
-        }
-    }
-
-    userTackle() {
-        this.tacklePressed = true;
-    }
-
-    userTackle() {
-        if (this.userControlledPlayer && !this.userControlledPlayer.hasBall) {
-            this.userControlledPlayer.attemptTackle(this.ball, this);
-        }
-    }
-
-    startSprint() {
-        if (this.userControlledPlayer) {
-            this.userControlledPlayer.startSprint();
-        }
-    }
-
-    stopSprint() {
-        if (this.userControlledPlayer) {
-            this.userControlledPlayer.stopSprint();
-        }
-    }
-    
-    updatePossession() {
-        if (this.ball.possessedBy) {
-            this.lastPossession = this.ball.possessedBy.isHomeTeam ? 'home' : 'away';
-        }
-
-        // Update possession stats
-        if (this.lastPossession === 'home') {
-            this.stats.possession.home = Math.min(100, this.stats.possession.home + 0.08);
-            this.stats.possession.away = Math.max(0, this.stats.possession.away - 0.08);
-        } else {
-            this.stats.possession.away = Math.min(100, this.stats.possession.away + 0.08);
-            this.stats.possession.home = Math.max(0, this.stats.possession.home - 0.08);
-        }
-    }
-    
-   // In FootballGame class, update checkGoals method:
-checkGoals() {
-    // Check for goal on the left side (away team scores)
-    if (this.ball.x - this.ball.radius < 50 && 
-        this.ball.y > 320 && this.ball.y < 480) {
-        
-        // More lenient goal detection
-        if ((this.ball.speedX < -3 || this.ball.x < 20) && Math.random() < 0.9) {
-            this.score.away++;
-            this.handleGoal(false);
-            return;
-        }
-    }
-    
-    // Check for goal on the right side (home team scores)
-    if (this.ball.x + this.ball.radius > 1150 && 
-        this.ball.y > 320 && this.ball.y < 480) {
-        
-        // More lenient goal detection
-        if ((this.ball.speedX > 3 || this.ball.x > 1180) && Math.random() < 0.9) {
-            this.score.home++;
-            this.handleGoal(true);
-            return;
-        }
-    }
-}
-    
-    handleGoal(isHomeTeam) {
-        this.lastGoalTime = this.time;
-        this.celebrationTime = 180; // 3 seconds of celebration
-        
-        // Make scoring team celebrate
-        this.players.forEach(player => {
-            if (player.isHomeTeam === isHomeTeam) {
-                player.celebrate();
-            }
-        });
-        
-        // Update UI immediately
-        this.updateUI();
-        
-        // Show goal message
-        this.showGoalMessage(isHomeTeam);
-    }
-    
-    showGoalMessage(isHomeTeam) {
-        const scoringTeam = isHomeTeam ? this.homeTeam.shortName : this.awayTeam.shortName;
-        const message = `GOAL! ${scoringTeam} scores!`;
-        
-        // Create goal message element
-        const goalMsg = document.createElement('div');
-        goalMsg.className = 'goal-message';
-        goalMsg.textContent = message;
-        goalMsg.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 20px 40px;
-            border-radius: 10px;
-            font-size: 24px;
-            font-weight: bold;
-            z-index: 1000;
-        `;
-        
-        document.body.appendChild(goalMsg);
-        
-        // Remove message after 2 seconds
-        setTimeout(() => {
-            if (document.body.contains(goalMsg)) {
-                document.body.removeChild(goalMsg);
-            }
-        }, 2000);
-    }
-    
-    checkCorners() {
-        // Check for corners
-        if ((this.ball.x < 0 && this.ball.y > 0 && this.ball.y < this.fieldHeight) ||
-            (this.ball.x > this.fieldWidth && this.ball.y > 0 && this.ball.y < this.fieldHeight)) {
-            
-            const isHomeTeam = this.ball.lastTouchedBy ? !this.ball.lastTouchedBy.isHomeTeam : this.lastPossession === 'away';
-            
-            if (isHomeTeam) {
-                this.stats.corners.home++;
-            } else {
-                this.stats.corners.away++;
-            }
-        }
-    }
-    
-    resetPlay() {
-        this.ball.x = this.field.center.x;
-        this.ball.y = this.field.center.y;
-        this.ball.speedX = 0;
-        this.ball.speedY = 0;
-        this.ball.possessedBy = null;
-        this.ball.lastTouchedBy = null;
-        
-        this.players.forEach(player => {
-            player.hasBall = false;
-        });
-        
-        // Reset players to formation positions
-        this.setupPlayers();
-    }
-
-    showTeamPlays() {
-        this.teamPlaysOverlay.show();
-    }
-
-    hideTeamPlays() {
-        this.teamPlaysOverlay.hide();
-    }
-
-    applyTeamPlay(play) {
-        this.currentTactic = play;
-        
-        // Apply tactic effects to players
-        this.players.forEach(player => {
-            if (player.isHomeTeam) {
-                if (play.effect.speed) player.baseSpeed *= (1 + play.effect.speed / 100);
-                if (play.effect.passing) player.passing *= (1 + play.effect.passing / 100);
-                if (play.effect.shooting) player.shooting *= (1 + play.effect.shooting / 100);
-                if (play.effect.aggression) player.aggression *= (1 + play.effect.aggression / 100);
-            }
-        });
-    }
-    
-    render() {
-        // Clear canvas
-        this.ctx.clearRect(0, 0, this.fieldWidth, this.fieldHeight);
-        
-        // Draw field
-        this.drawGrass();
-        this.drawField();
-        
-        // Draw players
-        this.players.forEach(player => player.draw(this.ctx));
-        
-        // Draw ball
-        this.ball.draw(this.ctx);
-
-        // Draw controls if on mobile
-        if (this.isMobile && this.matchStarted) {
-            this.touchControls.draw(this.ctx);
-        }
-
-        // Draw game info
-        this.drawGameInfo();
-
-        // Draw active tactic
-        if (this.currentTactic) {
-            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-            this.ctx.fillRect(500, 10, 200, 30);
-            this.ctx.fillStyle = '#FFFFFF';
-            this.ctx.font = '16px Arial';
-            this.ctx.textAlign = 'center';
-            this.ctx.fillText(`Active Play: ${this.currentTactic.name}`, 600, 30);
-        }
-
-        // Draw celebration effect if needed
-        if (this.celebrationTime > 0) {
-            this.ctx.fillStyle = `rgba(255, 215, 0, ${0.3 + Math.sin(this.time * 10) * 0.2})`;
-            this.ctx.fillRect(0, 0, this.fieldWidth, this.fieldHeight);
-        }
-    }
-
-    drawGameInfo() {
-        if (!this.matchStarted) return;
-
-        // Draw controls info box
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        this.ctx.fillRect(10, 10, 300, this.isMobile ? 140 : 120);
-        
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.font = '14px Arial';
-        this.ctx.textAlign = 'left';
-        
-        if (this.isMobile) {
-            this.ctx.fillText('CONTROLS:', 20, 30);
-            this.ctx.fillText('• Left side: Move player', 20, 50);
-            this.ctx.fillText('• Green: Shoot | Blue: Pass', 20, 70);
-            this.ctx.fillText('• Orange: Tackle | Light Green: Sprint', 20, 90);
-            this.ctx.fillText(`Formation: ${selectedFormation}`, 20, 120);
-        } else {
-            this.ctx.fillText('CONTROLS:', 20, 30);
-            this.ctx.fillText('• Arrow Keys/WASD: Move player', 20, 50);
-            this.ctx.fillText('• Space: Shoot | X: Pass | C: Tackle', 20, 70);
-            this.ctx.fillText('• Shift: Sprint (1.8x speed)', 20, 90);
-            this.ctx.fillText(`Formation: ${selectedFormation}`, 20, 110);
-        }
-
-        // Draw match info
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        this.ctx.fillRect(10, this.fieldHeight - 50, 250, 40);
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.font = '14px Arial';
-        this.ctx.textAlign = 'left';
-        this.ctx.fillText(`Mode: ${this.getGameModeText()}`, 20, this.fieldHeight - 25);
-    }
-
-    getGameModeText() {
-        switch(this.gameMode) {
-            case 'player-vs-player': return 'Player vs Player';
-            case 'player-vs-computer': return 'Player vs Computer';
-            case 'computer-vs-computer': return 'Computer vs Computer';
-            default: return 'Player vs Computer';
-        }
-    }
-
-    drawGrass() {
-        // Draw green background
-        this.ctx.fillStyle = '#27ae60';
-        this.ctx.fillRect(0, 0, this.fieldWidth, this.fieldHeight);
-
-        // Draw grass pattern
-        this.ctx.strokeStyle = '#229954';
-        this.ctx.lineWidth = 1;
-        
-        for (let i = 0; i < this.fieldWidth; i += 25) {
-            for (let j = 0; j < this.fieldHeight; j += 25) {
-                this.ctx.beginPath();
-                this.ctx.moveTo(i, j);
-                this.ctx.lineTo(i + 12, j + 12);
-                this.ctx.stroke();
-            }
-        }
-
-        // Draw center circle shadow
-        this.ctx.fillStyle = 'rgba(34, 153, 84, 0.3)';
-        this.ctx.beginPath();
-        this.ctx.arc(this.field.center.x + 3, this.field.center.y + 3, 75, 0, Math.PI * 2);
-        this.ctx.fill();
-    }
-    
-    drawField() {
-        this.ctx.strokeStyle = '#ffffff';
-        this.ctx.lineWidth = 3;
-        this.ctx.setLineDash([]);
-        
-        // Outer boundary
-        this.ctx.strokeRect(30, 30, this.fieldWidth - 60, this.fieldHeight - 60);
-        
-        // Center line
-        this.ctx.beginPath();
-        this.ctx.moveTo(this.fieldWidth / 2, 30);
-        this.ctx.lineTo(this.fieldWidth / 2, this.fieldHeight - 30);
-        this.ctx.stroke();
-        
-        // Center circle
-        this.ctx.beginPath();
-        this.ctx.arc(this.field.center.x, this.field.center.y, 75, 0, Math.PI * 2);
-        this.ctx.stroke();
-
-        // Center spot
-        this.ctx.beginPath();
-        this.ctx.arc(this.field.center.x, this.field.center.y, 3, 0, Math.PI * 2);
-        this.ctx.fillStyle = '#ffffff';
-        this.ctx.fill();
-        
-        // Goals
-        this.ctx.fillStyle = '#ffffff';
-        this.ctx.fillRect(30, this.fieldHeight / 2 - 60, 5, 120);
-        this.ctx.fillRect(this.fieldWidth - 35, this.fieldHeight / 2 - 60, 5, 120);
-
-        // Goal areas
-        this.ctx.strokeRect(30, this.fieldHeight / 2 - 120, 60, 240);
-        this.ctx.strokeRect(this.fieldWidth - 90, this.fieldHeight / 2 - 120, 60, 240);
-
-        // Penalty areas
-        this.ctx.strokeRect(30, this.fieldHeight / 2 - 240, 180, 480);
-        this.ctx.strokeRect(this.fieldWidth - 210, this.fieldHeight / 2 - 240, 180, 480);
-
-        // Penalty spots
-        this.ctx.beginPath();
-        this.ctx.arc(210, this.fieldHeight / 2, 3, 0, Math.PI * 2);
-        this.ctx.fill();
-        
-        this.ctx.beginPath();
-        this.ctx.arc(this.fieldWidth - 210, this.fieldHeight / 2, 3, 0, Math.PI * 2);
-        this.ctx.fill();
-
-        // Penalty arcs
-        this.ctx.beginPath();
-        this.ctx.arc(210, this.fieldHeight / 2, 75, -Math.PI * 0.35, Math.PI * 0.35);
-        this.ctx.stroke();
-        
-        this.ctx.beginPath();
-        this.ctx.arc(this.fieldWidth - 210, this.fieldHeight / 2, 75, Math.PI * 0.65, Math.PI * 1.35);
-        this.ctx.stroke();
-    }
-    
-    updateUI() {
-        if (!this.matchStarted) return;
-        
-        // Update score
-        if (document.getElementById('homeScore')) {
-            document.getElementById('homeScore').textContent = this.score.home;
-        }
-        if (document.getElementById('awayScore')) {
-            document.getElementById('awayScore').textContent = this.score.away;
-        }
-        
-        // Update match time
-        if (document.getElementById('matchTime')) {
-            const minutes = Math.floor(this.time / 60);
-            const seconds = Math.floor(this.time % 60);
-            document.getElementById('matchTime').textContent = 
-                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }
-        
-        // Update possession
-        if (document.getElementById('homePossession')) {
-            document.getElementById('homePossession').style.width = `${this.stats.possession.home}%`;
-            document.getElementById('homePossession').textContent = `${Math.round(this.stats.possession.home)}%`;
-        }
-        if (document.getElementById('awayPossession')) {
-            document.getElementById('awayPossession').style.width = `${this.stats.possession.away}%`;
-            document.getElementById('awayPossession').textContent = `${Math.round(this.stats.possession.away)}%`;
-        }
-        
-        // Update shots
-        if (document.getElementById('homeShots')) {
-            document.getElementById('homeShots').textContent = Math.floor(this.stats.shots.home);
-        }
-        if (document.getElementById('awayShots')) {
-            document.getElementById('awayShots').textContent = Math.floor(this.stats.shots.away);
-        }
-        
-        // Update fouls
-        if (document.getElementById('homeFouls')) {
-            document.getElementById('homeFouls').textContent = Math.floor(this.stats.fouls.home);
-        }
-        if (document.getElementById('awayFouls')) {
-            document.getElementById('awayFouls').textContent = Math.floor(this.stats.fouls.away);
-        }
-    }
-}
-
 
 // Enhanced global game instance
 let game;
@@ -3106,6 +3236,16 @@ body {
     .control-btn:hover, .game-mode-btn:hover {
         transform: none;
     }
+}
+
+.match-message {
+    animation: pulse 1s infinite alternate;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+}
+
+@keyframes pulse {
+    from { transform: translate(-50%, -50%) scale(1); }
+    to { transform: translate(-50%, -50%) scale(1.05); }
 }
 `;
 
