@@ -213,12 +213,13 @@
 
         #mobileControls {
             position: absolute;
-            bottom: 25px; /* Raised higher for mobile */
+            bottom: 30px; /* Higher placement like Shadow Fight */
             width: 100%;
             display: none;
             justify-content: space-between;
-            padding: 0 15px;
+            padding: 0 20px;
             z-index: 5;
+            transition: bottom 0.3s ease;
         }
 
         .joystick-container {
@@ -230,11 +231,13 @@
         .joystick-base {
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
         }
 
         .joystick-handle {
@@ -258,7 +261,7 @@
             width: clamp(50px, 15vw, 60px);
             height: clamp(50px, 15vw, 60px);
             border-radius: 50%;
-            background: rgba(52, 152, 219, 0.8);
+            background: rgba(52, 152, 219, 0.9);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -268,10 +271,17 @@
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
             user-select: none;
             touch-action: manipulation;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.2s ease;
         }
 
         .control-btn.steal {
-            background: rgba(231, 76, 60, 0.8);
+            background: rgba(231, 76, 60, 0.9);
+        }
+
+        .control-btn:active {
+            transform: scale(0.92);
+            opacity: 0.8;
         }
 
         .goal-message {
@@ -328,7 +338,6 @@
         @media (max-width: 768px) and (orientation: landscape) {
             #mobileControls {
                 display: flex;
-                bottom: 20px; /* Slightly higher for landscape */
             }
             
             .overlay h1 {
@@ -396,379 +405,249 @@
             }
             
             #mobileControls {
-                bottom: 15px;
+                bottom: 25px;
             }
             
             .joystick-container {
-                width: 60px;
-                height: 60px;
+                width: 65px;
+                height: 65px;
             }
             
             .control-btn {
-                width: 45px;
-                height: 45px;
+                width: 50px;
+                height: 50px;
                 font-size: 0.7rem;
             }
         }
 
-       /* Very small screens */
-@media (max-width: 320px) and (orientation: landscape) {
-    #uiContainer {
-        transform: scale(0.5);
-    }
-    
-    .btn {
-        padding: 6px 12px;
-        font-size: 0.75rem;
-        min-width: 80px;
-    }
-    
-    #mobileControls {
-        bottom: 25px; /* Increased from 12px to 25px */
-        padding: 0 10px; /* Added some side padding */
-    }
-    
-    /* Additional fixes for very small screens */
-    .joystick-container {
-        width: 65px !important; /* Slightly smaller to fit */
-        height: 65px !important;
-    }
-    
-    .control-btn {
-        width: 50px !important;
-        height: 50px !important;
-        font-size: 0.65rem !important;
-    }
-    
-    /* Ensure the joystick base is fully visible */
-    .joystick-base {
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        border-radius: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3); /* Add border to make edges clear */
-    }
-}
-
-/* Also update the regular mobile landscape optimizations */
-@media (max-width: 768px) and (orientation: landscape) {
-    #mobileControls {
-        display: flex;
-        bottom: 25px; /* Ensure this is consistent */
-        padding: 0 15px;
-    }
-    
-    /* Make sure joystick container has enough room */
-    .joystick-container {
-        margin-bottom: 0;
-    }
-}
-
-/* Small screen optimizations - update this section too */
-@media (max-height: 500px) and (orientation: landscape) {
-    #uiContainer {
-        transform: scale(0.6);
-    }
-    
-    .btn-pause {
-        transform: scale(0.8);
-    }
-    
-    #mobileControls {
-        bottom: 20px; /* Increased from 15px */
-        padding: 0 12px;
-    }
-    
-    .joystick-container {
-        width: 65px; /* Slightly smaller */
-        height: 65px;
-    }
-    
-    .control-btn {
-        width: 50px;
-        height: 50px;
-        font-size: 0.7rem;
-    }
-}
-
-/* Huawei Devices */
-@media (max-width: 360px) and (orientation: landscape),
-       (max-width: 400px) and (max-height: 360px) and (orientation: landscape) {
-    #mobileControls {
-        bottom: 35px !important;
-        padding: 0 12px;
-    }
-    
-    .joystick-container {
-        width: 75px !important;
-        height: 75px !important;
-    }
-    
-    .control-btn {
-        width: 55px !important;
-        height: 55px !important;
-        font-size: 0.7rem !important;
-    }
-}
-
-/* Tecno Devices */
-@media (max-width: 380px) and (orientation: landscape),
-       (max-width: 420px) and (max-height: 380px) and (orientation: landscape) {
-    #mobileControls {
-        bottom: 32px !important;
-        padding: 0 14px;
-    }
-    
-    .joystick-container {
-        width: 72px !important;
-        height: 72px !important;
-    }
-    
-    .control-btn {
-        width: 52px !important;
-        height: 52px !important;
-        font-size: 0.68rem !important;
-    }
-}
-
-/* iPhone Devices - Comprehensive coverage */
-@media (max-width: 390px) and (orientation: landscape),
-       (max-width: 430px) and (max-height: 390px) and (orientation: landscape),
-       (max-width: 414px) and (orientation: landscape) {
-    #mobileControls {
-        bottom: 40px !important; /* Higher for iPhones */
-        padding: 0 16px;
-    }
-    
-    .joystick-container {
-        width: 78px !important;
-        height: 78px !important;
-    }
-    
-    .control-btn {
-        width: 58px !important;
-        height: 58px !important;
-        font-size: 0.72rem !important;
-    }
-}
-
-/* Samsung Devices */
-@media (max-width: 412px) and (orientation: landscape),
-       (max-width: 450px) and (max-height: 412px) and (orientation: landscape) {
-    #mobileControls {
-        bottom: 38px !important;
-        padding: 0 15px;
-    }
-    
-    .joystick-container {
-        width: 76px !important;
-        height: 76px !important;
-    }
-    
-    .control-btn {
-        width: 56px !important;
-        height: 56px !important;
-        font-size: 0.7rem !important;
-    }
-}
-
-/* Infinity Devices */
-@media (max-width: 420px) and (orientation: landscape),
-       (max-width: 460px) and (max-height: 420px) and (orientation: landscape) {
-    #mobileControls {
-        bottom: 36px !important;
-        padding: 0 13px;
-    }
-    
-    .joystick-container {
-        width: 74px !important;
-        height: 74px !important;
-    }
-    
-    .control-btn {
-        width: 54px !important;
-        height: 54px !important;
-        font-size: 0.69rem !important;
-    }
-}
-
-/* Nokia Devices */
-@media (max-width: 370px) and (orientation: landscape),
-       (max-width: 410px) and (max-height: 370px) and (orientation: landscape) {
-    #mobileControls {
-        bottom: 34px !important;
-        padding: 0 12px;
-    }
-    
-    .joystick-container {
-        width: 70px !important;
-        height: 70px !important;
-    }
-    
-    .control-btn {
-        width: 50px !important;
-        height: 50px !important;
-        font-size: 0.67rem !important;
-    }
-}
-
-/* Very small screens - Updated */
-@media (max-width: 320px) and (orientation: landscape),
-       (max-height: 280px) and (orientation: landscape) {
-    #mobileControls {
-        bottom: 28px !important; /* Increased from 15px */
-        padding: 0 10px;
-    }
-    
-    .joystick-container {
-        width: 65px !important;
-        height: 65px !important;
-    }
-    
-    .control-btn {
-        width: 48px !important;
-        height: 48px !important;
-        font-size: 0.65rem !important;
-    }
-    
-    /* Reduce the UI container size further */
-    #uiContainer {
-        transform: scale(0.5);
-    }
-}
-
-/* Extra small height screens - Updated */
-@media (max-height: 350px) and (orientation: landscape) {
-    #mobileControls {
-        bottom: 25px !important; /* Increased from 15px */
-        padding: 0 10px;
-    }
-    
-    .joystick-container {
-        width: 62px !important;
-        height: 62px !important;
-    }
-    
-    .control-btn {
-        width: 46px !important;
-        height: 46px !important;
-        font-size: 0.64rem !important;
-    }
-    
-    /* Reduce the UI container size further */
-    #uiContainer {
-        transform: scale(0.45);
-    }
-}
-
-/* Ultra small height screens */
-@media (max-height: 300px) and (orientation: landscape) {
-    #mobileControls {
-        bottom: 22px !important;
-        padding: 0 8px;
-    }
-    
-    .joystick-container {
-        width: 58px !important;
-        height: 58px !important;
-    }
-    
-    .control-btn {
-        width: 44px !important;
-        height: 44px !important;
-        font-size: 0.62rem !important;
-    }
-    
-    #uiContainer {
-        transform: scale(0.4);
-        margin-top: 2px;
-    }
-    
-    .btn-pause {
-        transform: scale(0.7);
-        top: 2px;
-        right: 2px;
-    }
-}
-
-/* Enhanced iPhone notch safe areas */
-@supports(padding: max(0px)) {
-    #mobileControls {
-        padding-left: max(15px, env(safe-area-inset-left));
-        padding-right: max(15px, env(safe-area-inset-right));
-        padding-bottom: max(15px, env(safe-area-inset-bottom));
-    }
-    
-    #uiContainer {
-        margin-left: max(5px, env(safe-area-inset-left));
-        margin-top: max(5px, env(safe-area-inset-top));
-    }
-    
-    .btn-pause {
-        margin-right: max(5px, env(safe-area-inset-right));
-        margin-top: max(5px, env(safe-area-inset-top));
-    }
-}
-
-/* Android specific optimizations */
-@supports not (-webkit-touch-callout: none) {
-    #mobileControls {
-        padding-bottom: 20px;
-    }
-    
-    /* Additional Android device targeting */
-    @media (max-width: 360px) and (min-height: 640px) and (orientation: landscape) {
-        #mobileControls {
-            bottom: 30px !important;
+        /* Very small screens */
+        @media (max-width: 320px) and (orientation: landscape) {
+            #uiContainer {
+                transform: scale(0.5);
+            }
+            
+            .btn {
+                padding: 6px 12px;
+                font-size: 0.75rem;
+                min-width: 80px;
+            }
+            
+            #mobileControls {
+                bottom: 28px;
+                padding: 0 10px;
+            }
+            
+            .joystick-container {
+                width: 65px !important;
+                height: 65px !important;
+            }
+            
+            .control-btn {
+                width: 48px !important;
+                height: 48px !important;
+                font-size: 0.65rem !important;
+            }
         }
-    }
-}
 
-/* Shadow Fight style positioning - Higher placement */
-@media (max-width: 768px) and (orientation: landscape) {
-    #mobileControls {
-        bottom: 30px !important; /* Higher placement like Shadow Fight */
-        padding: 0 20px;
-    }
-    
-    /* Make controls more prominent */
-    .joystick-base {
-        background: rgba(0, 0, 0, 0.6);
-        border: 2px solid rgba(255, 255, 255, 0.3);
-    }
-    
-    .control-btn {
-        background: rgba(52, 152, 219, 0.9);
-        border: 2px solid rgba(255, 255, 255, 0.4);
-        font-weight: bold;
-    }
-    
-    .control-btn.steal {
-        background: rgba(231, 76, 60, 0.9);
-    }
-}
+        /* Huawei Devices */
+        @media (max-width: 360px) and (orientation: landscape),
+               (max-width: 400px) and (max-height: 360px) and (orientation: landscape) {
+            #mobileControls {
+                bottom: 35px !important;
+                padding: 0 12px;
+            }
+            
+            .joystick-container {
+                width: 75px !important;
+                height: 75px !important;
+            }
+            
+            .control-btn {
+                width: 55px !important;
+                height: 55px !important;
+                font-size: 0.7rem !important;
+            }
+        }
 
-/* Base mobile controls enhancement */
-#mobileControls {
-    transition: bottom 0.3s ease; /* Smooth adjustment */
-}
+        /* Tecno Devices */
+        @media (max-width: 380px) and (orientation: landscape),
+               (max-width: 420px) and (max-height: 380px) and (orientation: landscape) {
+            #mobileControls {
+                bottom: 32px !important;
+                padding: 0 14px;
+            }
+            
+            .joystick-container {
+                width: 72px !important;
+                height: 72px !important;
+            }
+            
+            .control-btn {
+                width: 52px !important;
+                height: 52px !important;
+                font-size: 0.68rem !important;
+            }
+        }
 
-.joystick-base {
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
-}
+        /* iPhone Devices */
+        @media (max-width: 390px) and (orientation: landscape),
+               (max-width: 430px) and (max-height: 390px) and (orientation: landscape),
+               (max-width: 414px) and (orientation: landscape) {
+            #mobileControls {
+                bottom: 40px !important;
+                padding: 0 16px;
+            }
+            
+            .joystick-container {
+                width: 78px !important;
+                height: 78px !important;
+            }
+            
+            .control-btn {
+                width: 58px !important;
+                height: 58px !important;
+                font-size: 0.72rem !important;
+            }
+        }
 
-.control-btn {
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
+        /* Samsung Devices */
+        @media (max-width: 412px) and (orientation: landscape),
+               (max-width: 450px) and (max-height: 412px) and (orientation: landscape) {
+            #mobileControls {
+                bottom: 38px !important;
+                padding: 0 15px;
+            }
+            
+            .joystick-container {
+                width: 76px !important;
+                height: 76px !important;
+            }
+            
+            .control-btn {
+                width: 56px !important;
+                height: 56px !important;
+                font-size: 0.7rem !important;
+            }
+        }
 
-.control-btn:active {
-    transform: scale(0.92);
-    opacity: 0.8;
-}
+        /* Infinity Devices */
+        @media (max-width: 420px) and (orientation: landscape),
+               (max-width: 460px) and (max-height: 420px) and (orientation: landscape) {
+            #mobileControls {
+                bottom: 36px !important;
+                padding: 0 13px;
+            }
+            
+            .joystick-container {
+                width: 74px !important;
+                height: 74px !important;
+            }
+            
+            .control-btn {
+                width: 54px !important;
+                height: 54px !important;
+                font-size: 0.69rem !important;
+            }
+        }
+
+        /* Nokia Devices */
+        @media (max-width: 370px) and (orientation: landscape),
+               (max-width: 410px) and (max-height: 370px) and (orientation: landscape) {
+            #mobileControls {
+                bottom: 34px !important;
+                padding: 0 12px;
+            }
+            
+            .joystick-container {
+                width: 70px !important;
+                height: 70px !important;
+            }
+            
+            .control-btn {
+                width: 50px !important;
+                height: 50px !important;
+                font-size: 0.67rem !important;
+            }
+        }
+
+        /* Extra small height screens */
+        @media (max-height: 350px) and (orientation: landscape) {
+            #mobileControls {
+                bottom: 25px !important;
+                padding: 0 10px;
+            }
+            
+            .joystick-container {
+                width: 62px !important;
+                height: 62px !important;
+            }
+            
+            .control-btn {
+                width: 46px !important;
+                height: 46px !important;
+                font-size: 0.64rem !important;
+            }
+            
+            #uiContainer {
+                transform: scale(0.45);
+            }
+        }
+
+        /* Ultra small height screens */
+        @media (max-height: 300px) and (orientation: landscape) {
+            #mobileControls {
+                bottom: 22px !important;
+                padding: 0 8px;
+            }
+            
+            .joystick-container {
+                width: 58px !important;
+                height: 58px !important;
+            }
+            
+            .control-btn {
+                width: 44px !important;
+                height: 44px !important;
+                font-size: 0.62rem !important;
+            }
+            
+            #uiContainer {
+                transform: scale(0.4);
+                margin-top: 2px;
+            }
+            
+            .btn-pause {
+                transform: scale(0.7);
+                top: 2px;
+                right: 2px;
+            }
+        }
+
+        /* Enhanced iPhone notch safe areas */
+        @supports(padding: max(0px)) {
+            #mobileControls {
+                padding-left: max(15px, env(safe-area-inset-left));
+                padding-right: max(15px, env(safe-area-inset-right));
+                padding-bottom: max(15px, env(safe-area-inset-bottom));
+            }
+            
+            #uiContainer {
+                margin-left: max(5px, env(safe-area-inset-left));
+                margin-top: max(5px, env(safe-area-inset-top));
+            }
+            
+            .btn-pause {
+                margin-right: max(5px, env(safe-area-inset-right));
+                margin-top: max(5px, env(safe-area-inset-top));
+            }
+        }
+
+        /* Android specific optimizations */
+        @supports not (-webkit-touch-callout: none) {
+            #mobileControls {
+                padding-bottom: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -871,7 +750,7 @@
             BALL_SPEED: 10,
             GOALKEEPER_SPEED: 4,
             GOAL_HEIGHT: 180,
-            FIELD_RATIO: 2.0,  // Smaller field for mobile
+            FIELD_RATIO: 2.0,
             UI_SAFE_ZONE: 120
         };
 
@@ -892,32 +771,43 @@
             lastTime: 0,
             animationId: null,
             paused: false,
-            screenType: 'mobile' // mobile, tablet, desktop
+            screenType: 'mobile'
         };
 
-        // Detect screen type
+        // Enhanced device detection
         function detectScreenType() {
             const width = window.innerWidth;
             const height = window.innerHeight;
+            const aspectRatio = width / height;
             
+            // More accurate detection for different devices
             if (width >= 1024 || height >= 768) {
                 return 'desktop';
             } else if (width >= 768 || height >= 1024) {
                 return 'tablet';
             } else {
-                return 'mobile';
+                // Mobile devices with different aspect ratios
+                if (aspectRatio > 1.8) {
+                    return 'wide-mobile';
+                } else if (aspectRatio < 1.5) {
+                    return 'narrow-mobile';
+                } else {
+                    return 'mobile';
+                }
             }
         }
 
-        // Player Class with dynamic sizing
+        // Enhanced Player Class with better small screen support
         class Player {
             constructor(x, y, isUser = false, isGoalkeeper = false) {
                 this.x = x;
                 this.y = y;
                 
-                // Dynamic sizing based on screen type
+                // Enhanced dynamic sizing for all screen types
                 let baseRadius, speedMultiplier;
-                switch(game.screenType) {
+                const screenType = game.screenType;
+                
+                switch(screenType) {
                     case 'desktop':
                         baseRadius = isGoalkeeper ? 22 : 26;
                         speedMultiplier = 1.2;
@@ -926,9 +816,17 @@
                         baseRadius = isGoalkeeper ? 16 : 20;
                         speedMultiplier = 1.0;
                         break;
-                    default: // mobile
-                        baseRadius = isGoalkeeper ? 12 : 14;
+                    case 'wide-mobile':
+                        baseRadius = isGoalkeeper ? 14 : 16;
                         speedMultiplier = 0.9;
+                        break;
+                    case 'narrow-mobile':
+                        baseRadius = isGoalkeeper ? 12 : 14;
+                        speedMultiplier = 0.8;
+                        break;
+                    default: // mobile
+                        baseRadius = isGoalkeeper ? 13 : 15;
+                        speedMultiplier = 0.85;
                 }
                 
                 this.radius = baseRadius;
@@ -951,7 +849,7 @@
                 this.kicking = false;
                 this.kickFrame = 0;
                 
-                // AI behavior
+                // AI behavior - enhanced for small screens
                 this.targetX = x;
                 this.targetY = y;
                 this.aggression = 0.5 + (game.chapter * 0.02);
@@ -959,10 +857,18 @@
                 // For goalkeeper random movement
                 this.randomMoveTimer = 0;
                 this.randomMoveDirection = 0;
+                
+                // Shooting cooldown for opponents
+                this.shootCooldown = 0;
             }
 
             update() {
                 this.animationFrame++;
+                
+                // Handle shooting cooldown
+                if (this.shootCooldown > 0) {
+                    this.shootCooldown--;
+                }
                 
                 // Handle movement for user player
                 if (this.isUser) {
@@ -982,22 +888,25 @@
                     this.x += moveX * this.speed;
                     this.y += moveY * this.speed;
                     
-                    // Prevent user from entering goal areas
-                    const goalAreaWidth = game.screenType === 'desktop' ? 60 : 40;
+                    // Prevent user from entering goal areas - dynamic based on screen
+                    const goalAreaWidth = game.screenType === 'desktop' ? 60 : 
+                                        game.screenType === 'tablet' ? 50 : 40;
                     
                     // Left goal restriction
                     if (this.x - this.radius < goalAreaWidth) {
                         this.x = goalAreaWidth + this.radius;
                     }
                     
-                    // Right goal restriction (with a buffer to avoid goalkeeper area)
+                    // Right goal restriction
                     if (this.x + this.radius > game.canvas.width - goalAreaWidth) {
                         this.x = game.canvas.width - goalAreaWidth - this.radius;
                     }
                     
                     // Prevent player from going into UI area
-                    if (this.x - this.radius < CONFIG.UI_SAFE_ZONE && this.y - this.radius < 100) {
-                        this.x = Math.max(this.radius, CONFIG.UI_SAFE_ZONE + this.radius);
+                    const uiSafeZone = game.screenType === 'desktop' ? CONFIG.UI_SAFE_ZONE : 
+                                     game.screenType === 'tablet' ? 100 : 80;
+                    if (this.x - this.radius < uiSafeZone && this.y - this.radius < 100) {
+                        this.x = Math.max(this.radius, uiSafeZone + this.radius);
                     }
                 } 
                 // AI for goalkeeper
@@ -1061,7 +970,7 @@
                         this.randomMoveDirection *= -1;
                     }
                 }
-                // AI for field opponents
+                // AI for field opponents - ENHANCED FOR SMALL SCREENS
                 else {
                     // More aggressive behavior based on chapter
                     const aggression = 0.7 + (game.chapter * 0.03);
@@ -1073,13 +982,16 @@
                         const dy = game.player.y - this.y;
                         const distance = Math.sqrt(dx * dx + dy * dy);
                         
-                        if (distance < 120) {
+                        // Enhanced interception logic for small screens
+                        const interceptDistance = game.screenType.includes('mobile') ? 100 : 120;
+                        if (distance < interceptDistance) {
                             // Move to intercept the user
                             this.x += (dx / distance) * opponentSpeed * aggression;
                             this.y += (dy / distance) * opponentSpeed * aggression;
                             
                             // Try to steal if close enough (higher chance in later chapters)
-                            if (distance < 35 && Math.random() < (0.05 + game.chapter * 0.02)) {
+                            const stealDistance = game.screenType.includes('mobile') ? 30 : 35;
+                            if (distance < stealDistance && Math.random() < (0.05 + game.chapter * 0.02)) {
                                 this.stealFromUser();
                             }
                         } else {
@@ -1108,11 +1020,24 @@
                         }
                         
                         // If close to the ball and no one has it, try to take possession
-                        if (distance < 25 && !game.ball.possessedBy && Math.random() < (0.1 + game.chapter * 0.01)) {
+                        const possessionDistance = game.screenType.includes('mobile') ? 20 : 25;
+                        if (distance < possessionDistance && !game.ball.possessedBy && Math.random() < (0.1 + game.chapter * 0.01)) {
                             game.ball.possessedBy = this;
                             this.hasBall = true;
                             game.ballLost = true;
                             game.recoveryTimer = CONFIG.RECOVERY_TIME;
+                        }
+                        
+                        // ENHANCED: If opponent has ball, try to score
+                        if (this.hasBall && this.shootCooldown === 0) {
+                            // Check if in good position to shoot
+                            const isInShootingPosition = this.x < game.canvas.width * 0.7;
+                            const hasClearPath = Math.abs(this.y - game.canvas.height/2) < CONFIG.GOAL_HEIGHT/2;
+                            
+                            if (isInShootingPosition && hasClearPath && Math.random() < 0.02) {
+                                this.shootTowardsGoal();
+                                this.shootCooldown = 60; // 1 second cooldown at 60fps
+                            }
                         }
                     } else if (game.ball.possessedBy && game.ball.possessedBy !== this) {
                         // If another opponent has the ball, spread out for a pass
@@ -1130,8 +1055,10 @@
                     }
                     
                     // Prevent opponents from going into UI area
-                    if (this.x - this.radius < CONFIG.UI_SAFE_ZONE && this.y - this.radius < 100) {
-                        this.x = Math.max(this.radius, CONFIG.UI_SAFE_ZONE + this.radius);
+                    const uiSafeZone = game.screenType === 'desktop' ? CONFIG.UI_SAFE_ZONE : 
+                                     game.screenType === 'tablet' ? 100 : 80;
+                    if (this.x - this.radius < uiSafeZone && this.y - this.radius < 100) {
+                        this.x = Math.max(this.radius, uiSafeZone + this.radius);
                     }
                 }
                 
@@ -1147,7 +1074,8 @@
                 }
                 
                 // Update ball position if player has it
-                const ballOffset = game.screenType === 'desktop' ? 30 : 20;
+                const ballOffset = game.screenType === 'desktop' ? 30 : 
+                                 game.screenType === 'tablet' ? 25 : 20;
                 if (this.hasBall && game.ball.possessedBy === this) {
                     game.ball.x = this.x + (this.isUser ? ballOffset : -ballOffset);
                     game.ball.y = this.y;
@@ -1163,12 +1091,37 @@
                 }
             }
 
+            // NEW METHOD: Opponent shooting towards goal
+            shootTowardsGoal() {
+                if (this.hasBall && !this.isUser) {
+                    // Calculate direction towards user's goal (left side)
+                    const goalX = 0;
+                    const goalY = game.canvas.height / 2;
+                    
+                    const dx = goalX - this.x;
+                    const dy = goalY - this.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    // Make shooting more accurate in later chapters
+                    const accuracy = Math.max(0.6, 0.8 - (game.chapter - 1) * 0.02);
+                    const randomOffset = (Math.random() - 0.5) * (1 - accuracy) * 100;
+                    
+                    game.ball.speedX = (dx / distance) * CONFIG.BALL_SPEED * 0.8;
+                    game.ball.speedY = ((dy + randomOffset) / distance) * CONFIG.BALL_SPEED * 0.8;
+                    game.ball.possessedBy = null;
+                    this.hasBall = false;
+                    this.kicking = true;
+                }
+            }
+
             draw(ctx) {
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 
                 // Scale factors based on screen type
-                const scaleFactor = game.screenType === 'desktop' ? 1.3 : game.screenType === 'tablet' ? 1.1 : 1.0;
+                const scaleFactor = game.screenType === 'desktop' ? 1.3 : 
+                                  game.screenType === 'tablet' ? 1.1 : 
+                                  game.screenType === 'wide-mobile' ? 1.0 : 0.9;
                 
                 // Draw body
                 ctx.fillStyle = this.color;
@@ -1258,7 +1211,8 @@
                 }
                 
                 // Ball possession indicator
-                const indicatorOffset = game.screenType === 'desktop' ? 28 : 22;
+                const indicatorOffset = game.screenType === 'desktop' ? 28 : 
+                                      game.screenType === 'tablet' ? 24 : 20;
                 if (this.hasBall) {
                     ctx.fillStyle = '#f1c40f';
                     ctx.beginPath();
@@ -1344,8 +1298,14 @@
                     case 'tablet':
                         this.radius = 8;
                         break;
-                    default: // mobile
+                    case 'wide-mobile':
+                        this.radius = 7;
+                        break;
+                    case 'narrow-mobile':
                         this.radius = 6;
+                        break;
+                    default: // mobile
+                        this.radius = 6.5;
                 }
                 
                 this.speedX = 0;
@@ -1395,7 +1355,9 @@
                         const dy = opponent.y - this.y;
                         const distance = Math.sqrt(dx * dx + dy * dy);
                         
-                        if (distance < 25 && Math.random() < (0.05 + game.chapter * 0.01)) {
+                        // Enhanced possession logic for small screens
+                        const possessionDistance = game.screenType.includes('mobile') ? 22 : 25;
+                        if (distance < possessionDistance && Math.random() < (0.05 + game.chapter * 0.01)) {
                             this.possessedBy = opponent;
                             opponent.hasBall = true;
                             this.speedX = 0;
@@ -1469,12 +1431,17 @@
             // Set canvas size based on device
             setupCanvas();
             
-            // Check if mobile
-            game.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            // Enhanced mobile detection
+            game.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                           ('ontouchstart' in window) || 
+                           (navigator.maxTouchPoints > 0);
             
             if (game.isMobile) {
                 document.getElementById('mobileControls').style.display = 'flex';
                 setupMobileControls();
+                
+                // Optimize mobile controls positioning
+                optimizeMobileControls();
             } else {
                 setupKeyboardControls();
             }
@@ -1491,9 +1458,55 @@
             game.canvas.width = window.innerWidth;
             game.canvas.height = window.innerHeight;
             
-            // Apply the field ratio (smaller for mobile)
-            const fieldRatio = game.screenType === 'desktop' ? 2.2 : 2.0;
+            // Apply the field ratio (dynamic for different screens)
+            let fieldRatio;
+            switch(game.screenType) {
+                case 'desktop':
+                    fieldRatio = 2.2;
+                    break;
+                case 'tablet':
+                    fieldRatio = 2.1;
+                    break;
+                case 'wide-mobile':
+                    fieldRatio = 1.9;
+                    break;
+                case 'narrow-mobile':
+                    fieldRatio = 1.7;
+                    break;
+                default:
+                    fieldRatio = 1.8;
+            }
             game.canvas.width = Math.max(game.canvas.width, game.canvas.height * fieldRatio);
+        }
+
+        // Enhanced mobile controls optimization
+        function optimizeMobileControls() {
+            const mobileControls = document.getElementById('mobileControls');
+            if (!mobileControls) return;
+            
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const aspectRatio = width / height;
+            
+            // Dynamic positioning based on screen characteristics
+            let bottomPosition = 30; // Default
+            
+            // Adjust based on screen height and aspect ratio
+            if (height < 350) {
+                bottomPosition = 25; // Very short screens
+            } else if (height < 400) {
+                bottomPosition = 28; // Short screens
+            } else if (height > 500) {
+                bottomPosition = 35; // Tall screens
+            }
+            
+            // Adjust based on aspect ratio (very wide screens)
+            if (aspectRatio > 2.0) {
+                bottomPosition += 5;
+            }
+            
+            // Apply the calculated position
+            mobileControls.style.bottom = `${bottomPosition}px`;
         }
 
         function setupEventListeners() {
@@ -1522,10 +1535,23 @@
                     // Portrait mode - show orientation message
                     document.getElementById('orientationMessage').style.display = 'flex';
                     document.getElementById('gameContainer').style.display = 'none';
+                    
+                    // Pause game when in portrait
+                    if (game.gameStarted && !game.paused) {
+                        togglePause();
+                    }
                 } else {
                     // Landscape mode - show game
                     document.getElementById('orientationMessage').style.display = 'none';
                     document.getElementById('gameContainer').style.display = 'block';
+                    
+                    // Optimize mobile controls
+                    optimizeMobileControls();
+                    
+                    // Resume game when back to landscape
+                    if (game.gameStarted && game.paused) {
+                        setTimeout(togglePause, 100);
+                    }
                 }
             }
             
@@ -1601,15 +1627,29 @@
                 }
             });
             
-            // Button events
-            shootBtn.addEventListener('touchstart', (e) => {
-                if (!game.paused) game.player.shoot();
-                e.preventDefault();
-            });
-            
-            stealBtn.addEventListener('touchstart', (e) => {
-                if (!game.paused) game.player.steal();
-                e.preventDefault();
+            // Button events with visual feedback
+            [shootBtn, stealBtn].forEach(btn => {
+                btn.addEventListener('touchstart', (e) => {
+                    if (!game.paused) {
+                        if (btn.classList.contains('shoot')) {
+                            game.player.shoot();
+                        } else {
+                            game.player.steal();
+                        }
+                    }
+                    e.preventDefault();
+                });
+                
+                // Visual feedback for mobile buttons
+                btn.addEventListener('touchstart', () => {
+                    btn.style.transform = 'scale(0.95)';
+                    btn.style.opacity = '0.8';
+                });
+                
+                btn.addEventListener('touchend', () => {
+                    btn.style.transform = 'scale(1)';
+                    btn.style.opacity = '1';
+                });
             });
             
             function handleJoystickMove(e) {
@@ -1633,40 +1673,89 @@
                 const moveX = Math.cos(angle) * (limitedDistance / maxDistance);
                 const moveY = Math.sin(angle) * (limitedDistance / maxDistance);
                 
-                // Update player movement
-                game.player.moveUp = moveY < -0.3;
-                game.player.moveDown = moveY > 0.3;
-                game.player.moveLeft = moveX < -0.3;
-                game.player.moveRight = moveX > 0.3;
+                // Update player movement with mobile sensitivity
+                const sensitivity = game.screenType.includes('mobile') ? 0.4 : 0.3;
+                game.player.moveUp = moveY < -sensitivity;
+                game.player.moveDown = moveY > sensitivity;
+                game.player.moveLeft = moveX < -sensitivity;
+                game.player.moveRight = moveX > sensitivity;
             }
             
             // Initial position update
             updateJoystickCenter();
+            
+            // Update on resize
+            window.addEventListener('resize', updateJoystickCenter);
         }
 
         function resetGame() {
-            // Create player
-            const startX = game.screenType === 'desktop' ? 100 : 80;
+            // Create player with dynamic positioning
+            let startX;
+            switch(game.screenType) {
+                case 'desktop':
+                    startX = 100;
+                    break;
+                case 'tablet':
+                    startX = 90;
+                    break;
+                case 'wide-mobile':
+                    startX = 85;
+                    break;
+                case 'narrow-mobile':
+                    startX = 75;
+                    break;
+                default:
+                    startX = 80;
+            }
             game.player = new Player(startX, game.canvas.height / 2, true);
             
-            // Create goalkeeper
-            const keeperX = game.screenType === 'desktop' ? game.canvas.width - 40 : game.canvas.width - 30;
+            // Create goalkeeper with dynamic positioning
+            let keeperX;
+            switch(game.screenType) {
+                case 'desktop':
+                    keeperX = game.canvas.width - 40;
+                    break;
+                case 'tablet':
+                    keeperX = game.canvas.width - 35;
+                    break;
+                default:
+                    keeperX = game.canvas.width - 30;
+            }
             game.goalkeeper = new Player(keeperX, game.canvas.height / 2, false, true);
             
             // Create opponents based on current chapter
             game.opponents = [];
             const opponentsCount = game.chapter;
             
-            // Position opponents in formation
+            // Position opponents in formation - enhanced for small screens
             const rows = Math.ceil(Math.sqrt(opponentsCount));
             const cols = Math.ceil(opponentsCount / rows);
+            
+            // Dynamic spacing based on screen size
+            let xSpacing, ySpacing, startY;
+            switch(game.screenType) {
+                case 'desktop':
+                    xSpacing = 50;
+                    ySpacing = 60;
+                    startY = 70;
+                    break;
+                case 'tablet':
+                    xSpacing = 45;
+                    ySpacing = 55;
+                    startY = 65;
+                    break;
+                default: // mobile
+                    xSpacing = 40;
+                    ySpacing = 50;
+                    startY = 60;
+            }
             
             for (let i = 0; i < opponentsCount; i++) {
                 const row = Math.floor(i / cols);
                 const col = i % cols;
                 
-                const x = game.canvas.width - 150 - col * 50;
-                const y = 70 + row * 60;
+                const x = game.canvas.width - 150 - col * xSpacing;
+                const y = startY + row * ySpacing;
                 
                 const opponent = new Player(x, y, false);
                 
@@ -1778,7 +1867,7 @@
                         goalSaved = true;
                         // Bounce ball away
                         game.ball.speedX = -game.ball.speedX * 0.7;
-                        game.ball.speedY = (this.y - game.goalkeeper.y) * 0.4;
+                        game.ball.speedY = (game.ball.y - game.goalkeeper.y) * 0.4;
                     }
                 }
                 
@@ -1789,7 +1878,7 @@
                 }
             }
             
-            // Opponents score (ball enters left side)
+            // Opponents score (ball enters left side) - FIXED FOR SMALL SCREENS
             if (game.ball.x < 25 && 
                 game.ball.y > game.canvas.height / 2 - CONFIG.GOAL_HEIGHT/2 && 
                 game.ball.y < game.canvas.height / 2 + CONFIG.GOAL_HEIGHT/2) {
@@ -1886,8 +1975,10 @@
             ctx.strokeStyle = '#229954';
             ctx.lineWidth = 0.8;
             
-            for (let i = 0; i < game.canvas.width; i += 35) {
-                for (let j = 0; j < game.canvas.height; j += 35) {
+            // Dynamic grass pattern based on screen size
+            const patternSize = game.screenType.includes('mobile') ? 30 : 35;
+            for (let i = 0; i < game.canvas.width; i += patternSize) {
+                for (let j = 0; j < game.canvas.height; j += patternSize) {
                     ctx.beginPath();
                     ctx.moveTo(i, j);
                     ctx.lineTo(i + 15, j + 15);
@@ -1924,14 +2015,16 @@
             // Draw goal area restrictions for player
             ctx.strokeStyle = 'rgba(255, 0, 0, 0.3)';
             ctx.setLineDash([4, 4]);
-            ctx.strokeRect(0, 0, 40, game.canvas.height);
-            ctx.strokeRect(game.canvas.width - 40, 0, 40, game.canvas.height);
+            
+            // Dynamic goal area based on screen
+            const goalAreaWidth = game.screenType.includes('mobile') ? 35 : 40;
+            ctx.strokeRect(0, 0, goalAreaWidth, game.canvas.height);
+            ctx.strokeRect(game.canvas.width - goalAreaWidth, 0, goalAreaWidth, game.canvas.height);
             ctx.setLineDash([]);
         }
 
         // Start the game when page loads
         window.addEventListener('load', init);
-        
     </script>
 </body>
 </html>
