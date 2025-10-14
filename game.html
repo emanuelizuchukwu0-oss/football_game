@@ -95,43 +95,53 @@
         }
 
         .overlay h1 {
-            font-size: clamp(2rem, 8vw, 3rem);
+            font-size: clamp(1.8rem, 6vw, 2.5rem);
             margin-bottom: 1rem;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
             color: #f1c40f;
         }
 
         .overlay h2 {
-            font-size: clamp(1.5rem, 6vw, 2rem);
-            margin-bottom: 2rem;
+            font-size: clamp(1.3rem, 4vw, 1.8rem);
+            margin-bottom: 1.5rem;
             color: #3498db;
         }
 
         .overlay p {
-            font-size: clamp(1rem, 4vw, 1.2rem);
-            margin-bottom: 2rem;
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            margin-bottom: 1.5rem;
             max-width: 90%;
-            line-height: 1.6;
+            line-height: 1.5;
+        }
+
+        .btn-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
         }
 
         .btn {
-            padding: clamp(12px, 4vw, 15px) clamp(30px, 8vw, 35px);
-            margin: 10px;
-            font-size: clamp(1rem, 4vw, 1.3rem);
+            padding: clamp(10px, 3vw, 12px) clamp(20px, 6vw, 25px);
+            margin: 5px;
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
             background: #e74c3c;
             color: white;
             border: none;
-            border-radius: 50px;
+            border-radius: 25px;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            min-width: 140px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            min-width: 120px;
+            flex: 1;
+            max-width: 200px;
         }
 
         .btn:hover {
             background: #c0392b;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
         }
 
         .btn-secondary {
@@ -145,11 +155,13 @@
         .btn-pause {
             background: #f39c12;
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 5px;
+            right: 5px;
             z-index: 5;
-            padding: 8px 16px;
-            font-size: 1rem;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            min-width: auto;
+            flex: none;
         }
 
         .btn-pause:hover {
@@ -158,36 +170,38 @@
 
         #uiContainer {
             position: absolute;
-            top: 10px;
-            left: 10px;
+            top: 5px;
+            left: 5px;
             color: white;
             z-index: 5;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 5px;
+            transform: scale(0.8);
+            transform-origin: top left;
         }
 
         .ui-box {
             background: rgba(0, 0, 0, 0.7);
-            padding: 10px 15px;
-            border-radius: 10px;
+            padding: 5px 10px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: clamp(0.8rem, 3vw, 1rem);
+            gap: 6px;
+            font-size: 0.7rem;
         }
 
         .lives {
             display: flex;
-            gap: 5px;
+            gap: 3px;
         }
 
         .life {
-            width: clamp(15px, 4vw, 20px);
-            height: clamp(15px, 4vw, 20px);
+            width: 10px;
+            height: 10px;
             background: #e74c3c;
             border-radius: 50%;
-            box-shadow: 0 0 5px rgba(231, 76, 60, 0.7);
+            box-shadow: 0 0 3px rgba(231, 76, 60, 0.7);
         }
 
         .life.lost {
@@ -197,18 +211,18 @@
 
         #mobileControls {
             position: absolute;
-            bottom: 20px;
+            bottom: 15px;
             width: 100%;
             display: none;
             justify-content: space-between;
-            padding: 0 20px;
+            padding: 0 15px;
             z-index: 5;
         }
 
         .joystick-container {
             position: relative;
-            width: clamp(100px, 25vw, 120px);
-            height: clamp(100px, 25vw, 120px);
+            width: clamp(80px, 22vw, 100px);
+            height: clamp(80px, 22vw, 100px);
         }
 
         .joystick-base {
@@ -222,8 +236,8 @@
         }
 
         .joystick-handle {
-            width: clamp(40px, 12vw, 50px);
-            height: clamp(40px, 12vw, 50px);
+            width: clamp(30px, 10vw, 40px);
+            height: clamp(30px, 10vw, 40px);
             background: rgba(255, 255, 255, 0.8);
             border-radius: 50%;
             position: absolute;
@@ -235,13 +249,12 @@
 
         .action-buttons {
             display: flex;
-            flex-direction: column;
-            gap: 20px;
+            gap: 15px;
         }
 
         .control-btn {
-            width: clamp(70px, 20vw, 80px);
-            height: clamp(70px, 20vw, 80px);
+            width: clamp(60px, 18vw, 70px);
+            height: clamp(60px, 18vw, 70px);
             border-radius: 50%;
             background: rgba(52, 152, 219, 0.8);
             display: flex;
@@ -249,8 +262,8 @@
             align-items: center;
             color: white;
             font-weight: bold;
-            font-size: clamp(1rem, 3vw, 1.2rem);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            font-size: clamp(0.8rem, 2.5vw, 1rem);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             user-select: none;
             touch-action: manipulation;
         }
@@ -264,7 +277,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: clamp(2rem, 10vw, 4rem);
+            font-size: clamp(1.5rem, 8vw, 3rem);
             color: #f1c40f;
             text-shadow: 0 0 20px rgba(241, 196, 15, 0.8);
             z-index: 5;
@@ -280,14 +293,14 @@
         }
 
         .thumbs-up {
-            font-size: clamp(2rem, 8vw, 3rem);
-            margin: 10px;
+            font-size: clamp(1.5rem, 6vw, 2.5rem);
+            margin: 8px;
             animation: bounce 1s infinite alternate;
         }
 
         @keyframes bounce {
             from { transform: translateY(0); }
-            to { transform: translateY(-20px); }
+            to { transform: translateY(-15px); }
         }
 
         .thumbs-up:nth-child(2) {
@@ -311,31 +324,50 @@
 
         /* Mobile landscape optimizations */
         @media (max-width: 768px) and (orientation: landscape) {
-            #uiContainer {
-                transform: scale(0.8);
-                transform-origin: top left;
-            }
-            
-            .btn-pause {
-                transform: scale(0.8);
-                top: 5px;
-                right: 5px;
-            }
-            
             #mobileControls {
                 display: flex;
             }
             
             .overlay h1 {
-                font-size: 2rem;
+                font-size: 1.6rem;
             }
             
             .overlay h2 {
-                font-size: 1.5rem;
+                font-size: 1.2rem;
             }
             
             .overlay p {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Desktop screens */
+        @media (min-width: 1024px) {
+            #gameContainer {
+                width: 90vw;
+                height: 90vh;
+                max-width: 1400px;
+                max-height: 800px;
+            }
+            
+            .btn {
+                padding: 12px 25px;
+                font-size: 1rem;
+            }
+            
+            .btn-pause {
+                padding: 8px 16px;
                 font-size: 0.9rem;
+            }
+        }
+
+        /* Large screens */
+        @media (min-width: 1400px) {
+            #gameContainer {
+                width: 85vw;
+                height: 85vh;
+                max-width: 1600px;
+                max-height: 900px;
             }
         }
 
@@ -346,7 +378,7 @@
             }
             
             .btn-pause {
-                transform: scale(0.7);
+                transform: scale(0.8);
             }
             
             #mobileControls {
@@ -354,14 +386,14 @@
             }
             
             .joystick-container {
-                width: 80px;
-                height: 80px;
+                width: 70px;
+                height: 70px;
             }
             
             .control-btn {
-                width: 60px;
-                height: 60px;
-                font-size: 0.9rem;
+                width: 55px;
+                height: 55px;
+                font-size: 0.8rem;
             }
         }
 
@@ -425,24 +457,28 @@
             <h1>FOOTBALL CHALLENGE</h1>
             <p>Score against increasingly more opponents! Start with 1 opponent, then 2, 3, and so on up to 22!</p>
             <p>Use arrow keys to move, 'S' to steal, and SPACE to shoot. Press 'P' to pause.</p>
-            <button id="startBtn" class="btn">START GAME</button>
+            <div class="btn-container">
+                <button id="startBtn" class="btn">START GAME</button>
+            </div>
         </div>
         
         <div id="pauseOverlay" class="overlay" style="display: none;">
             <h1>GAME PAUSED</h1>
             <p>Take a break and get ready for the next challenge!</p>
-            <button id="resumeBtn" class="btn">RESUME GAME</button>
+            <div class="btn-container">
+                <button id="resumeBtn" class="btn">RESUME GAME</button>
+            </div>
         </div>
         
         <div id="winOverlay" class="overlay" style="display: none;">
             <h1>LEVEL COMPLETE!</h1>
             <h2>You scored against <span id="winOpponents">1</span> opponents!</h2>
-            <div style="display: flex; justify-content: center; margin: 20px 0;">
+            <div style="display: flex; justify-content: center; margin: 15px 0;">
                 <div class="thumbs-up">👍</div>
                 <div class="thumbs-up">👍</div>
                 <div class="thumbs-up">👍</div>
             </div>
-            <div>
+            <div class="btn-container">
                 <button id="replayBtn" class="btn">PLAY AGAIN</button>
                 <button id="nextChapterBtn" class="btn btn-secondary">NEXT CHAPTER</button>
             </div>
@@ -452,7 +488,9 @@
             <h1>GAME OVER</h1>
             <h2>You lost on Chapter <span id="loseChapter">1</span></h2>
             <p>You couldn't score against <span id="loseOpponents">1</span> opponents!</p>
-            <button id="restartBtn" class="btn">PLAY AGAIN</button>
+            <div class="btn-container">
+                <button id="restartBtn" class="btn">PLAY AGAIN</button>
+            </div>
         </div>
     </div>
 
@@ -467,7 +505,8 @@
             BALL_SPEED: 10,
             GOALKEEPER_SPEED: 4,
             GOAL_HEIGHT: 200,
-            FIELD_RATIO: 1.8
+            FIELD_RATIO: 2.5,  // Increased for longer field
+            UI_SAFE_ZONE: 150  // Area where players can't go (for UI)
         };
 
         // Game State
@@ -494,7 +533,8 @@
             constructor(x, y, isUser = false, isGoalkeeper = false) {
                 this.x = x;
                 this.y = y;
-                this.radius = isGoalkeeper ? 20 : 25;
+                // Smaller player sizes
+                this.radius = isGoalkeeper ? 15 : 18;
                 this.speed = isUser ? CONFIG.PLAYER_SPEED : 
                             isGoalkeeper ? CONFIG.GOALKEEPER_SPEED : CONFIG.OPPONENT_SPEED;
                 this.isUser = isUser;
@@ -557,6 +597,11 @@
                     if (this.x + this.radius > game.canvas.width - goalAreaWidth) {
                         this.x = game.canvas.width - goalAreaWidth - this.radius;
                     }
+                    
+                    // Prevent player from going into UI area
+                    if (this.x - this.radius < CONFIG.UI_SAFE_ZONE && this.y - this.radius < 120) {
+                        this.x = Math.max(this.radius, CONFIG.UI_SAFE_ZONE + this.radius);
+                    }
                 } 
                 // AI for goalkeeper
                 else if (this.isGoalkeeper) {
@@ -564,53 +609,66 @@
                     const goalTop = goalCenter - CONFIG.GOAL_HEIGHT/2 + 20;
                     const goalBottom = goalCenter + CONFIG.GOAL_HEIGHT/2 - 20;
                     
-                    // If player has the ball, move randomly
+                    // Make goalkeeper movement more random and faster as chapters increase
+                    const chapterDifficulty = Math.min(1, game.chapter / 5); // Max difficulty at chapter 5
+                    const randomMovementChance = 0.05 + (chapterDifficulty * 0.1);
+                    const movementSpeed = this.speed * (1 + chapterDifficulty * 0.5);
+                    
+                    this.randomMoveTimer--;
+                    
+                    // More frequent random direction changes in higher chapters
+                    if (this.randomMoveTimer <= 0 || Math.random() < randomMovementChance) {
+                        this.randomMoveDirection = (Math.random() * 2 - 1) * (1 + chapterDifficulty); // -1 to 1, amplified by difficulty
+                        this.randomMoveTimer = 20 + Math.random() * 40; // Shorter timer for more frequent changes
+                    }
+                    
+                    // Always incorporate some random movement when player has the ball
                     if (game.ball.possessedBy === game.player) {
-                        this.randomMoveTimer--;
-                        
-                        // Change direction randomly or when timer runs out
-                        if (this.randomMoveTimer <= 0 || Math.random() < 0.02) {
-                            this.randomMoveDirection = Math.random() * 2 - 1; // -1 to 1
-                            this.randomMoveTimer = 30 + Math.random() * 60; // 0.5 to 1.5 seconds at 60fps
-                        }
-                        
-                        // Move in random direction
-                        this.y += this.randomMoveDirection * this.speed;
-                        
-                        // Stay within goal bounds
-                        if (this.y < goalTop) {
-                            this.y = goalTop;
-                            this.randomMoveDirection *= -1; // Bounce off top
-                        } else if (this.y > goalBottom) {
-                            this.y = goalBottom;
-                            this.randomMoveDirection *= -1; // Bounce off bottom
-                        }
+                        this.y += this.randomMoveDirection * movementSpeed;
                     } 
-                    // Otherwise, follow the ball normally
+                    // Otherwise, follow the ball but with random elements
                     else {
-                        // Move to protect the goal
                         const ballY = game.ball.y;
+                        let targetY;
                         
-                        // Move towards ball Y position but stay within goal bounds
                         if (ballY < goalTop) {
-                            this.targetY = goalTop;
+                            targetY = goalTop;
                         } else if (ballY > goalBottom) {
-                            this.targetY = goalBottom;
+                            targetY = goalBottom;
                         } else {
-                            this.targetY = ballY;
+                            targetY = ballY;
                         }
                         
-                        // Smooth movement towards target
-                        const dy = this.targetY - this.y;
+                        // Add randomness to goalkeeper positioning
+                        const randomOffset = (Math.random() - 0.5) * 30 * chapterDifficulty;
+                        targetY += randomOffset;
+                        
+                        // Smooth movement towards target with some randomness
+                        const dy = targetY - this.y;
                         if (Math.abs(dy) > 2) {
-                            this.y += (dy > 0 ? 1 : -1) * this.speed;
+                            this.y += (dy > 0 ? 1 : -1) * movementSpeed;
                         }
+                        
+                        // Occasionally add random jumps
+                        if (Math.random() < 0.02 * chapterDifficulty) {
+                            this.y += (Math.random() - 0.5) * 50;
+                        }
+                    }
+                    
+                    // Stay within goal bounds
+                    if (this.y < goalTop) {
+                        this.y = goalTop;
+                        this.randomMoveDirection *= -1;
+                    } else if (this.y > goalBottom) {
+                        this.y = goalBottom;
+                        this.randomMoveDirection *= -1;
                     }
                 }
                 // AI for field opponents
                 else {
                     // More aggressive behavior based on chapter
-                    const aggression = 0.7 + (game.chapter * 0.02);
+                    const aggression = 0.7 + (game.chapter * 0.03);
+                    const opponentSpeed = this.speed * (1 + (game.chapter - 1) * 0.1); // Speed increases with chapters
                     
                     if (game.ball.possessedBy === game.player) {
                         // If user has the ball, try to intercept or tackle
@@ -620,11 +678,11 @@
                         
                         if (distance < 150) {
                             // Move to intercept the user
-                            this.x += (dx / distance) * this.speed * aggression;
-                            this.y += (dy / distance) * this.speed * aggression;
+                            this.x += (dx / distance) * opponentSpeed * aggression;
+                            this.y += (dy / distance) * opponentSpeed * aggression;
                             
-                            // Try to steal if close enough
-                            if (distance < 40 && Math.random() < 0.05 * aggression) {
+                            // Try to steal if close enough (higher chance in later chapters)
+                            if (distance < 40 && Math.random() < (0.05 + game.chapter * 0.02)) {
                                 this.stealFromUser();
                             }
                         } else {
@@ -637,8 +695,8 @@
                             const defensiveDist = Math.sqrt(ddx * ddx + ddy * ddy);
                             
                             if (defensiveDist > 10) {
-                                this.x += (ddx / defensiveDist) * this.speed * 0.5;
-                                this.y += (ddy / defensiveDist) * this.speed * 0.5;
+                                this.x += (ddx / defensiveDist) * opponentSpeed * 0.5;
+                                this.y += (ddy / defensiveDist) * opponentSpeed * 0.5;
                             }
                         }
                     } else if (!game.ball.possessedBy || game.ball.possessedBy === this) {
@@ -648,12 +706,12 @@
                         const distance = Math.sqrt(dx * dx + dy * dy);
                         
                         if (distance > 10) {
-                            this.x += (dx / distance) * this.speed * aggression;
-                            this.y += (dy / distance) * this.speed * aggression;
+                            this.x += (dx / distance) * opponentSpeed * aggression;
+                            this.y += (dy / distance) * opponentSpeed * aggression;
                         }
                         
                         // If close to the ball and no one has it, try to take possession
-                        if (distance < 30 && !game.ball.possessedBy && Math.random() < 0.1 * aggression) {
+                        if (distance < 30 && !game.ball.possessedBy && Math.random() < (0.1 + game.chapter * 0.01)) {
                             game.ball.possessedBy = this;
                             this.hasBall = true;
                             game.ballLost = true;
@@ -669,9 +727,14 @@
                         const formationDist = Math.sqrt(fdx * fdx + fdy * fdy);
                         
                         if (formationDist > 10) {
-                            this.x += (fdx / formationDist) * this.speed * 0.3;
-                            this.y += (fdy / formationDist) * this.speed * 0.3;
+                            this.x += (fdx / formationDist) * opponentSpeed * 0.3;
+                            this.y += (fdy / formationDist) * opponentSpeed * 0.3;
                         }
+                    }
+                    
+                    // Prevent opponents from going into UI area
+                    if (this.x - this.radius < CONFIG.UI_SAFE_ZONE && this.y - this.radius < 120) {
+                        this.x = Math.max(this.radius, CONFIG.UI_SAFE_ZONE + this.radius);
                     }
                 }
                 
@@ -688,7 +751,7 @@
                 
                 // Update ball position if player has it
                 if (this.hasBall && game.ball.possessedBy === this) {
-                    game.ball.x = this.x + (this.isUser ? 30 : -30);
+                    game.ball.x = this.x + (this.isUser ? 25 : -25);
                     game.ball.y = this.y;
                 }
                 
@@ -715,72 +778,72 @@
                 // Draw outline for user player
                 if (this.isUser) {
                     ctx.strokeStyle = '#f1c40f';
-                    ctx.lineWidth = 3;
+                    ctx.lineWidth = 2;
                     ctx.stroke();
                 }
                 
                 // Draw goalkeeper differently
                 if (this.isGoalkeeper) {
                     ctx.strokeStyle = '#ffffff';
-                    ctx.lineWidth = 2;
+                    ctx.lineWidth = 1.5;
                     ctx.stroke();
                     
                     // Draw gloves
                     ctx.fillStyle = '#FFFFFF';
-                    ctx.fillRect(-22, -5, 10, 8);
-                    ctx.fillRect(12, -5, 10, 8);
+                    ctx.fillRect(-18, -4, 8, 6);
+                    ctx.fillRect(10, -4, 8, 6);
                 }
                 
-                // Draw head
+                // Draw head (smaller)
                 ctx.fillStyle = '#FFDBAC';
                 ctx.beginPath();
-                ctx.arc(0, -8, this.isGoalkeeper ? 10 : 12, 0, Math.PI * 2);
+                ctx.arc(0, -6, this.isGoalkeeper ? 8 : 9, 0, Math.PI * 2);
                 ctx.fill();
                 
                 // Draw eyes
                 ctx.fillStyle = '#2C3E50';
                 ctx.beginPath();
-                ctx.arc(-5, -10, 3, 0, Math.PI * 2);
-                ctx.arc(5, -10, 3, 0, Math.PI * 2);
+                ctx.arc(-4, -8, 2, 0, Math.PI * 2);
+                ctx.arc(4, -8, 2, 0, Math.PI * 2);
                 ctx.fill();
                 
                 // Draw mouth
                 ctx.strokeStyle = '#2C3E50';
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 1.5;
                 ctx.beginPath();
-                ctx.arc(0, -5, 5, 0.1, Math.PI - 0.1);
+                ctx.arc(0, -4, 4, 0.1, Math.PI - 0.1);
                 ctx.stroke();
                 
                 // Draw arms with animation
-                const armSwing = Math.sin(this.animationFrame * 0.2) * 15;
+                const armSwing = Math.sin(this.animationFrame * 0.2) * 12;
                 ctx.fillStyle = this.color;
                 
                 // Left arm
                 ctx.save();
                 ctx.rotate((armSwing * Math.PI) / 180);
-                ctx.fillRect(-25, -5, 15, 8);
+                ctx.fillRect(-20, -4, 12, 6);
                 ctx.restore();
                 
                 // Right arm
                 ctx.save();
                 ctx.rotate((-armSwing * Math.PI) / 180);
-                ctx.fillRect(10, -5, 15, 8);
+                ctx.fillRect(8, -4, 12, 6);
                 ctx.restore();
                 
                 // Draw legs with animation
-                const legSwing = Math.sin(this.animationFrame * 0.2) * 20;
+                const legSwing = Math.sin(this.animationFrame * 0.2) * 15;
                 ctx.fillStyle = '#2C3E50';
                 
                 // Left leg
                 ctx.save();
                 ctx.rotate((legSwing * Math.PI) / 180);
-                ctx.fillRect(-8, 20, 6, 25);
+                ctx.fillRect(-6, 15, 5, 20);
                 ctx.restore();
                 
                 // Right leg
                 ctx.save();
                 ctx.rotate((-legSwing * Math.PI) / 180);
-                ctx.fillRect(2, 20, 6, 25);
+                ctx.fillRect(1, 15, 5, 20);
                 ctx.restore();
                 
                 // Kicking animation
@@ -788,7 +851,7 @@
                     ctx.fillStyle = '#2C3E50';
                     ctx.save();
                     ctx.rotate((45 * Math.PI) / 180);
-                    ctx.fillRect(5, 15, 6, 30);
+                    ctx.fillRect(4, 12, 5, 25);
                     ctx.restore();
                 }
                 
@@ -796,7 +859,7 @@
                 if (this.hasBall) {
                     ctx.fillStyle = '#f1c40f';
                     ctx.beginPath();
-                    ctx.arc(this.isUser ? 35 : -35, 0, 8, 0, Math.PI * 2);
+                    ctx.arc(this.isUser ? 28 : -28, 0, 6, 0, Math.PI * 2);
                     ctx.fill();
                 }
                 
@@ -813,8 +876,12 @@
                     const dy = goalY - this.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
                     
+                    // Make shooting harder in later chapters by adding some randomness
+                    const accuracy = Math.max(0.7, 1 - (game.chapter - 1) * 0.05);
+                    const randomOffset = (Math.random() - 0.5) * (1 - accuracy) * 100;
+                    
                     game.ball.speedX = (dx / distance) * CONFIG.BALL_SPEED;
-                    game.ball.speedY = (dy / distance) * CONFIG.BALL_SPEED;
+                    game.ball.speedY = ((dy + randomOffset) / distance) * CONFIG.BALL_SPEED;
                     game.ball.possessedBy = null;
                     this.hasBall = false;
                     this.kicking = true;
@@ -827,7 +894,10 @@
                     const dy = game.ball.possessedBy.y - this.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
                     
-                    if (distance < 50 && Math.random() < (0.7 - game.chapter * 0.02)) {
+                    // Make stealing harder in later chapters
+                    const stealChance = Math.max(0.3, 0.7 - (game.chapter - 1) * 0.05);
+                    
+                    if (distance < 50 && Math.random() < stealChance) {
                         game.ball.possessedBy.hasBall = false;
                         game.ball.possessedBy = this;
                         this.hasBall = true;
@@ -843,7 +913,10 @@
                     const dy = game.ball.possessedBy.y - this.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
                     
-                    if (distance < 40 && Math.random() < (0.3 + game.chapter * 0.02)) {
+                    // Make opponents better at stealing in later chapters
+                    const stealChance = Math.min(0.6, 0.3 + (game.chapter - 1) * 0.03);
+                    
+                    if (distance < 40 && Math.random() < stealChance) {
                         game.ball.possessedBy.hasBall = false;
                         game.ball.possessedBy = this;
                         this.hasBall = true;
@@ -859,7 +932,7 @@
             constructor() {
                 this.x = 100;
                 this.y = game.canvas.height / 2;
-                this.radius = 12;
+                this.radius = 8; // Smaller ball
                 this.speedX = 0;
                 this.speedY = 0;
                 this.possessedBy = game.player;
@@ -949,7 +1022,7 @@
                 
                 // Draw pentagon pattern
                 ctx.strokeStyle = '#000000';
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 1.5;
                 ctx.beginPath();
                 
                 for (let i = 0; i < 5; i++) {
@@ -1073,7 +1146,7 @@
             
             let joystickActive = false;
             let joystickCenter = { x: 0, y: 0 };
-            const maxDistance = 40;
+            const maxDistance = 35;
             
             // Update joystick center position
             function updateJoystickCenter() {
@@ -1178,8 +1251,8 @@
                 
                 const opponent = new Player(x, y, false);
                 
-                // Make opponents slightly faster in higher chapters
-                opponent.speed = CONFIG.OPPONENT_SPEED + (game.chapter * 0.1);
+                // Make opponents faster in higher chapters
+                opponent.speed = CONFIG.OPPONENT_SPEED + (game.chapter * 0.15);
                 
                 game.opponents.push(opponent);
             }
@@ -1405,7 +1478,7 @@
             
             // Draw center line and circle
             ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 2;
             
             // Center line
             ctx.beginPath();
@@ -1421,7 +1494,7 @@
 
         function drawGoals(ctx) {
             ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 2;
             
             // Left goal (user's defense) - larger size
             ctx.strokeRect(0, game.canvas.height / 2 - CONFIG.GOAL_HEIGHT/2, 30, CONFIG.GOAL_HEIGHT);
