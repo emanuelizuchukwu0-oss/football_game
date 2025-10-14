@@ -342,8 +342,9 @@
             RECOVERY_TIME: 5,
             CHAPTERS: 22,
             PLAYER_SPEED: 4,
-            OPPONENT_SPEED: 2,
-            BALL_SPEED: 8
+            OPPONENT_SPEED: 2.5,
+            BALL_SPEED: 8,
+            GOALKEEPER_SPEED: 3
         };
 
         // Game State
@@ -352,6 +353,7 @@
             ctx: null,
             player: null,
             opponents: [],
+            goalkeeper: null,
             ball: null,
             lives: CONFIG.LIVES,
             chapter: 1,
@@ -365,13 +367,16 @@
 
         // Player Class
         class Player {
-            constructor(x, y, isUser = false) {
+            constructor(x, y, isUser = false, isGoalkeeper = false) {
                 this.x = x;
                 this.y = y;
-                this.radius = 25;
-                this.speed = isUser ? CONFIG.PLAYER_SPEED : CONFIG.OPPONENT_SPEED;
+                this.radius = isGoalkeeper ? 20 : 25;
+                this.speed = isUser ? CONFIG.PLAYER_SPEED : 
+                            isGoalkeeper ? CONFIG.GOALKEEPER_SPEED : CONFIG.OPPONENT_SPEED;
                 this.isUser = isUser;
-                this.color = isUser ? '#3498db' : '#e74c3c';
+                this.isGoalkeeper = isGoalkeeper;
+                this.color = isUser ? '#3498db' : 
+                            isGoalkeeper ? '#9b59b6' : '#e74c3c';
                 this.hasBall = isUser;
                 
                 // Movement states
@@ -384,6 +389,11 @@
                 this.animationFrame = 0;
                 this.kicking = false;
                 this.kickFrame = 0;
+                
+                // AI behavior
+                this.targetX = x;
+                this.targetY = y;
+                this.aggression = 0.5 + (game.chapter * 0.02);
             }
 
             update() {
@@ -406,23 +416,106 @@
                     
                     this.x += moveX * this.speed;
                     this.y += moveY * this.speed;
-                } else {
-                    // AI for opponents - chase ball
-                    if (!game.ball.possessedBy || game.ball.possessedBy === this) {
+                } 
+                // AI for goalkeeper
+                else if (this.isGoalkeeper) {
+                    // Move to protect the goal
+                    const goalCenter = game.canvas.height / 2;
+                    const ballY = game.ball.y;
+                    
+                    // Move towards ball Y position but stay within goal bounds
+                    if (ballY < goalCenter - 40) {
+                        this.targetY = goalCenter - 40;
+                    } else if (ballY > goalCenter + 40) {
+                        this.targetY = goalCenter + 40;
+                    } else {
+                        this.targetY = ballY;
+                    }
+                    
+                    // Smooth movement towards target
+                    const dy = this.targetY - this.y;
+                    if (Math.abs(dy) > 2) {
+                        this.y += (dy > 0 ? 1 : -1) * this.speed;
+                    }
+                }
+                // AI for field opponents
+                else {
+                    // More aggressive behavior based on chapter
+                    const aggression = 0.7 + (game.chapter * 0.02);
+                    
+                    if (game.ball.possessedBy === game.player) {
+                        // If user has the ball, try to intercept or tackle
+                        const dx = game.player.x - this.x;
+                        const dy = game.player.y - this.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance < 150) {
+                            // Move to intercept the user
+                            this.x += (dx / distance) * this.speed * aggression;
+                            this.y += (dy / distance) * this.speed * aggression;
+                            
+                            // Try to steal if close enough
+                            if (distance < 40 && Math.random() < 0.05 * aggression) {
+                                this.stealFromUser();
+                            }
+                        } else {
+                            // Move towards a defensive position
+                            const defensiveX = game.canvas.width * 0.7 - (this.x % 100) * 0.5;
+                            const defensiveY = game.canvas.height / 2 + Math.sin(this.animationFrame * 0.1) * 50;
+                            
+                            const ddx = defensiveX - this.x;
+                            const ddy = defensiveY - this.y;
+                            const defensiveDist = Math.sqrt(ddx * ddx + ddy * ddy);
+                            
+                            if (defensiveDist > 10) {
+                                this.x += (ddx / defensiveDist) * this.speed * 0.5;
+                                this.y += (ddy / defensiveDist) * this.speed * 0.5;
+                            }
+                        }
+                    } else if (!game.ball.possessedBy || game.ball.possessedBy === this) {
+                        // Chase the ball if no one has it or if we have it
                         const dx = game.ball.x - this.x;
                         const dy = game.ball.y - this.y;
                         const distance = Math.sqrt(dx * dx + dy * dy);
                         
                         if (distance > 10) {
-                            this.x += (dx / distance) * this.speed * (0.7 + game.chapter * 0.02);
-                            this.y += (dy / distance) * this.speed * (0.7 + game.chapter * 0.02);
+                            this.x += (dx / distance) * this.speed * aggression;
+                            this.y += (dy / distance) * this.speed * aggression;
+                        }
+                        
+                        // If close to the ball and no one has it, try to take possession
+                        if (distance < 30 && !game.ball.possessedBy && Math.random() < 0.1 * aggression) {
+                            game.ball.possessedBy = this;
+                            this.hasBall = true;
+                            game.ballLost = true;
+                            game.recoveryTimer = CONFIG.RECOVERY_TIME;
+                        }
+                    } else if (game.ball.possessedBy && game.ball.possessedBy !== this) {
+                        // If another opponent has the ball, spread out for a pass
+                        const formationX = game.canvas.width * 0.8 - (this.x % 80) * 0.7;
+                        const formationY = 100 + (this.y % 200);
+                        
+                        const fdx = formationX - this.x;
+                        const fdy = formationY - this.y;
+                        const formationDist = Math.sqrt(fdx * fdx + fdy * fdy);
+                        
+                        if (formationDist > 10) {
+                            this.x += (fdx / formationDist) * this.speed * 0.3;
+                            this.y += (fdy / formationDist) * this.speed * 0.3;
                         }
                     }
                 }
                 
                 // Boundary checks
                 this.x = Math.max(this.radius, Math.min(game.canvas.width - this.radius, this.x));
-                this.y = Math.max(this.radius, Math.min(game.canvas.height - this.radius, this.y));
+                
+                if (this.isGoalkeeper) {
+                    // Goalkeeper stays in goal area
+                    this.y = Math.max(game.canvas.height / 2 - 80, 
+                                     Math.min(game.canvas.height / 2 + 80, this.y));
+                } else {
+                    this.y = Math.max(this.radius, Math.min(game.canvas.height - this.radius, this.y));
+                }
                 
                 // Update ball position if player has it
                 if (this.hasBall && game.ball.possessedBy === this) {
@@ -457,10 +550,22 @@
                     ctx.stroke();
                 }
                 
+                // Draw goalkeeper differently
+                if (this.isGoalkeeper) {
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    
+                    // Draw gloves
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(-22, -5, 10, 8);
+                    ctx.fillRect(12, -5, 10, 8);
+                }
+                
                 // Draw head
                 ctx.fillStyle = '#FFDBAC';
                 ctx.beginPath();
-                ctx.arc(0, -8, 12, 0, Math.PI * 2);
+                ctx.arc(0, -8, this.isGoalkeeper ? 10 : 12, 0, Math.PI * 2);
                 ctx.fill();
                 
                 // Draw eyes
@@ -562,6 +667,22 @@
                     }
                 }
             }
+            
+            stealFromUser() {
+                if (!this.hasBall && game.ball.possessedBy && game.ball.possessedBy.isUser) {
+                    const dx = game.ball.possessedBy.x - this.x;
+                    const dy = game.ball.possessedBy.y - this.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 40 && Math.random() < (0.3 + game.chapter * 0.02)) {
+                        game.ball.possessedBy.hasBall = false;
+                        game.ball.possessedBy = this;
+                        this.hasBall = true;
+                        game.ballLost = true;
+                        game.recoveryTimer = CONFIG.RECOVERY_TIME;
+                    }
+                }
+            }
         }
 
         // Ball Class
@@ -629,6 +750,19 @@
                             }
                             break;
                         }
+                    }
+                }
+                
+                // Check for goalkeeper collision
+                if (!this.possessedBy && game.goalkeeper) {
+                    const dx = game.goalkeeper.x - this.x;
+                    const dy = game.goalkeeper.y - this.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < game.goalkeeper.radius + this.radius) {
+                        // Bounce ball away from goalkeeper
+                        this.speedX = -this.speedX * 0.8;
+                        this.speedY = (this.y - game.goalkeeper.y) * 0.3;
                     }
                 }
             }
@@ -798,6 +932,14 @@
             // Create player
             game.player = new Player(100, game.canvas.height / 2, true);
             
+            // Create goalkeeper
+            game.goalkeeper = new Player(
+                game.canvas.width - 40, 
+                game.canvas.height / 2, 
+                false, 
+                true
+            );
+            
             // Create opponents based on current chapter
             game.opponents = [];
             const opponentsCount = game.chapter;
@@ -874,6 +1016,7 @@
             // Update player and opponents
             game.player.update();
             game.opponents.forEach(opponent => opponent.update());
+            if (game.goalkeeper) game.goalkeeper.update();
             game.ball.update();
             
             // Handle ball recovery timer
@@ -892,20 +1035,37 @@
         }
 
         function checkGoals() {
-            // User scores (ball enters right side)
-            if (game.ball.x > game.canvas.width - 50 && 
-                game.ball.y > game.canvas.height / 2 - 100 && 
-                game.ball.y < game.canvas.height / 2 + 100) {
+            // User scores (ball enters right side and passes goalkeeper)
+            if (game.ball.x > game.canvas.width - 30 && 
+                game.ball.y > game.canvas.height / 2 - 80 && 
+                game.ball.y < game.canvas.height / 2 + 80) {
                 
-                showGoalMessage();
-                showWinOverlay();
-                return;
+                // Check if goalkeeper saved the ball
+                let goalSaved = false;
+                if (game.goalkeeper) {
+                    const dx = game.ball.x - game.goalkeeper.x;
+                    const dy = game.ball.y - game.goalkeeper.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < game.goalkeeper.radius + game.ball.radius + 10) {
+                        goalSaved = true;
+                        // Bounce ball away
+                        game.ball.speedX = -game.ball.speedX * 0.7;
+                        game.ball.speedY = (game.ball.y - game.goalkeeper.y) * 0.4;
+                    }
+                }
+                
+                if (!goalSaved) {
+                    showGoalMessage();
+                    showWinOverlay();
+                    return;
+                }
             }
             
             // Opponents score (ball enters left side)
-            if (game.ball.x < 50 && 
-                game.ball.y > game.canvas.height / 2 - 100 && 
-                game.ball.y < game.canvas.height / 2 + 100) {
+            if (game.ball.x < 30 && 
+                game.ball.y > game.canvas.height / 2 - 80 && 
+                game.ball.y < game.canvas.height / 2 + 80) {
                 
                 loseLife();
                 // Reset ball position
@@ -983,6 +1143,7 @@
             
             // Draw players and ball
             game.opponents.forEach(opponent => opponent.draw(ctx));
+            if (game.goalkeeper) game.goalkeeper.draw(ctx);
             game.player.draw(ctx);
             game.ball.draw(ctx);
         }
