@@ -411,23 +411,121 @@
             }
         }
 
-        /* Very small screens */
-        @media (max-width: 320px) and (orientation: landscape) {
-            #uiContainer {
-                transform: scale(0.5);
-            }
-            
-            .btn {
-                padding: 6px 12px;
-                font-size: 0.75rem;
-                min-width: 80px;
-            }
-            
-            #mobileControls {
-                bottom: 12px;
-            }
-        }
+       /* Very small screens */
+@media (max-width: 320px) and (orientation: landscape) {
+    #uiContainer {
+        transform: scale(0.5);
+    }
+    
+    .btn {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        min-width: 80px;
+    }
+    
+    #mobileControls {
+        bottom: 25px; /* Increased from 12px to 25px */
+        padding: 0 10px; /* Added some side padding */
+    }
+    
+    /* Additional fixes for very small screens */
+    .joystick-container {
+        width: 65px !important; /* Slightly smaller to fit */
+        height: 65px !important;
+    }
+    
+    .control-btn {
+        width: 50px !important;
+        height: 50px !important;
+        font-size: 0.65rem !important;
+    }
+    
+    /* Ensure the joystick base is fully visible */
+    .joystick-base {
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3); /* Add border to make edges clear */
+    }
+}
 
+/* Also update the regular mobile landscape optimizations */
+@media (max-width: 768px) and (orientation: landscape) {
+    #mobileControls {
+        display: flex;
+        bottom: 25px; /* Ensure this is consistent */
+        padding: 0 15px;
+    }
+    
+    /* Make sure joystick container has enough room */
+    .joystick-container {
+        margin-bottom: 0;
+    }
+}
+
+/* Small screen optimizations - update this section too */
+@media (max-height: 500px) and (orientation: landscape) {
+    #uiContainer {
+        transform: scale(0.6);
+    }
+    
+    .btn-pause {
+        transform: scale(0.8);
+    }
+    
+    #mobileControls {
+        bottom: 20px; /* Increased from 15px */
+        padding: 0 12px;
+    }
+    
+    .joystick-container {
+        width: 65px; /* Slightly smaller */
+        height: 65px;
+    }
+    
+    .control-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 0.7rem;
+    }
+}
+
+/* Add this new media query for extra small height screens */
+@media (max-height: 400px) and (orientation: landscape) {
+    #mobileControls {
+        bottom: 15px; /* Minimum bottom spacing */
+        padding: 0 10px;
+    }
+    
+    .joystick-container {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .control-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 0.65rem;
+    }
+    
+    /* Reduce the UI container size further */
+    #uiContainer {
+        transform: scale(0.5);
+    }
+}
+
+/* iPhone notch safe areas - ensure controls are properly positioned */
+@supports(padding: max(0px)) {
+    #mobileControls {
+        padding-left: max(15px, env(safe-area-inset-left));
+        padding-right: max(15px, env(safe-area-inset-right));
+        padding-bottom: max(15px, env(safe-area-inset-bottom));
+    }
+}
         /* iPhone notch safe areas */
         @supports(padding: max(0px)) {
             #mobileControls {
@@ -1608,6 +1706,46 @@
 
         // Start the game when page loads
         window.addEventListener('load', init);
+        // Add this function to handle mobile control positioning
+function positionMobileControls() {
+    const mobileControls = document.getElementById('mobileControls');
+    const gameContainer = document.getElementById('gameContainer');
+    
+    if (game.isMobile && mobileControls) {
+        // Calculate safe area
+        const containerRect = gameContainer.getBoundingClientRect();
+        const controlsRect = mobileControls.getBoundingClientRect();
+        
+        // Ensure controls are within visible area
+        const minBottomSpace = 25; // Minimum space from bottom
+        const availableSpace = containerRect.height - controlsRect.height - minBottomSpace;
+        
+        if (availableSpace < 0) {
+            // If controls would be cut off, adjust positioning
+            mobileControls.style.bottom = `${minBottomSpace}px`;
+        }
+    }
+}
+
+// Call this after setup and on resize
+function handleResize() {
+    // ... your existing resize code ...
+    
+    // Position mobile controls properly
+    if (game.isMobile) {
+        positionMobileControls();
+    }
+}
+
+// Also call it after game initialization
+function init() {
+    // ... your existing init code ...
+    
+    // Position mobile controls
+    if (game.isMobile) {
+        setTimeout(positionMobileControls, 100);
+    }
+}
     </script>
 </body>
 </html>
