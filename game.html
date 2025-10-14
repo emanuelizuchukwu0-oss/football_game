@@ -2,63 +2,72 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Match Live - Football Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Football Challenge: One vs Many</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="game-container">
-        <!-- Scoreboard -->
-        <div class="scoreboard">
-            <div class="team home-team">
-                <span class="team-name" id="homeTeamName">Home</span>
-                <span class="team-score" id="homeScore">0</span>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        
+        <div class="game-ui">
+            <div class="lives">
+                <div class="life"></div>
+                <div class="life"></div>
+                <div class="life"></div>
+                <div class="life"></div>
+                <div class="life"></div>
+                <div class="life"></div>
+                <div class="life"></div>
             </div>
-            
-            <div class="match-info">
-                <div class="match-time" id="matchTime">00:00</div>
-                <div class="match-half" id="matchHalf">1st Half</div>
-            </div>
-            
-            <div class="team away-team">
-                <span class="team-score" id="awayScore">0</span>
-                <span class="team-name" id="awayTeamName">Away</span>
-            </div>
+            <div class="timer">Recovery: <span id="recoveryTimer">5</span>s</div>
         </div>
 
-        <!-- Football Field -->
-        <div class="field-container">
-            <canvas id="gameCanvas" width="800" height="500"></canvas>
+        <div class="level-indicator">
+            Chapter: <span id="chapterDisplay">1</span> | Opponents: <span id="opponentsDisplay">1</span>
         </div>
 
-        <!-- Game Controls -->
-        <div class="game-controls">
-            <button id="pauseBtn" onclick="togglePause()">⏸️ Pause</button>
-            <button id="formationBtn" onclick="changeFormation()">🔄 Formation</button>
-            <button id="substituteBtn" onclick="makeSubstitution()">👥 Substitute</button>
-            <button id="tacticsBtn" onclick="changeTactics()">📊 Tactics</button>
-        </div>
-
-        <!-- Match Stats -->
-        <div class="match-stats">
-            <div class="stat">
-                <span>Possession</span>
-                <div class="possession-bar">
-                    <div class="home-possession" id="homePossession">50%</div>
-                    <div class="away-possession" id="awayPossession">50%</div>
+        <div id="mobileControls" class="mobile-controls" style="display: none;">
+            <div class="joystick-area">
+                <div class="joystick-base"></div>
+                <div class="joystick-handle"></div>
+            </div>
+            <div class="control-buttons">
+                <div class="control-btn shoot">
+                    <span>⚽</span>
+                    <span>SHOOT</span>
+                </div>
+                <div class="control-btn steal">
+                    <span>👊</span>
+                    <span>STEAL</span>
                 </div>
             </div>
-            <div class="stat">
-                <span>Shots: </span>
-                <span id="homeShots">0</span> - <span id="awayShots">0</span>
+        </div>
+
+        <div id="startOverlay" class="overlay">
+            <h1>⚽ Football Challenge ⚽</h1>
+            <h2>One Player vs The World</h2>
+            <p>Start with 1 opponent and face more each chapter!<br>7 lives • 5 seconds to recover the ball</p>
+            <button class="btn" id="startBtn">START GAME</button>
+        </div>
+
+        <div id="winOverlay" class="overlay" style="display: none;">
+            <h1>🎉 CHAPTER COMPLETE! 🎉</h1>
+            <div class="thumbs-up">👍 👍 👍</div>
+            <p>You defeated <span id="winOpponents">1</span> opponents!</p>
+            <div>
+                <button class="btn" id="replayBtn">PLAY AGAIN</button>
+                <button class="btn btn-secondary" id="nextChapterBtn">NEXT CHAPTER</button>
             </div>
-            <div class="stat">
-                <span>Fouls: </span>
-                <span id="homeFouls">0</span> - <span id="awayFouls">0</span>
-            </div>
+        </div>
+
+        <div id="loseOverlay" class="overlay" style="display: none;">
+            <h1>😞 GAME OVER 😞</h1>
+            <p>You reached Chapter <span id="loseChapter">1</span> with <span id="loseOpponents">1</span> opponents</p>
+            <button class="btn" id="restartBtn">PLAY AGAIN</button>
         </div>
     </div>
 
-    <script src="game.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
