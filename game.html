@@ -255,10 +255,25 @@
 
         /* Mobile-specific styles */
         @media (max-width: 768px) {
+            body {
+                overflow: hidden;
+                width: 100vw;
+                height: 100vh;
+            }
+            
             #gameContainer {
                 max-width: 100%;
                 max-height: 100%;
                 border-radius: 0;
+                width: 100vh;
+                height: 100vw;
+                transform: rotate(90deg);
+                transform-origin: center center;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                margin-top: -50vw;
+                margin-left: -50vh;
             }
             
             .overlay h1 {
@@ -418,6 +433,10 @@
                 this.targetX = x;
                 this.targetY = y;
                 this.aggression = 0.5 + (game.chapter * 0.02);
+                
+                // For goalkeeper random movement
+                this.randomMoveTimer = 0;
+                this.randomMoveDirection = 0;
             }
 
             update() {
@@ -456,23 +475,51 @@
                 } 
                 // AI for goalkeeper
                 else if (this.isGoalkeeper) {
-                    // Move to protect the goal
                     const goalCenter = game.canvas.height / 2;
-                    const ballY = game.ball.y;
+                    const goalTop = goalCenter - CONFIG.GOAL_HEIGHT/2 + 20;
+                    const goalBottom = goalCenter + CONFIG.GOAL_HEIGHT/2 - 20;
                     
-                    // Move towards ball Y position but stay within goal bounds
-                    if (ballY < goalCenter - CONFIG.GOAL_HEIGHT/2 + 20) {
-                        this.targetY = goalCenter - CONFIG.GOAL_HEIGHT/2 + 20;
-                    } else if (ballY > goalCenter + CONFIG.GOAL_HEIGHT/2 - 20) {
-                        this.targetY = goalCenter + CONFIG.GOAL_HEIGHT/2 - 20;
-                    } else {
-                        this.targetY = ballY;
-                    }
-                    
-                    // Smooth movement towards target
-                    const dy = this.targetY - this.y;
-                    if (Math.abs(dy) > 2) {
-                        this.y += (dy > 0 ? 1 : -1) * this.speed;
+                    // If player has the ball, move randomly
+                    if (game.ball.possessedBy === game.player) {
+                        this.randomMoveTimer--;
+                        
+                        // Change direction randomly or when timer runs out
+                        if (this.randomMoveTimer <= 0 || Math.random() < 0.02) {
+                            this.randomMoveDirection = Math.random() * 2 - 1; // -1 to 1
+                            this.randomMoveTimer = 30 + Math.random() * 60; // 0.5 to 1.5 seconds at 60fps
+                        }
+                        
+                        // Move in random direction
+                        this.y += this.randomMoveDirection * this.speed;
+                        
+                        // Stay within goal bounds
+                        if (this.y < goalTop) {
+                            this.y = goalTop;
+                            this.randomMoveDirection *= -1; // Bounce off top
+                        } else if (this.y > goalBottom) {
+                            this.y = goalBottom;
+                            this.randomMoveDirection *= -1; // Bounce off bottom
+                        }
+                    } 
+                    // Otherwise, follow the ball normally
+                    else {
+                        // Move to protect the goal
+                        const ballY = game.ball.y;
+                        
+                        // Move towards ball Y position but stay within goal bounds
+                        if (ballY < goalTop) {
+                            this.targetY = goalTop;
+                        } else if (ballY > goalBottom) {
+                            this.targetY = goalBottom;
+                        } else {
+                            this.targetY = ballY;
+                        }
+                        
+                        // Smooth movement towards target
+                        const dy = this.targetY - this.y;
+                        if (Math.abs(dy) > 2) {
+                            this.y += (dy > 0 ? 1 : -1) * this.speed;
+                        }
                     }
                 }
                 // AI for field opponents
@@ -865,8 +912,15 @@
 
         function setupCanvas() {
             // Set canvas size to match window
-            game.canvas.width = window.innerWidth;
-            game.canvas.height = window.innerHeight;
+            if (game.isMobile) {
+                // For mobile, we want to use landscape orientation
+                // Swap width and height to force landscape
+                game.canvas.width = window.innerHeight;
+                game.canvas.height = window.innerWidth;
+            } else {
+                game.canvas.width = window.innerWidth;
+                game.canvas.height = window.innerHeight;
+            }
         }
 
         function setupEventListeners() {
