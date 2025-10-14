@@ -102,6 +102,20 @@
             background: #2980b9;
         }
 
+        .btn-pause {
+            background: #f39c12;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 5;
+            padding: 8px 16px;
+            font-size: 1rem;
+        }
+
+        .btn-pause:hover {
+            background: #e67e22;
+        }
+
         #uiContainer {
             position: absolute;
             top: 10px;
@@ -270,6 +284,8 @@
     <div id="gameContainer">
         <canvas id="gameCanvas"></canvas>
         
+        <button id="pauseBtn" class="btn btn-pause" style="display: none;">PAUSE</button>
+        
         <div id="uiContainer">
             <div class="ui-box">
                 <span>Lives:</span>
@@ -309,8 +325,14 @@
         <div id="startOverlay" class="overlay">
             <h1>FOOTBALL CHALLENGE</h1>
             <p>Score against increasingly more opponents! Start with 1 opponent, then 2, 3, and so on up to 22!</p>
-            <p>Use arrow keys to move, 'S' to steal, and SPACE to shoot.</p>
+            <p>Use arrow keys to move, 'S' to steal, and SPACE to shoot. Press 'P' to pause.</p>
             <button id="startBtn" class="btn">START GAME</button>
+        </div>
+        
+        <div id="pauseOverlay" class="overlay" style="display: none;">
+            <h1>GAME PAUSED</h1>
+            <p>Take a break and get ready for the next challenge!</p>
+            <button id="resumeBtn" class="btn">RESUME GAME</button>
         </div>
         
         <div id="winOverlay" class="overlay" style="display: none;">
@@ -344,7 +366,8 @@
             PLAYER_SPEED: 4,
             OPPONENT_SPEED: 2.5,
             BALL_SPEED: 8,
-            GOALKEEPER_SPEED: 3
+            GOALKEEPER_SPEED: 3,
+            GOAL_HEIGHT: 200  // Increased goal height for better scoring chances
         };
 
         // Game State
@@ -362,7 +385,8 @@
             gameStarted: false,
             isMobile: false,
             lastTime: 0,
-            animationId: null
+            animationId: null,
+            paused: false
         };
 
         // Player Class
@@ -416,6 +440,19 @@
                     
                     this.x += moveX * this.speed;
                     this.y += moveY * this.speed;
+                    
+                    // Prevent user from entering goal areas
+                    const goalAreaWidth = 50;
+                    
+                    // Left goal restriction
+                    if (this.x - this.radius < goalAreaWidth) {
+                        this.x = goalAreaWidth + this.radius;
+                    }
+                    
+                    // Right goal restriction (with a buffer to avoid goalkeeper area)
+                    if (this.x + this.radius > game.canvas.width - goalAreaWidth) {
+                        this.x = game.canvas.width - goalAreaWidth - this.radius;
+                    }
                 } 
                 // AI for goalkeeper
                 else if (this.isGoalkeeper) {
@@ -424,10 +461,10 @@
                     const ballY = game.ball.y;
                     
                     // Move towards ball Y position but stay within goal bounds
-                    if (ballY < goalCenter - 40) {
-                        this.targetY = goalCenter - 40;
-                    } else if (ballY > goalCenter + 40) {
-                        this.targetY = goalCenter + 40;
+                    if (ballY < goalCenter - CONFIG.GOAL_HEIGHT/2 + 20) {
+                        this.targetY = goalCenter - CONFIG.GOAL_HEIGHT/2 + 20;
+                    } else if (ballY > goalCenter + CONFIG.GOAL_HEIGHT/2 - 20) {
+                        this.targetY = goalCenter + CONFIG.GOAL_HEIGHT/2 - 20;
                     } else {
                         this.targetY = ballY;
                     }
@@ -511,8 +548,8 @@
                 
                 if (this.isGoalkeeper) {
                     // Goalkeeper stays in goal area
-                    this.y = Math.max(game.canvas.height / 2 - 80, 
-                                     Math.min(game.canvas.height / 2 + 80, this.y));
+                    this.y = Math.max(game.canvas.height / 2 - CONFIG.GOAL_HEIGHT/2 + 20, 
+                                     Math.min(game.canvas.height / 2 + CONFIG.GOAL_HEIGHT/2 - 20, this.y));
                 } else {
                     this.y = Math.max(this.radius, Math.min(game.canvas.height - this.radius, this.y));
                 }
@@ -834,6 +871,8 @@
 
         function setupEventListeners() {
             document.getElementById('startBtn').addEventListener('click', startGame);
+            document.getElementById('pauseBtn').addEventListener('click', togglePause);
+            document.getElementById('resumeBtn').addEventListener('click', togglePause);
             document.getElementById('replayBtn').addEventListener('click', replayChapter);
             document.getElementById('nextChapterBtn').addEventListener('click', nextChapter);
             document.getElementById('restartBtn').addEventListener('click', restartGame);
@@ -843,7 +882,7 @@
 
         function setupKeyboardControls() {
             document.addEventListener('keydown', (e) => {
-                if (!game.gameStarted) return;
+                if (!game.gameStarted || game.paused) return;
                 
                 switch(e.key) {
                     case 'ArrowUp': game.player.moveUp = true; break;
@@ -852,6 +891,7 @@
                     case 'ArrowRight': game.player.moveRight = true; break;
                     case ' ': game.player.shoot(); break;
                     case 's': game.player.steal(); break;
+                    case 'p': case 'P': togglePause(); break;
                 }
             });
             
@@ -885,16 +925,21 @@
             document.addEventListener('touchend', handleJoystickEnd);
             
             // Button events
-            shootBtn.addEventListener('touchstart', () => game.player.shoot());
-            stealBtn.addEventListener('touchstart', () => game.player.steal());
+            shootBtn.addEventListener('touchstart', () => {
+                if (!game.paused) game.player.shoot();
+            });
+            stealBtn.addEventListener('touchstart', () => {
+                if (!game.paused) game.player.steal();
+            });
             
             function handleJoystickStart(e) {
+                if (game.paused) return;
                 joystickActive = true;
                 e.preventDefault();
             }
             
             function handleJoystickMove(e) {
-                if (!joystickActive || !game.gameStarted) return;
+                if (!joystickActive || !game.gameStarted || game.paused) return;
                 
                 const touch = e.touches[0];
                 const touchX = touch.clientX;
@@ -970,6 +1015,7 @@
             game.lives = CONFIG.LIVES;
             game.recoveryTimer = CONFIG.RECOVERY_TIME;
             game.ballLost = false;
+            game.paused = false;
             
             updateLivesDisplay();
             updateChapterDisplay();
@@ -977,7 +1023,20 @@
 
         function startGame() {
             document.getElementById('startOverlay').style.display = 'none';
+            document.getElementById('pauseBtn').style.display = 'block';
             game.gameStarted = true;
+        }
+
+        function togglePause() {
+            game.paused = !game.paused;
+            
+            if (game.paused) {
+                document.getElementById('pauseOverlay').style.display = 'flex';
+                document.getElementById('pauseBtn').textContent = 'RESUME';
+            } else {
+                document.getElementById('pauseOverlay').style.display = 'none';
+                document.getElementById('pauseBtn').textContent = 'PAUSE';
+            }
         }
 
         function replayChapter() {
@@ -1004,11 +1063,11 @@
             const deltaTime = timestamp - game.lastTime;
             game.lastTime = timestamp;
             
-            if (game.gameStarted) {
+            if (game.gameStarted && !game.paused) {
                 update(deltaTime);
-                render();
             }
             
+            render();
             game.animationId = requestAnimationFrame(gameLoop);
         }
 
@@ -1037,8 +1096,8 @@
         function checkGoals() {
             // User scores (ball enters right side and passes goalkeeper)
             if (game.ball.x > game.canvas.width - 30 && 
-                game.ball.y > game.canvas.height / 2 - 80 && 
-                game.ball.y < game.canvas.height / 2 + 80) {
+                game.ball.y > game.canvas.height / 2 - CONFIG.GOAL_HEIGHT/2 && 
+                game.ball.y < game.canvas.height / 2 + CONFIG.GOAL_HEIGHT/2) {
                 
                 // Check if goalkeeper saved the ball
                 let goalSaved = false;
@@ -1064,8 +1123,8 @@
             
             // Opponents score (ball enters left side)
             if (game.ball.x < 30 && 
-                game.ball.y > game.canvas.height / 2 - 80 && 
-                game.ball.y < game.canvas.height / 2 + 80) {
+                game.ball.y > game.canvas.height / 2 - CONFIG.GOAL_HEIGHT/2 && 
+                game.ball.y < game.canvas.height / 2 + CONFIG.GOAL_HEIGHT/2) {
                 
                 loseLife();
                 // Reset ball position
@@ -1104,6 +1163,7 @@
             document.getElementById('winOpponents').textContent = game.chapter;
             document.getElementById('winOverlay').style.display = 'flex';
             game.gameStarted = false;
+            document.getElementById('pauseBtn').style.display = 'none';
         }
 
         function showLoseOverlay() {
@@ -1111,6 +1171,7 @@
             document.getElementById('loseOpponents').textContent = game.chapter;
             document.getElementById('loseOverlay').style.display = 'flex';
             game.gameStarted = false;
+            document.getElementById('pauseBtn').style.display = 'none';
         }
 
         function updateLivesDisplay() {
@@ -1186,11 +1247,18 @@
             ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 3;
             
-            // Left goal (user's defense)
-            ctx.strokeRect(0, game.canvas.height / 2 - 80, 30, 160);
+            // Left goal (user's defense) - larger size
+            ctx.strokeRect(0, game.canvas.height / 2 - CONFIG.GOAL_HEIGHT/2, 30, CONFIG.GOAL_HEIGHT);
             
-            // Right goal (opponent's defense)
-            ctx.strokeRect(game.canvas.width - 30, game.canvas.height / 2 - 80, 30, 160);
+            // Right goal (opponent's defense) - larger size
+            ctx.strokeRect(game.canvas.width - 30, game.canvas.height / 2 - CONFIG.GOAL_HEIGHT/2, 30, CONFIG.GOAL_HEIGHT);
+            
+            // Draw goal area restrictions for player
+            ctx.strokeStyle = 'rgba(255, 0, 0, 0.3)';
+            ctx.setLineDash([5, 5]);
+            ctx.strokeRect(0, 0, 50, game.canvas.height);
+            ctx.strokeRect(game.canvas.width - 50, 0, 50, game.canvas.height);
+            ctx.setLineDash([]);
         }
 
         // Start the game when page loads
