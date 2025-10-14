@@ -1706,46 +1706,7 @@
 
         // Start the game when page loads
         window.addEventListener('load', init);
-        // Add this function to handle mobile control positioning
-function positionMobileControls() {
-    const mobileControls = document.getElementById('mobileControls');
-    const gameContainer = document.getElementById('gameContainer');
-    
-    if (game.isMobile && mobileControls) {
-        // Calculate safe area
-        const containerRect = gameContainer.getBoundingClientRect();
-        const controlsRect = mobileControls.getBoundingClientRect();
         
-        // Ensure controls are within visible area
-        const minBottomSpace = 25; // Minimum space from bottom
-        const availableSpace = containerRect.height - controlsRect.height - minBottomSpace;
-        
-        if (availableSpace < 0) {
-            // If controls would be cut off, adjust positioning
-            mobileControls.style.bottom = `${minBottomSpace}px`;
-        }
-    }
-}
-
-// Call this after setup and on resize
-function handleResize() {
-    // ... your existing resize code ...
-    
-    // Position mobile controls properly
-    if (game.isMobile) {
-        positionMobileControls();
-    }
-}
-
-// Also call it after game initialization
-function init() {
-    // ... your existing init code ...
-    
-    // Position mobile controls
-    if (game.isMobile) {
-        setTimeout(positionMobileControls, 100);
-    }
-}
     </script>
 </body>
 </html>
