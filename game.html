@@ -19,13 +19,14 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            touch-action: none;
         }
 
         #gameContainer {
             position: relative;
             width: 100%;
             height: 100%;
-            max-width: 1000px;
+            max-width: 1200px;
             max-height: 700px;
             box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
             border-radius: 10px;
@@ -254,7 +255,7 @@
         }
 
         /* Mobile-specific styles */
-        @media (max-width: 768px) {
+        @media (max-width: 768px), (max-height: 500px) {
             body {
                 overflow: hidden;
                 width: 100vw;
@@ -265,15 +266,8 @@
                 max-width: 100%;
                 max-height: 100%;
                 border-radius: 0;
-                width: 100vh;
-                height: 100vw;
-                transform: rotate(90deg);
-                transform-origin: center center;
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                margin-top: -50vw;
-                margin-left: -50vh;
+                width: 100vw;
+                height: 100vh;
             }
             
             .overlay h1 {
@@ -291,6 +285,17 @@
             
             #mobileControls {
                 display: flex;
+            }
+            
+            #uiContainer {
+                transform: scale(0.9);
+                transform-origin: top left;
+            }
+            
+            .btn-pause {
+                transform: scale(0.9);
+                top: 5px;
+                right: 5px;
             }
         }
     </style>
@@ -378,11 +383,12 @@
             LIVES: 7,
             RECOVERY_TIME: 5,
             CHAPTERS: 22,
-            PLAYER_SPEED: 4,
-            OPPONENT_SPEED: 2.5,
-            BALL_SPEED: 8,
-            GOALKEEPER_SPEED: 3,
-            GOAL_HEIGHT: 200  // Increased goal height for better scoring chances
+            PLAYER_SPEED: 5,
+            OPPONENT_SPEED: 3,
+            BALL_SPEED: 10,
+            GOALKEEPER_SPEED: 4,
+            GOAL_HEIGHT: 200,  // Increased goal height for better scoring chances
+            FIELD_RATIO: 1.8   // Make the field longer (width to height ratio)
         };
 
         // Game State
@@ -911,16 +917,33 @@
         }
 
         function setupCanvas() {
-            // Set canvas size to match window
+            // Set canvas size based on device and orientation
             if (game.isMobile) {
-                // For mobile, we want to use landscape orientation
-                // Swap width and height to force landscape
-                game.canvas.width = window.innerHeight;
-                game.canvas.height = window.innerWidth;
-            } else {
+                // Use full screen for mobile in landscape
                 game.canvas.width = window.innerWidth;
                 game.canvas.height = window.innerHeight;
+                
+                // Force landscape orientation
+                if (window.innerHeight > window.innerWidth) {
+                    // If in portrait, swap dimensions
+                    game.canvas.width = window.innerHeight;
+                    game.canvas.height = window.innerWidth;
+                }
+            } else {
+                // For desktop, use a fixed aspect ratio but scale to window
+                const maxWidth = 1200;
+                const maxHeight = 700;
+                
+                const widthRatio = window.innerWidth / maxWidth;
+                const heightRatio = window.innerHeight / maxHeight;
+                const scale = Math.min(widthRatio, heightRatio);
+                
+                game.canvas.width = maxWidth * scale;
+                game.canvas.height = maxHeight * scale;
             }
+            
+            // Apply the field ratio to make it longer
+            game.canvas.width = Math.max(game.canvas.width, game.canvas.height * CONFIG.FIELD_RATIO);
         }
 
         function setupEventListeners() {
@@ -1164,7 +1187,7 @@
                         goalSaved = true;
                         // Bounce ball away
                         game.ball.speedX = -game.ball.speedX * 0.7;
-                        game.ball.speedY = (game.ball.y - game.goalkeeper.y) * 0.4;
+                        game.ball.speedY = (this.y - game.goalkeeper.y) * 0.4;
                     }
                 }
                 
