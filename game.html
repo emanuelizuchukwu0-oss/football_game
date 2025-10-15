@@ -1408,19 +1408,92 @@
             mobileControls.style.bottom = `${bottomPosition}px`;
         }
 
-        function setupEventListeners() {
-            document.getElementById('startBtn').addEventListener('click', startGame);
-            document.getElementById('pauseBtn').addEventListener('click', togglePause);
-            document.getElementById('resumeBtn').addEventListener('click', togglePause);
-            document.getElementById('replayBtn').addEventListener('click', replayChapter);
-            document.getElementById('nextChapterBtn').addEventListener('click', nextChapter);
-            document.getElementById('restartBtn').addEventListener('click', restartGame);
-            
-            // Handle window resize and orientation change
-            window.addEventListener('resize', handleResize);
-            window.addEventListener('orientationchange', handleResize);
-        }
+        // Replace the setupEventListeners function with this enhanced version:
+function setupEventListeners() {
+    // Enhanced button event listeners with mobile support
+    const buttons = {
+        startBtn: startGame,
+        pauseBtn: togglePause,
+        resumeBtn: togglePause,
+        replayBtn: replayChapter,
+        nextChapterBtn: nextChapter,
+        restartBtn: restartGame
+    };
 
+    // Setup each button with both click and touch events
+    Object.keys(buttons).forEach(buttonId => {
+        const button = document.getElementById(buttonId);
+        if (button) {
+            const handler = buttons[buttonId];
+            
+            // Add click event for desktop
+            button.addEventListener('click', handler);
+            
+            // Add touch events for mobile with proper prevention
+            button.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Visual feedback
+                button.style.transform = 'scale(0.95)';
+                button.style.opacity = '0.9';
+            }, { passive: false });
+            
+            button.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Reset visual state
+                button.style.transform = 'scale(1)';
+                button.style.opacity = '1';
+                
+                // Execute the handler
+                handler();
+            }, { passive: false });
+            
+            // Prevent default touch behavior
+            button.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+            }, { passive: false });
+        }
+    });
+
+    // Handle window resize and orientation change
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+}
+
+// Also update the showWinOverlay and showLoseOverlay functions to ensure overlays are properly interactive:
+function showWinOverlay() {
+    document.getElementById('winOpponents').textContent = game.chapter;
+    document.getElementById('winOverlay').style.display = 'flex';
+    game.gameStarted = false;
+    document.getElementById('pauseBtn').style.display = 'none';
+    
+    // Force a reflow to ensure the overlay is properly rendered
+    setTimeout(() => {
+        const winOverlay = document.getElementById('winOverlay');
+        winOverlay.style.display = 'none';
+        void winOverlay.offsetWidth; // Trigger reflow
+        winOverlay.style.display = 'flex';
+    }, 50);
+}
+
+function showLoseOverlay() {
+    document.getElementById('loseChapter').textContent = game.chapter;
+    document.getElementById('loseOpponents').textContent = game.chapter;
+    document.getElementById('loseOverlay').style.display = 'flex';
+    game.gameStarted = false;
+    document.getElementById('pauseBtn').style.display = 'none';
+    
+    // Force a reflow to ensure the overlay is properly rendered
+    setTimeout(() => {
+        const loseOverlay = document.getElementById('loseOverlay');
+        loseOverlay.style.display = 'none';
+        void loseOverlay.offsetWidth; // Trigger reflow
+        loseOverlay.style.display = 'flex';
+    }, 50);
+}
         function handleResize() {
             // Update screen type detection
             game.screenType = detectScreenType();
