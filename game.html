@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Football Challenge</title>
     <style>
+        /* Your existing CSS remains the same */
         * {
             margin: 0;
             padding: 0;
@@ -922,6 +923,7 @@
                     if (index > -1) {
                         game.cannonBalls.splice(index, 1);
                     }
+                    return;
                 }
                 
                 // Check collision with player
@@ -2138,7 +2140,11 @@
             
             // Update cannons and cannon balls
             game.cannons.forEach(cannon => cannon.update());
-            game.cannonBalls.forEach(ball => ball.update());
+            
+            // FIXED: Use a for loop to iterate cannonBalls to avoid issues with array modification
+            for (let i = game.cannonBalls.length - 1; i >= 0; i--) {
+                game.cannonBalls[i].update();
+            }
             
             // Handle ball recovery timer
             if (game.ballLost && game.ball.possessedBy && !game.ball.possessedBy.isUser) {
@@ -2178,7 +2184,7 @@
                 
                 if (!goalSaved) {
                     showGoalMessage();
-                    showWinOverlay();
+                    setTimeout(showWinOverlay, 1000); // Delay to show goal message
                     return;
                 }
             }
@@ -2217,7 +2223,9 @@
             document.getElementById('gameContainer').appendChild(goalMsg);
             
             setTimeout(() => {
-                goalMsg.remove();
+                if (goalMsg.parentNode) {
+                    goalMsg.remove();
+                }
             }, 2000);
         }
 
@@ -2227,14 +2235,6 @@
             document.getElementById('winOverlay').style.display = 'flex';
             game.gameStarted = false;
             document.getElementById('pauseBtn').style.display = 'none';
-            
-            // Force a reflow to ensure the overlay is properly rendered
-            setTimeout(() => {
-                const winOverlay = document.getElementById('winOverlay');
-                winOverlay.style.display = 'none';
-                void winOverlay.offsetWidth; // Trigger reflow
-                winOverlay.style.display = 'flex';
-            }, 50);
         }
 
         // FIXED: Enhanced showLoseOverlay with proper mobile support
@@ -2244,14 +2244,6 @@
             document.getElementById('loseOverlay').style.display = 'flex';
             game.gameStarted = false;
             document.getElementById('pauseBtn').style.display = 'none';
-            
-            // Force a reflow to ensure the overlay is properly rendered
-            setTimeout(() => {
-                const loseOverlay = document.getElementById('loseOverlay');
-                loseOverlay.style.display = 'none';
-                void loseOverlay.offsetWidth; // Trigger reflow
-                loseOverlay.style.display = 'flex';
-            }, 50);
         }
 
         function updateLivesDisplay() {
