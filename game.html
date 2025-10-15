@@ -190,21 +190,9 @@
             background: #e67e22;
         }
 
-        /* Sound Controls */
+        /* Sound Controls - HIDDEN */
         .btn-sound {
-            background: #27ae60;
-            position: absolute;
-            top: 3px;
-            right: 60px;
-            z-index: 5;
-            padding: 5px 10px;
-            font-size: 0.7rem;
-            min-width: auto;
-            flex: none;
-        }
-
-        .btn-sound:hover {
-            background: #219653;
+            display: none !important;
         }
 
         #uiContainer {
@@ -735,6 +723,7 @@
         <canvas id="gameCanvas"></canvas>
         
         <button id="pauseBtn" class="btn btn-pause" style="display: none;">PAUSE</button>
+        <!-- Sound button is hidden with CSS -->
         <button id="soundBtn" class="btn btn-sound" style="display: none;">🔇 SOUND</button>
         
         <div id="uiContainer">
@@ -887,7 +876,7 @@
             animationId: null,
             paused: false,
             screenType: 'mobile',
-            soundEnabled: true
+            soundEnabled: true  // Sound is always enabled
         };
 
         // Audio elements
@@ -928,12 +917,17 @@
             sounds.gameOver.volume = 0.7;
             sounds.levelComplete.volume = 0.8;
             sounds.button.volume = 0.5;
+            
+            // Preload all sounds
+            Object.values(sounds).forEach(sound => {
+                if (sound) {
+                    sound.load();
+                }
+            });
         }
 
-        // Play sound with safety checks
+        // Play sound with safety checks - ALWAYS PLAY SOUND
         function playSound(soundName) {
-            if (!game.soundEnabled) return;
-            
             const sound = sounds[soundName];
             if (sound) {
                 // Reset sound to beginning if it's already playing
@@ -953,26 +947,9 @@
             }
         }
 
-        // Toggle sound on/off
+        // Toggle sound on/off - REMOVED FUNCTIONALITY
         function toggleSound() {
-            game.soundEnabled = !game.soundEnabled;
-            const soundBtn = document.getElementById('soundBtn');
-            
-            if (game.soundEnabled) {
-                soundBtn.textContent = '🔊 SOUND';
-                // Resume background music if game is running
-                if (game.gameStarted && !game.paused) {
-                    playSound('backgroundMusic');
-                }
-            } else {
-                soundBtn.textContent = '🔇 SOUND';
-                // Stop all sounds
-                Object.keys(sounds).forEach(soundName => {
-                    stopSound(soundName);
-                });
-            }
-            
-            playSound('button');
+            // Sound is always enabled, do nothing
         }
 
         // Enhanced device detection
@@ -1827,8 +1804,8 @@
                 resumeBtn: togglePause,
                 replayBtn: replayChapter,
                 nextChapterBtn: nextChapter,
-                restartBtn: restartGame,
-                soundBtn: toggleSound
+                restartBtn: restartGame
+                // Removed soundBtn from event listeners
             };
 
             Object.keys(buttons).forEach(buttonId => {
@@ -2111,10 +2088,10 @@
         function startGame() {
             document.getElementById('startOverlay').style.display = 'none';
             document.getElementById('pauseBtn').style.display = 'block';
-            document.getElementById('soundBtn').style.display = 'block';
+            // Sound button is hidden with CSS, so we don't show it
             game.gameStarted = true;
             
-            // Start background music
+            // Start background music - ALWAYS PLAY
             playSound('backgroundMusic');
         }
 
@@ -2131,10 +2108,8 @@
                 document.getElementById('pauseOverlay').style.display = 'none';
                 document.getElementById('pauseBtn').textContent = 'PAUSE';
                 
-                // Resume background music
-                if (game.soundEnabled) {
-                    playSound('backgroundMusic');
-                }
+                // Resume background music - ALWAYS PLAY
+                playSound('backgroundMusic');
             }
             
             playSound('button');
@@ -2145,10 +2120,8 @@
             resetGame();
             game.gameStarted = true;
             
-            // Resume background music
-            if (game.soundEnabled) {
-                playSound('backgroundMusic');
-            }
+            // Resume background music - ALWAYS PLAY
+            playSound('backgroundMusic');
         }
 
         function nextChapter() {
@@ -2157,10 +2130,8 @@
             resetGame();
             game.gameStarted = true;
             
-            // Resume background music
-            if (game.soundEnabled) {
-                playSound('backgroundMusic');
-            }
+            // Resume background music - ALWAYS PLAY
+            playSound('backgroundMusic');
         }
 
         function restartGame() {
@@ -2169,10 +2140,8 @@
             resetGame();
             game.gameStarted = true;
             
-            // Resume background music
-            if (game.soundEnabled) {
-                playSound('backgroundMusic');
-            }
+            // Resume background music - ALWAYS PLAY
+            playSound('backgroundMusic');
         }
 
         function gameLoop(timestamp) {
