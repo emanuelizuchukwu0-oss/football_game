@@ -190,6 +190,23 @@
             background: #e67e22;
         }
 
+        /* Sound Controls */
+        .btn-sound {
+            background: #27ae60;
+            position: absolute;
+            top: 3px;
+            right: 60px;
+            z-index: 5;
+            padding: 5px 10px;
+            font-size: 0.7rem;
+            min-width: auto;
+            flex: none;
+        }
+
+        .btn-sound:hover {
+            background: #219653;
+        }
+
         #uiContainer {
             position: absolute;
             top: 3px;
@@ -404,6 +421,11 @@
                 font-size: 0.8rem;
             }
             
+            .btn-sound {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+            
             #uiContainer {
                 transform: scale(0.8);
             }
@@ -426,6 +448,10 @@
             }
             
             .btn-pause {
+                transform: scale(0.8);
+            }
+            
+            .btn-sound {
                 transform: scale(0.8);
             }
             
@@ -653,6 +679,12 @@
                 right: 2px;
             }
             
+            .btn-sound {
+                transform: scale(0.7);
+                top: 2px;
+                right: 45px;
+            }
+            
             .btn {
                 min-height: 38px;
                 padding: 5px 10px;
@@ -677,6 +709,11 @@
                 margin-right: max(5px, env(safe-area-inset-right));
                 margin-top: max(5px, env(safe-area-inset-top));
             }
+            
+            .btn-sound {
+                margin-right: max(55px, env(safe-area-inset-right));
+                margin-top: max(5px, env(safe-area-inset-top));
+            }
         }
 
         /* Android specific optimizations */
@@ -698,6 +735,7 @@
         <canvas id="gameCanvas"></canvas>
         
         <button id="pauseBtn" class="btn btn-pause" style="display: none;">PAUSE</button>
+        <button id="soundBtn" class="btn btn-sound" style="display: none;">🔇 SOUND</button>
         
         <div id="uiContainer">
             <div class="ui-box">
@@ -777,6 +815,38 @@
         </div>
     </div>
 
+    <!-- Hidden audio elements for sound effects -->
+    <audio id="backgroundMusic" loop>
+        <source src="https://assets.mixkit.co/music/preview/mixkit-game-show-suspense-waiting-667.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="kickSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-football-kick-3111.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="goalSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="cannonSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-cannon-shot-1681.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="hitSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-arrow-whoosh-1491.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="stealSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-whoosh-1126.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="fightSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-punch-1-266.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="gameOverSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-sad-game-over-trombone-471.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="levelCompleteSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="buttonSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" type="audio/mpeg">
+    </audio>
+
     <script>
         // Game Constants and Configuration
         const CONFIG = {
@@ -816,8 +886,94 @@
             lastTime: 0,
             animationId: null,
             paused: false,
-            screenType: 'mobile'
+            screenType: 'mobile',
+            soundEnabled: true
         };
+
+        // Audio elements
+        const sounds = {
+            backgroundMusic: null,
+            kick: null,
+            goal: null,
+            cannon: null,
+            hit: null,
+            steal: null,
+            fight: null,
+            gameOver: null,
+            levelComplete: null,
+            button: null
+        };
+
+        // Initialize audio system
+        function initAudio() {
+            sounds.backgroundMusic = document.getElementById('backgroundMusic');
+            sounds.kick = document.getElementById('kickSound');
+            sounds.goal = document.getElementById('goalSound');
+            sounds.cannon = document.getElementById('cannonSound');
+            sounds.hit = document.getElementById('hitSound');
+            sounds.steal = document.getElementById('stealSound');
+            sounds.fight = document.getElementById('fightSound');
+            sounds.gameOver = document.getElementById('gameOverSound');
+            sounds.levelComplete = document.getElementById('levelCompleteSound');
+            sounds.button = document.getElementById('buttonSound');
+            
+            // Set volumes
+            sounds.backgroundMusic.volume = 0.3;
+            sounds.kick.volume = 0.7;
+            sounds.goal.volume = 0.8;
+            sounds.cannon.volume = 0.6;
+            sounds.hit.volume = 0.7;
+            sounds.steal.volume = 0.5;
+            sounds.fight.volume = 0.6;
+            sounds.gameOver.volume = 0.7;
+            sounds.levelComplete.volume = 0.8;
+            sounds.button.volume = 0.5;
+        }
+
+        // Play sound with safety checks
+        function playSound(soundName) {
+            if (!game.soundEnabled) return;
+            
+            const sound = sounds[soundName];
+            if (sound) {
+                // Reset sound to beginning if it's already playing
+                sound.currentTime = 0;
+                sound.play().catch(e => {
+                    console.log('Audio play failed:', e);
+                });
+            }
+        }
+
+        // Stop sound
+        function stopSound(soundName) {
+            const sound = sounds[soundName];
+            if (sound) {
+                sound.pause();
+                sound.currentTime = 0;
+            }
+        }
+
+        // Toggle sound on/off
+        function toggleSound() {
+            game.soundEnabled = !game.soundEnabled;
+            const soundBtn = document.getElementById('soundBtn');
+            
+            if (game.soundEnabled) {
+                soundBtn.textContent = '🔊 SOUND';
+                // Resume background music if game is running
+                if (game.gameStarted && !game.paused) {
+                    playSound('backgroundMusic');
+                }
+            } else {
+                soundBtn.textContent = '🔇 SOUND';
+                // Stop all sounds
+                Object.keys(sounds).forEach(soundName => {
+                    stopSound(soundName);
+                });
+            }
+            
+            playSound('button');
+        }
 
         // Enhanced device detection
         function detectScreenType() {
@@ -871,6 +1027,9 @@
             }
 
             shoot() {
+                // Play cannon sound
+                playSound('cannon');
+                
                 // Create cannon ball as simple object - FIXED
                 const cannonBall = {
                     x: this.x,
@@ -899,6 +1058,9 @@
                         const distance = Math.sqrt(dx * dx + dy * dy);
                         
                         if (distance < this.radius + game.player.radius) {
+                            // Play hit sound
+                            playSound('hit');
+                            
                             // Hit player - lose a life
                             game.lives--;
                             updateLivesDisplay();
@@ -1214,6 +1376,9 @@
 
             shootTowardsGoal() {
                 if (this.hasBall && !this.isUser) {
+                    // Play kick sound for opponent shooting
+                    playSound('kick');
+                    
                     const goalX = 0;
                     const goalY = game.canvas.height / 2;
                     
@@ -1342,6 +1507,9 @@
 
             shoot() {
                 if (this.hasBall && this.isUser) {
+                    // Play kick sound
+                    playSound('kick');
+                    
                     const goalX = game.canvas.width;
                     const goalY = game.canvas.height / 2;
                     
@@ -1370,6 +1538,9 @@
                         const stealChance = Math.max(0.35, 0.75 - (game.chapter - 1) * 0.04);
                         
                         if (distance < 40 && Math.random() < stealChance) {
+                            // Play steal sound
+                            playSound('steal');
+                            
                             game.ball.possessedBy.hasBall = false;
                             game.ball.possessedBy = this;
                             this.hasBall = true;
@@ -1383,6 +1554,9 @@
                         const distance = Math.sqrt(dx * dx + dy * dy);
                         
                         if (distance < 35 && Math.random() < 0.8) {
+                            // Play steal sound
+                            playSound('steal');
+                            
                             game.ball.possessedBy = this;
                             this.hasBall = true;
                             game.ballLost = false;
@@ -1414,6 +1588,9 @@
             
             fight() {
                 if (this.isUser && this.fightCooldown === 0) {
+                    // Play fight sound
+                    playSound('fight');
+                    
                     this.fighting = true;
                     this.fightFrame = 0;
                     this.fightCooldown = CONFIG.FIGHT_COOLDOWN;
@@ -1570,6 +1747,9 @@
             game.canvas = document.getElementById('gameCanvas');
             game.ctx = game.canvas.getContext('2d');
             
+            // Initialize audio system
+            initAudio();
+            
             game.screenType = detectScreenType();
             setupCanvas();
             
@@ -1647,7 +1827,8 @@
                 resumeBtn: togglePause,
                 replayBtn: replayChapter,
                 nextChapterBtn: nextChapter,
-                restartBtn: restartGame
+                restartBtn: restartGame,
+                soundBtn: toggleSound
             };
 
             Object.keys(buttons).forEach(buttonId => {
@@ -1655,7 +1836,10 @@
                 if (button) {
                     const handler = buttons[buttonId];
                     
-                    button.addEventListener('click', handler);
+                    button.addEventListener('click', () => {
+                        playSound('button');
+                        handler();
+                    });
                     
                     button.addEventListener('touchstart', (e) => {
                         e.preventDefault();
@@ -1669,6 +1853,7 @@
                         e.stopPropagation();
                         button.style.transform = 'scale(1)';
                         button.style.opacity = '1';
+                        playSound('button');
                         handler();
                     }, { passive: false });
                     
@@ -1926,7 +2111,11 @@
         function startGame() {
             document.getElementById('startOverlay').style.display = 'none';
             document.getElementById('pauseBtn').style.display = 'block';
+            document.getElementById('soundBtn').style.display = 'block';
             game.gameStarted = true;
+            
+            // Start background music
+            playSound('backgroundMusic');
         }
 
         function togglePause() {
@@ -1935,16 +2124,31 @@
             if (game.paused) {
                 document.getElementById('pauseOverlay').style.display = 'flex';
                 document.getElementById('pauseBtn').textContent = 'RESUME';
+                
+                // Pause background music
+                stopSound('backgroundMusic');
             } else {
                 document.getElementById('pauseOverlay').style.display = 'none';
                 document.getElementById('pauseBtn').textContent = 'PAUSE';
+                
+                // Resume background music
+                if (game.soundEnabled) {
+                    playSound('backgroundMusic');
+                }
             }
+            
+            playSound('button');
         }
 
         function replayChapter() {
             document.getElementById('winOverlay').style.display = 'none';
             resetGame();
             game.gameStarted = true;
+            
+            // Resume background music
+            if (game.soundEnabled) {
+                playSound('backgroundMusic');
+            }
         }
 
         function nextChapter() {
@@ -1952,6 +2156,11 @@
             game.chapter = Math.min(game.chapter + 1, CONFIG.CHAPTERS);
             resetGame();
             game.gameStarted = true;
+            
+            // Resume background music
+            if (game.soundEnabled) {
+                playSound('backgroundMusic');
+            }
         }
 
         function restartGame() {
@@ -1959,6 +2168,11 @@
             game.chapter = 1;
             resetGame();
             game.gameStarted = true;
+            
+            // Resume background music
+            if (game.soundEnabled) {
+                playSound('backgroundMusic');
+            }
         }
 
         function gameLoop(timestamp) {
@@ -2022,6 +2236,9 @@
                 }
                 
                 if (!goalSaved) {
+                    // Play goal sound
+                    playSound('goal');
+                    
                     showGoalMessage();
                     setTimeout(showWinOverlay, 1000);
                     return;
@@ -2066,6 +2283,12 @@
         }
 
         function showWinOverlay() {
+            // Play level complete sound
+            playSound('levelComplete');
+            
+            // Stop background music
+            stopSound('backgroundMusic');
+            
             document.getElementById('winOpponents').textContent = game.chapter;
             document.getElementById('winOverlay').style.display = 'flex';
             game.gameStarted = false;
@@ -2073,6 +2296,12 @@
         }
 
         function showLoseOverlay() {
+            // Play game over sound
+            playSound('gameOver');
+            
+            // Stop background music
+            stopSound('backgroundMusic');
+            
             document.getElementById('loseChapter').textContent = game.chapter;
             document.getElementById('loseOpponents').textContent = game.chapter;
             document.getElementById('loseOverlay').style.display = 'flex';
