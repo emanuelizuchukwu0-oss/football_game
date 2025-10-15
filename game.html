@@ -394,260 +394,159 @@
             }
         }
 
-        /* Small screen optimizations */
-        @media (max-height: 500px) and (orientation: landscape) {
-            #uiContainer {
-                transform: scale(0.6);
-            }
-            
-            .btn-pause {
-                transform: scale(0.8);
-            }
-            
-            #mobileControls {
-                bottom: 25px;
-            }
-            
-            .joystick-container {
-                width: 65px;
-                height: 65px;
-            }
-            
-            .control-btn {
-                width: 50px;
-                height: 50px;
-                font-size: 0.7rem;
-            }
-        }
+/* 🎮 Smooth Game-Feel Optimization Styles */
+/* Use fluid scaling, hardware acceleration, and transitions for console-level smoothness */
 
-        /* Very small screens */
-        @media (max-width: 320px) and (orientation: landscape) {
-            #uiContainer {
-                transform: scale(0.5);
-            }
-            
-            .btn {
-                padding: 6px 12px;
-                font-size: 0.75rem;
-                min-width: 80px;
-            }
-            
-            #mobileControls {
-                bottom: 28px;
-                padding: 0 10px;
-            }
-            
-            .joystick-container {
-                width: 65px !important;
-                height: 65px !important;
-            }
-            
-            .control-btn {
-                width: 48px !important;
-                height: 48px !important;
-                font-size: 0.65rem !important;
-            }
-        }
+/* Universal scaling and transition for smoother animation */
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
 
-        /* Huawei Devices */
-        @media (max-width: 360px) and (orientation: landscape),
-               (max-width: 400px) and (max-height: 360px) and (orientation: landscape) {
-            #mobileControls {
-                bottom: 35px !important;
-                padding: 0 12px;
-            }
-            
-            .joystick-container {
-                width: 75px !important;
-                height: 75px !important;
-            }
-            
-            .control-btn {
-                width: 55px !important;
-                height: 55px !important;
-                font-size: 0.7rem !important;
-            }
-        }
+#uiContainer, 
+#mobileControls, 
+.joystick-container, 
+.control-btn, 
+.btn-pause {
+    transition: all 0.25s ease-in-out;
+    will-change: transform, bottom, padding;
+}
 
-        /* Tecno Devices */
-        @media (max-width: 380px) and (orientation: landscape),
-               (max-width: 420px) and (max-height: 380px) and (orientation: landscape) {
-            #mobileControls {
-                bottom: 32px !important;
-                padding: 0 14px;
-            }
-            
-            .joystick-container {
-                width: 72px !important;
-                height: 72px !important;
-            }
-            
-            .control-btn {
-                width: 52px !important;
-                height: 52px !important;
-                font-size: 0.68rem !important;
-            }
-        }
+/* Enable GPU acceleration for smoother rendering */
+#uiContainer,
+#mobileControls,
+.joystick-container,
+.control-btn {
+    transform: translateZ(0);
+}
 
-        /* iPhone Devices */
-        @media (max-width: 390px) and (orientation: landscape),
-               (max-width: 430px) and (max-height: 390px) and (orientation: landscape),
-               (max-width: 414px) and (orientation: landscape) {
-            #mobileControls {
-                bottom: 40px !important;
-                padding: 0 16px;
-            }
-            
-            .joystick-container {
-                width: 78px !important;
-                height: 78px !important;
-            }
-            
-            .control-btn {
-                width: 58px !important;
-                height: 58px !important;
-                font-size: 0.72rem !important;
-            }
-        }
+/* Base mobile layout optimizations */
+#mobileControls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    bottom: 40px;
+    position: absolute;
+    width: 100%;
+    z-index: 1000;
+}
 
-        /* Samsung Devices */
-        @media (max-width: 412px) and (orientation: landscape),
-               (max-width: 450px) and (max-height: 412px) and (orientation: landscape) {
-            #mobileControls {
-                bottom: 38px !important;
-                padding: 0 15px;
-            }
-            
-            .joystick-container {
-                width: 76px !important;
-                height: 76px !important;
-            }
-            
-            .control-btn {
-                width: 56px !important;
-                height: 56px !important;
-                font-size: 0.7rem !important;
-            }
-        }
+.joystick-container {
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    transition: transform 0.15s ease;
+}
 
-        /* Infinity Devices */
-        @media (max-width: 420px) and (orientation: landscape),
-               (max-width: 460px) and (max-height: 420px) and (orientation: landscape) {
-            #mobileControls {
-                bottom: 36px !important;
-                padding: 0 13px;
-            }
-            
-            .joystick-container {
-                width: 74px !important;
-                height: 74px !important;
-            }
-            
-            .control-btn {
-                width: 54px !important;
-                height: 54px !important;
-                font-size: 0.69rem !important;
-            }
-        }
+.control-btn {
+    border-radius: 50%;
+    background: radial-gradient(circle at top left, #f0f0f0, #ccc);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    border: none;
+    transition: transform 0.1s ease, background 0.2s ease;
+}
+.control-btn:active {
+    transform: scale(0.9);
+    background: radial-gradient(circle at bottom right, #ccc, #aaa);
+}
 
-        /* Nokia Devices */
-        @media (max-width: 370px) and (orientation: landscape),
-               (max-width: 410px) and (max-height: 370px) and (orientation: landscape) {
-            #mobileControls {
-                bottom: 34px !important;
-                padding: 0 12px;
-            }
-            
-            .joystick-container {
-                width: 70px !important;
-                height: 70px !important;
-            }
-            
-            .control-btn {
-                width: 50px !important;
-                height: 50px !important;
-                font-size: 0.67rem !important;
-            }
-        }
+/* ========== RESPONSIVE DEVICE OPTIMIZATION ========== */
 
-        /* Extra small height screens */
-        @media (max-height: 350px) and (orientation: landscape) {
-            #mobileControls {
-                bottom: 25px !important;
-                padding: 0 10px;
-            }
-            
-            .joystick-container {
-                width: 62px !important;
-                height: 62px !important;
-            }
-            
-            .control-btn {
-                width: 46px !important;
-                height: 46px !important;
-                font-size: 0.64rem !important;
-            }
-            
-            #uiContainer {
-                transform: scale(0.45);
-            }
-        }
+/* Small screen optimizations */
+@media (max-height: 500px) and (orientation: landscape) {
+    #uiContainer { transform: scale(0.65); }
+    .btn-pause { transform: scale(0.8); }
+    #mobileControls { bottom: 25px; }
+    .joystick-container { width: 70px; height: 70px; }
+    .control-btn { width: 52px; height: 52px; font-size: 0.7rem; }
+}
 
-        /* Ultra small height screens */
-        @media (max-height: 300px) and (orientation: landscape) {
-            #mobileControls {
-                bottom: 22px !important;
-                padding: 0 8px;
-            }
-            
-            .joystick-container {
-                width: 58px !important;
-                height: 58px !important;
-            }
-            
-            .control-btn {
-                width: 44px !important;
-                height: 44px !important;
-                font-size: 0.62rem !important;
-            }
-            
-            #uiContainer {
-                transform: scale(0.4);
-                margin-top: 2px;
-            }
-            
-            .btn-pause {
-                transform: scale(0.7);
-                top: 2px;
-                right: 2px;
-            }
-        }
+/* Very small screens */
+@media (max-width: 320px) and (orientation: landscape) {
+    #uiContainer { transform: scale(0.5); }
+    .btn { padding: 6px 12px; font-size: 0.75rem; min-width: 80px; }
+    #mobileControls { bottom: 28px; padding: 0 10px; }
+    .joystick-container { width: 65px; height: 65px; }
+    .control-btn { width: 48px; height: 48px; font-size: 0.65rem; }
+}
 
-        /* Enhanced iPhone notch safe areas */
-        @supports(padding: max(0px)) {
-            #mobileControls {
-                padding-left: max(15px, env(safe-area-inset-left));
-                padding-right: max(15px, env(safe-area-inset-right));
-                padding-bottom: max(15px, env(safe-area-inset-bottom));
-            }
-            
-            #uiContainer {
-                margin-left: max(5px, env(safe-area-inset-left));
-                margin-top: max(5px, env(safe-area-inset-top));
-            }
-            
-            .btn-pause {
-                margin-right: max(5px, env(safe-area-inset-right));
-                margin-top: max(5px, env(safe-area-inset-top));
-            }
-        }
+/* Huawei Devices */
+@media (max-width: 400px) and (orientation: landscape) {
+    #mobileControls { bottom: 35px; padding: 0 12px; }
+    .joystick-container { width: 75px; height: 75px; }
+    .control-btn { width: 55px; height: 55px; font-size: 0.7rem; }
+}
 
-        /* Android specific optimizations */
-        @supports not (-webkit-touch-callout: none) {
-            #mobileControls {
-                padding-bottom: 20px;
-            }
-        }
+/* Tecno Devices */
+@media (max-width: 420px) and (orientation: landscape) {
+    #mobileControls { bottom: 32px; padding: 0 14px; }
+    .joystick-container { width: 72px; height: 72px; }
+    .control-btn { width: 52px; height: 52px; font-size: 0.68rem; }
+}
+
+/* iPhone Devices */
+@media (max-width: 430px) and (orientation: landscape) {
+    #mobileControls { bottom: 40px; padding: 0 16px; }
+    .joystick-container { width: 78px; height: 78px; }
+    .control-btn { width: 58px; height: 58px; font-size: 0.72rem; }
+}
+
+/* Samsung Devices */
+@media (max-width: 450px) and (orientation: landscape) {
+    #mobileControls { bottom: 38px; padding: 0 15px; }
+    .joystick-container { width: 76px; height: 76px; }
+    .control-btn { width: 56px; height: 56px; font-size: 0.7rem; }
+}
+
+/* Infinity / Nokia Devices */
+@media (max-width: 420px) and (orientation: landscape) {
+    #mobileControls { bottom: 34px; padding: 0 12px; }
+    .joystick-container { width: 70px; height: 70px; }
+    .control-btn { width: 50px; height: 50px; font-size: 0.67rem; }
+}
+
+/* Extra small height screens */
+@media (max-height: 350px) and (orientation: landscape) {
+    #mobileControls { bottom: 25px; padding: 0 10px; }
+    .joystick-container { width: 62px; height: 62px; }
+    .control-btn { width: 46px; height: 46px; font-size: 0.64rem; }
+    #uiContainer { transform: scale(0.45); }
+}
+
+/* Ultra small height screens */
+@media (max-height: 300px) and (orientation: landscape) {
+    #mobileControls { bottom: 22px; padding: 0 8px; }
+    .joystick-container { width: 58px; height: 58px; }
+    .control-btn { width: 44px; height: 44px; font-size: 0.62rem; }
+    #uiContainer { transform: scale(0.4); margin-top: 2px; }
+    .btn-pause { transform: scale(0.7); top: 2px; right: 2px; }
+}
+
+/* Safe area for iPhones with notch */
+@supports(padding: max(0px)) {
+    #mobileControls {
+        padding-left: max(15px, env(safe-area-inset-left));
+        padding-right: max(15px, env(safe-area-inset-right));
+        padding-bottom: max(15px, env(safe-area-inset-bottom));
+    }
+    #uiContainer {
+        margin-left: max(5px, env(safe-area-inset-left));
+        margin-top: max(5px, env(safe-area-inset-top));
+    }
+    .btn-pause {
+        margin-right: max(5px, env(safe-area-inset-right));
+        margin-top: max(5px, env(safe-area-inset-top));
+    }
+}
+
+/* Android optimization */
+@supports not (-webkit-touch-callout: none) {
+    #mobileControls { padding-bottom: 20px; }
+}
+
     </style>
 </head>
 <body>
