@@ -75,6 +75,7 @@
             position: absolute;
             top: 0;
             left: 0;
+            pointer-events: none;
         }
 
         .overlay {
@@ -90,8 +91,9 @@
             align-items: center;
             color: white;
             text-align: center;
-            z-index: 10;
+            z-index: 100;
             padding: 15px;
+            pointer-events: auto;
         }
 
         .overlay h1 {
@@ -122,6 +124,8 @@
             margin-top: 8px;
             width: 100%;
             max-width: 300px;
+            position: relative;
+            z-index: 110;
         }
 
         .btn {
@@ -136,8 +140,23 @@
             transition: all 0.3s ease;
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
             min-width: 100px;
+            min-height: 44px;
             flex: 1;
             max-width: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 20;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+            opacity: 0.9;
         }
 
         .btn:hover {
@@ -213,13 +232,14 @@
 
         #mobileControls {
             position: absolute;
-            bottom: 30px; /* Higher placement like Shadow Fight */
+            bottom: 30px;
             width: 100%;
             display: none;
             justify-content: space-between;
             padding: 0 20px;
             z-index: 5;
             transition: bottom 0.3s ease;
+            pointer-events: auto;
         }
 
         .joystick-container {
@@ -394,159 +414,272 @@
             }
         }
 
-/* 🎮 Smooth Game-Feel Optimization Styles */
-/* Use fluid scaling, hardware acceleration, and transitions for console-level smoothness */
+        /* Small screen optimizations */
+        @media (max-height: 500px) and (orientation: landscape) {
+            #uiContainer {
+                transform: scale(0.6);
+            }
+            
+            .btn-pause {
+                transform: scale(0.8);
+            }
+            
+            #mobileControls {
+                bottom: 25px;
+            }
+            
+            .joystick-container {
+                width: 65px;
+                height: 65px;
+            }
+            
+            .control-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 0.7rem;
+            }
+        }
 
-/* Universal scaling and transition for smoother animation */
-* {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-}
+        /* Very small screens */
+        @media (max-width: 320px) and (orientation: landscape) {
+            #uiContainer {
+                transform: scale(0.5);
+            }
+            
+            .btn {
+                padding: 6px 12px;
+                font-size: 0.75rem;
+                min-width: 80px;
+            }
+            
+            #mobileControls {
+                bottom: 28px;
+                padding: 0 10px;
+            }
+            
+            .joystick-container {
+                width: 65px !important;
+                height: 65px !important;
+            }
+            
+            .control-btn {
+                width: 48px !important;
+                height: 48px !important;
+                font-size: 0.65rem !important;
+            }
+        }
 
-#uiContainer, 
-#mobileControls, 
-.joystick-container, 
-.control-btn, 
-.btn-pause {
-    transition: all 0.25s ease-in-out;
-    will-change: transform, bottom, padding;
-}
+        /* Huawei Devices */
+        @media (max-width: 360px) and (orientation: landscape),
+               (max-width: 400px) and (max-height: 360px) and (orientation: landscape) {
+            #mobileControls {
+                bottom: 35px !important;
+                padding: 0 12px;
+            }
+            
+            .joystick-container {
+                width: 75px !important;
+                height: 75px !important;
+            }
+            
+            .control-btn {
+                width: 55px !important;
+                height: 55px !important;
+                font-size: 0.7rem !important;
+            }
+        }
 
-/* Enable GPU acceleration for smoother rendering */
-#uiContainer,
-#mobileControls,
-.joystick-container,
-.control-btn {
-    transform: translateZ(0);
-}
+        /* Tecno Devices */
+        @media (max-width: 380px) and (orientation: landscape),
+               (max-width: 420px) and (max-height: 380px) and (orientation: landscape) {
+            #mobileControls {
+                bottom: 32px !important;
+                padding: 0 14px;
+            }
+            
+            .joystick-container {
+                width: 72px !important;
+                height: 72px !important;
+            }
+            
+            .control-btn {
+                width: 52px !important;
+                height: 52px !important;
+                font-size: 0.68rem !important;
+            }
+        }
 
-/* Base mobile layout optimizations */
-#mobileControls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 20px;
-    bottom: 40px;
-    position: absolute;
-    width: 100%;
-    z-index: 1000;
-}
+        /* iPhone Devices */
+        @media (max-width: 390px) and (orientation: landscape),
+               (max-width: 430px) and (max-height: 390px) and (orientation: landscape),
+               (max-width: 414px) and (orientation: landscape) {
+            #mobileControls {
+                bottom: 40px !important;
+                padding: 0 16px;
+            }
+            
+            .joystick-container {
+                width: 78px !important;
+                height: 78px !important;
+            }
+            
+            .control-btn {
+                width: 58px !important;
+                height: 58px !important;
+                font-size: 0.72rem !important;
+            }
+        }
 
-.joystick-container {
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(6px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 0 10px rgba(0,0,0,0.4);
-    transition: transform 0.15s ease;
-}
+        /* Samsung Devices */
+        @media (max-width: 412px) and (orientation: landscape),
+               (max-width: 450px) and (max-height: 412px) and (orientation: landscape) {
+            #mobileControls {
+                bottom: 38px !important;
+                padding: 0 15px;
+            }
+            
+            .joystick-container {
+                width: 76px !important;
+                height: 76px !important;
+            }
+            
+            .control-btn {
+                width: 56px !important;
+                height: 56px !important;
+                font-size: 0.7rem !important;
+            }
+        }
 
-.control-btn {
-    border-radius: 50%;
-    background: radial-gradient(circle at top left, #f0f0f0, #ccc);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-    border: none;
-    transition: transform 0.1s ease, background 0.2s ease;
-}
-.control-btn:active {
-    transform: scale(0.9);
-    background: radial-gradient(circle at bottom right, #ccc, #aaa);
-}
+        /* Infinity Devices */
+        @media (max-width: 420px) and (orientation: landscape),
+               (max-width: 460px) and (max-height: 420px) and (orientation: landscape) {
+            #mobileControls {
+                bottom: 36px !important;
+                padding: 0 13px;
+            }
+            
+            .joystick-container {
+                width: 74px !important;
+                height: 74px !important;
+            }
+            
+            .control-btn {
+                width: 54px !important;
+                height: 54px !important;
+                font-size: 0.69rem !important;
+            }
+        }
 
-/* ========== RESPONSIVE DEVICE OPTIMIZATION ========== */
+        /* Nokia Devices */
+        @media (max-width: 370px) and (orientation: landscape),
+               (max-width: 410px) and (max-height: 370px) and (orientation: landscape) {
+            #mobileControls {
+                bottom: 34px !important;
+                padding: 0 12px;
+            }
+            
+            .joystick-container {
+                width: 70px !important;
+                height: 70px !important;
+            }
+            
+            .control-btn {
+                width: 50px !important;
+                height: 50px !important;
+                font-size: 0.67rem !important;
+            }
+        }
 
-/* Small screen optimizations */
-@media (max-height: 500px) and (orientation: landscape) {
-    #uiContainer { transform: scale(0.65); }
-    .btn-pause { transform: scale(0.8); }
-    #mobileControls { bottom: 25px; }
-    .joystick-container { width: 70px; height: 70px; }
-    .control-btn { width: 52px; height: 52px; font-size: 0.7rem; }
-}
+        /* Extra small height screens */
+        @media (max-height: 350px) and (orientation: landscape) {
+            #mobileControls {
+                bottom: 25px !important;
+                padding: 0 10px;
+            }
+            
+            .joystick-container {
+                width: 62px !important;
+                height: 62px !important;
+            }
+            
+            .control-btn {
+                width: 46px !important;
+                height: 46px !important;
+                font-size: 0.64rem !important;
+            }
+            
+            #uiContainer {
+                transform: scale(0.45);
+            }
+            
+            .btn {
+                min-height: 40px;
+                padding: 6px 12px;
+                font-size: 0.75rem;
+            }
+        }
 
-/* Very small screens */
-@media (max-width: 320px) and (orientation: landscape) {
-    #uiContainer { transform: scale(0.5); }
-    .btn { padding: 6px 12px; font-size: 0.75rem; min-width: 80px; }
-    #mobileControls { bottom: 28px; padding: 0 10px; }
-    .joystick-container { width: 65px; height: 65px; }
-    .control-btn { width: 48px; height: 48px; font-size: 0.65rem; }
-}
+        /* Ultra small height screens */
+        @media (max-height: 300px) and (orientation: landscape) {
+            #mobileControls {
+                bottom: 22px !important;
+                padding: 0 8px;
+            }
+            
+            .joystick-container {
+                width: 58px !important;
+                height: 58px !important;
+            }
+            
+            .control-btn {
+                width: 44px !important;
+                height: 44px !important;
+                font-size: 0.62rem !important;
+            }
+            
+            #uiContainer {
+                transform: scale(0.4);
+                margin-top: 2px;
+            }
+            
+            .btn-pause {
+                transform: scale(0.7);
+                top: 2px;
+                right: 2px;
+            }
+            
+            .btn {
+                min-height: 38px;
+                padding: 5px 10px;
+                font-size: 0.7rem;
+            }
+        }
 
-/* Huawei Devices */
-@media (max-width: 400px) and (orientation: landscape) {
-    #mobileControls { bottom: 35px; padding: 0 12px; }
-    .joystick-container { width: 75px; height: 75px; }
-    .control-btn { width: 55px; height: 55px; font-size: 0.7rem; }
-}
+        /* Enhanced iPhone notch safe areas */
+        @supports(padding: max(0px)) {
+            #mobileControls {
+                padding-left: max(15px, env(safe-area-inset-left));
+                padding-right: max(15px, env(safe-area-inset-right));
+                padding-bottom: max(15px, env(safe-area-inset-bottom));
+            }
+            
+            #uiContainer {
+                margin-left: max(5px, env(safe-area-inset-left));
+                margin-top: max(5px, env(safe-area-inset-top));
+            }
+            
+            .btn-pause {
+                margin-right: max(5px, env(safe-area-inset-right));
+                margin-top: max(5px, env(safe-area-inset-top));
+            }
+        }
 
-/* Tecno Devices */
-@media (max-width: 420px) and (orientation: landscape) {
-    #mobileControls { bottom: 32px; padding: 0 14px; }
-    .joystick-container { width: 72px; height: 72px; }
-    .control-btn { width: 52px; height: 52px; font-size: 0.68rem; }
-}
-
-/* iPhone Devices */
-@media (max-width: 430px) and (orientation: landscape) {
-    #mobileControls { bottom: 40px; padding: 0 16px; }
-    .joystick-container { width: 78px; height: 78px; }
-    .control-btn { width: 58px; height: 58px; font-size: 0.72rem; }
-}
-
-/* Samsung Devices */
-@media (max-width: 450px) and (orientation: landscape) {
-    #mobileControls { bottom: 38px; padding: 0 15px; }
-    .joystick-container { width: 76px; height: 76px; }
-    .control-btn { width: 56px; height: 56px; font-size: 0.7rem; }
-}
-
-/* Infinity / Nokia Devices */
-@media (max-width: 420px) and (orientation: landscape) {
-    #mobileControls { bottom: 34px; padding: 0 12px; }
-    .joystick-container { width: 70px; height: 70px; }
-    .control-btn { width: 50px; height: 50px; font-size: 0.67rem; }
-}
-
-/* Extra small height screens */
-@media (max-height: 350px) and (orientation: landscape) {
-    #mobileControls { bottom: 25px; padding: 0 10px; }
-    .joystick-container { width: 62px; height: 62px; }
-    .control-btn { width: 46px; height: 46px; font-size: 0.64rem; }
-    #uiContainer { transform: scale(0.45); }
-}
-
-/* Ultra small height screens */
-@media (max-height: 300px) and (orientation: landscape) {
-    #mobileControls { bottom: 22px; padding: 0 8px; }
-    .joystick-container { width: 58px; height: 58px; }
-    .control-btn { width: 44px; height: 44px; font-size: 0.62rem; }
-    #uiContainer { transform: scale(0.4); margin-top: 2px; }
-    .btn-pause { transform: scale(0.7); top: 2px; right: 2px; }
-}
-
-/* Safe area for iPhones with notch */
-@supports(padding: max(0px)) {
-    #mobileControls {
-        padding-left: max(15px, env(safe-area-inset-left));
-        padding-right: max(15px, env(safe-area-inset-right));
-        padding-bottom: max(15px, env(safe-area-inset-bottom));
-    }
-    #uiContainer {
-        margin-left: max(5px, env(safe-area-inset-left));
-        margin-top: max(5px, env(safe-area-inset-top));
-    }
-    .btn-pause {
-        margin-right: max(5px, env(safe-area-inset-right));
-        margin-top: max(5px, env(safe-area-inset-top));
-    }
-}
-
-/* Android optimization */
-@supports not (-webkit-touch-callout: none) {
-    #mobileControls { padding-bottom: 20px; }
-}
-
+        /* Android specific optimizations */
+        @supports not (-webkit-touch-callout: none) {
+            #mobileControls {
+                padding-bottom: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1408,92 +1541,61 @@
             mobileControls.style.bottom = `${bottomPosition}px`;
         }
 
-        // Replace the setupEventListeners function with this enhanced version:
-function setupEventListeners() {
-    // Enhanced button event listeners with mobile support
-    const buttons = {
-        startBtn: startGame,
-        pauseBtn: togglePause,
-        resumeBtn: togglePause,
-        replayBtn: replayChapter,
-        nextChapterBtn: nextChapter,
-        restartBtn: restartGame
-    };
+        // FIXED: Enhanced event listeners with proper mobile touch support
+        function setupEventListeners() {
+            // Enhanced button event listeners with mobile support
+            const buttons = {
+                startBtn: startGame,
+                pauseBtn: togglePause,
+                resumeBtn: togglePause,
+                replayBtn: replayChapter,
+                nextChapterBtn: nextChapter,
+                restartBtn: restartGame
+            };
 
-    // Setup each button with both click and touch events
-    Object.keys(buttons).forEach(buttonId => {
-        const button = document.getElementById(buttonId);
-        if (button) {
-            const handler = buttons[buttonId];
-            
-            // Add click event for desktop
-            button.addEventListener('click', handler);
-            
-            // Add touch events for mobile with proper prevention
-            button.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // Visual feedback
-                button.style.transform = 'scale(0.95)';
-                button.style.opacity = '0.9';
-            }, { passive: false });
-            
-            button.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // Reset visual state
-                button.style.transform = 'scale(1)';
-                button.style.opacity = '1';
-                
-                // Execute the handler
-                handler();
-            }, { passive: false });
-            
-            // Prevent default touch behavior
-            button.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-            }, { passive: false });
+            // Setup each button with both click and touch events
+            Object.keys(buttons).forEach(buttonId => {
+                const button = document.getElementById(buttonId);
+                if (button) {
+                    const handler = buttons[buttonId];
+                    
+                    // Add click event for desktop
+                    button.addEventListener('click', handler);
+                    
+                    // Add touch events for mobile with proper prevention
+                    button.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // Visual feedback
+                        button.style.transform = 'scale(0.95)';
+                        button.style.opacity = '0.9';
+                    }, { passive: false });
+                    
+                    button.addEventListener('touchend', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // Reset visual state
+                        button.style.transform = 'scale(1)';
+                        button.style.opacity = '1';
+                        
+                        // Execute the handler
+                        handler();
+                    }, { passive: false });
+                    
+                    // Prevent default touch behavior
+                    button.addEventListener('touchmove', (e) => {
+                        e.preventDefault();
+                    }, { passive: false });
+                }
+            });
+
+            // Handle window resize and orientation change
+            window.addEventListener('resize', handleResize);
+            window.addEventListener('orientationchange', handleResize);
         }
-    });
 
-    // Handle window resize and orientation change
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('orientationchange', handleResize);
-}
-
-// Also update the showWinOverlay and showLoseOverlay functions to ensure overlays are properly interactive:
-function showWinOverlay() {
-    document.getElementById('winOpponents').textContent = game.chapter;
-    document.getElementById('winOverlay').style.display = 'flex';
-    game.gameStarted = false;
-    document.getElementById('pauseBtn').style.display = 'none';
-    
-    // Force a reflow to ensure the overlay is properly rendered
-    setTimeout(() => {
-        const winOverlay = document.getElementById('winOverlay');
-        winOverlay.style.display = 'none';
-        void winOverlay.offsetWidth; // Trigger reflow
-        winOverlay.style.display = 'flex';
-    }, 50);
-}
-
-function showLoseOverlay() {
-    document.getElementById('loseChapter').textContent = game.chapter;
-    document.getElementById('loseOpponents').textContent = game.chapter;
-    document.getElementById('loseOverlay').style.display = 'flex';
-    game.gameStarted = false;
-    document.getElementById('pauseBtn').style.display = 'none';
-    
-    // Force a reflow to ensure the overlay is properly rendered
-    setTimeout(() => {
-        const loseOverlay = document.getElementById('loseOverlay');
-        loseOverlay.style.display = 'none';
-        void loseOverlay.offsetWidth; // Trigger reflow
-        loseOverlay.style.display = 'flex';
-    }, 50);
-}
         function handleResize() {
             // Update screen type detection
             game.screenType = detectScreenType();
@@ -1888,19 +1990,37 @@ function showLoseOverlay() {
             }, 2000);
         }
 
+        // FIXED: Enhanced showWinOverlay with proper mobile support
         function showWinOverlay() {
             document.getElementById('winOpponents').textContent = game.chapter;
             document.getElementById('winOverlay').style.display = 'flex';
             game.gameStarted = false;
             document.getElementById('pauseBtn').style.display = 'none';
+            
+            // Force a reflow to ensure the overlay is properly rendered
+            setTimeout(() => {
+                const winOverlay = document.getElementById('winOverlay');
+                winOverlay.style.display = 'none';
+                void winOverlay.offsetWidth; // Trigger reflow
+                winOverlay.style.display = 'flex';
+            }, 50);
         }
 
+        // FIXED: Enhanced showLoseOverlay with proper mobile support
         function showLoseOverlay() {
             document.getElementById('loseChapter').textContent = game.chapter;
             document.getElementById('loseOpponents').textContent = game.chapter;
             document.getElementById('loseOverlay').style.display = 'flex';
             game.gameStarted = false;
             document.getElementById('pauseBtn').style.display = 'none';
+            
+            // Force a reflow to ensure the overlay is properly rendered
+            setTimeout(() => {
+                const loseOverlay = document.getElementById('loseOverlay');
+                loseOverlay.style.display = 'none';
+                void loseOverlay.offsetWidth; // Trigger reflow
+                loseOverlay.style.display = 'flex';
+            }, 50);
         }
 
         function updateLivesDisplay() {
