@@ -804,10 +804,33 @@
         </div>
     </div>
 
-    <!-- Only the background music is kept -->
+    <!-- Sound effects -->
     <audio id="backgroundMusic" loop>
         <source src="mixkit-hazy-after-hours-132.mp3" type="audio/mpeg">
-        <!-- To change the background music, replace the file above -->
+    </audio>
+    <audio id="loseSound">
+        <source src="lose.wav" type="audio/mpeg">
+    </audio>
+    <audio id="winSound">
+        <source src="win.wav" type="audio/mpeg">
+    </audio>
+    <audio id="kickSound">
+        <source src="kick.wav" type="audio/mpeg">
+    </audio>
+    <audio id="goalSound">
+        <source src="goal.wav" type="audio/mpeg">
+    </audio>
+    <audio id="cannonSound">
+        <source src="cannon.wav" type="audio/mpeg">
+    </audio>
+    <audio id="hitSound">
+        <source src="hit.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="stealSound">
+        <source src="steal.wav" type="audio/mpeg">
+    </audio>
+    <audio id="walkSound" loop>
+        <source src="walk.wav" type="audio/mpeg">
     </audio>
 
     <script>
@@ -852,21 +875,76 @@
             screenType: 'mobile'
         };
 
-        // Background music element
-        let backgroundMusic = null;
+        // Sound elements
+        const sounds = {
+            backgroundMusic: null,
+            lose: null,
+            win: null,
+            kick: null,
+            goal: null,
+            cannon: null,
+            hit: null,
+            steal: null,
+            walk: null
+        };
 
-        // Initialize audio system - ONLY background music
+        // Initialize audio system
         function initAudio() {
-            backgroundMusic = document.getElementById('backgroundMusic');
-            backgroundMusic.volume = 0.3;
-            backgroundMusic.load();
+            sounds.backgroundMusic = document.getElementById('backgroundMusic');
+            sounds.lose = document.getElementById('loseSound');
+            sounds.win = document.getElementById('winSound');
+            sounds.kick = document.getElementById('kickSound');
+            sounds.goal = document.getElementById('goalSound');
+            sounds.cannon = document.getElementById('cannonSound');
+            sounds.hit = document.getElementById('hitSound');
+            sounds.steal = document.getElementById('stealSound');
+            sounds.walk = document.getElementById('walkSound');
+            
+            // Set volumes
+            sounds.backgroundMusic.volume = 0.3;
+            sounds.lose.volume = 0.7;
+            sounds.win.volume = 0.7;
+            sounds.kick.volume = 0.6;
+            sounds.goal.volume = 0.8;
+            sounds.cannon.volume = 0.6;
+            sounds.hit.volume = 0.7;
+            sounds.steal.volume = 0.5;
+            sounds.walk.volume = 0.3;
+            
+            // Preload all sounds
+            Object.values(sounds).forEach(sound => {
+                if (sound) {
+                    sound.load();
+                }
+            });
+        }
+
+        // Play sound with safety checks
+        function playSound(soundName) {
+            const sound = sounds[soundName];
+            if (sound) {
+                // Reset sound to beginning if it's already playing
+                sound.currentTime = 0;
+                sound.play().catch(e => {
+                    console.log('Audio play failed:', e);
+                });
+            }
+        }
+
+        // Stop sound
+        function stopSound(soundName) {
+            const sound = sounds[soundName];
+            if (sound) {
+                sound.pause();
+                sound.currentTime = 0;
+            }
         }
 
         // Play background music
         function playBackgroundMusic() {
-            if (backgroundMusic) {
-                backgroundMusic.currentTime = 0;
-                backgroundMusic.play().catch(e => {
+            if (sounds.backgroundMusic) {
+                sounds.backgroundMusic.currentTime = 0;
+                sounds.backgroundMusic.play().catch(e => {
                     console.log('Background music play failed:', e);
                 });
             }
@@ -874,9 +952,9 @@
 
         // Stop background music
         function stopBackgroundMusic() {
-            if (backgroundMusic) {
-                backgroundMusic.pause();
-                backgroundMusic.currentTime = 0;
+            if (sounds.backgroundMusic) {
+                sounds.backgroundMusic.pause();
+                sounds.backgroundMusic.currentTime = 0;
             }
         }
 
@@ -932,6 +1010,9 @@
             }
 
             shoot() {
+                // Play cannon sound
+                playSound('cannon');
+                
                 // Create cannon ball as simple object - FIXED
                 const cannonBall = {
                     x: this.x,
@@ -960,6 +1041,9 @@
                         const distance = Math.sqrt(dx * dx + dy * dy);
                         
                         if (distance < this.radius + game.player.radius) {
+                            // Play hit sound
+                            playSound('hit');
+                            
                             // Hit player - lose a life
                             game.lives--;
                             updateLivesDisplay();
@@ -1074,6 +1158,8 @@
                 this.knockbackX = 0;
                 this.knockbackY = 0;
                 this.knockbackFrames = 0;
+                
+                this.isMoving = false;
             }
 
             update() {
@@ -1112,6 +1198,17 @@
                         
                         this.x += moveX * movementSpeed;
                         this.y += moveY * movementSpeed;
+                        
+                        // Check if player is moving for walking sound
+                        const wasMoving = this.isMoving;
+                        this.isMoving = (moveX !== 0 || moveY !== 0);
+                        
+                        // Control walking sound
+                        if (this.isMoving && !wasMoving) {
+                            playSound('walk');
+                        } else if (!this.isMoving && wasMoving) {
+                            stopSound('walk');
+                        }
                     } 
                     else if (this.isGoalkeeper) {
                         const goalCenter = game.canvas.height / 2;
@@ -1210,6 +1307,7 @@
                             if (distance < possessionDistance && !game.ball.possessedBy && Math.random() < (0.08 + game.chapter * 0.008)) {
                                 game.ball.possessedBy = this;
                                 this.hasBall = true;
+                                this.speed = CONFIG.OPPONENT_SPEED * 0.7; // Slow down when possessing ball
                                 game.ballLost = true;
                                 game.recoveryTimer = CONFIG.RECOVERY_TIME;
                             }
@@ -1240,6 +1338,32 @@
                 }
                 
                 const boundaryMargin = 5;
+                
+                // Prevent player from entering goal posts
+                if (this.isUser) {
+                    // Left goal area
+                    const leftGoalX = 25;
+                    const leftGoalYTop = game.canvas.height / 2 - CONFIG.GOAL_HEIGHT/2;
+                    const leftGoalYBottom = game.canvas.height / 2 + CONFIG.GOAL_HEIGHT/2;
+                    
+                    // Right goal area
+                    const rightGoalX = game.canvas.width - 25;
+                    const rightGoalYTop = game.canvas.height / 2 - CONFIG.GOAL_HEIGHT/2;
+                    const rightGoalYBottom = game.canvas.height / 2 + CONFIG.GOAL_HEIGHT/2;
+                    
+                    // Check if player is trying to enter left goal
+                    if (this.x - this.radius < leftGoalX && 
+                        this.y > leftGoalYTop && this.y < leftGoalYBottom) {
+                        this.x = leftGoalX + this.radius;
+                    }
+                    
+                    // Check if player is trying to enter right goal
+                    if (this.x + this.radius > rightGoalX && 
+                        this.y > rightGoalYTop && this.y < rightGoalYBottom) {
+                        this.x = rightGoalX - this.radius;
+                    }
+                }
+                
                 this.x = Math.max(this.radius + boundaryMargin, Math.min(game.canvas.width - this.radius - boundaryMargin, this.x));
                 
                 if (this.isGoalkeeper) {
@@ -1275,6 +1399,9 @@
 
             shootTowardsGoal() {
                 if (this.hasBall && !this.isUser) {
+                    // Play kick sound for opponent shooting
+                    playSound('kick');
+                    
                     const goalX = 0;
                     const goalY = game.canvas.height / 2;
                     
@@ -1289,6 +1416,7 @@
                     game.ball.speedY = ((dy + randomOffset) / distance) * CONFIG.BALL_SPEED * 0.7;
                     game.ball.possessedBy = null;
                     this.hasBall = false;
+                    this.speed = CONFIG.OPPONENT_SPEED + (game.chapter * 0.1); // Reset speed
                     this.kicking = true;
                 }
             }
@@ -1403,6 +1531,9 @@
 
             shoot() {
                 if (this.hasBall && this.isUser) {
+                    // Play kick sound
+                    playSound('kick');
+                    
                     const goalX = game.canvas.width;
                     const goalY = game.canvas.height / 2;
                     
@@ -1431,6 +1562,9 @@
                         const stealChance = Math.max(0.35, 0.75 - (game.chapter - 1) * 0.04);
                         
                         if (distance < 40 && Math.random() < stealChance) {
+                            // Play steal sound
+                            playSound('steal');
+                            
                             game.ball.possessedBy.hasBall = false;
                             game.ball.possessedBy = this;
                             this.hasBall = true;
@@ -1444,6 +1578,9 @@
                         const distance = Math.sqrt(dx * dx + dy * dy);
                         
                         if (distance < 35 && Math.random() < 0.8) {
+                            // Play steal sound
+                            playSound('steal');
+                            
                             game.ball.possessedBy = this;
                             this.hasBall = true;
                             game.ballLost = false;
@@ -1464,9 +1601,13 @@
                     const stealChance = Math.min(0.5, 0.25 + (game.chapter - 1) * 0.02);
                     
                     if (distance < 35 && Math.random() < stealChance) {
+                        // Play steal sound
+                        playSound('steal');
+                        
                         game.ball.possessedBy.hasBall = false;
                         game.ball.possessedBy = this;
                         this.hasBall = true;
+                        this.speed = CONFIG.OPPONENT_SPEED * 0.7; // Slow down when possessing ball
                         game.ballLost = true;
                         game.recoveryTimer = CONFIG.RECOVERY_TIME;
                     }
@@ -1475,6 +1616,9 @@
             
             fight() {
                 if (this.isUser && this.fightCooldown === 0) {
+                    // Play fight sound
+                    playSound('fight');
+                    
                     this.fighting = true;
                     this.fightFrame = 0;
                     this.fightCooldown = CONFIG.FIGHT_COOLDOWN;
@@ -1570,6 +1714,7 @@
                         if (distance < possessionDistance && Math.random() < (0.04 + game.chapter * 0.008)) {
                             this.possessedBy = opponent;
                             opponent.hasBall = true;
+                            opponent.speed = CONFIG.OPPONENT_SPEED * 0.7; // Slow down when possessing ball
                             this.speedX = 0;
                             this.speedY = 0;
                             
@@ -1631,7 +1776,7 @@
             game.canvas = document.getElementById('gameCanvas');
             game.ctx = game.canvas.getContext('2d');
             
-            // Initialize audio system - only background music
+            // Initialize audio system
             initAudio();
             
             game.screenType = detectScreenType();
@@ -2007,6 +2152,8 @@
                 
                 // Pause background music
                 stopBackgroundMusic();
+                // Stop walking sound
+                stopSound('walk');
             } else {
                 document.getElementById('pauseOverlay').style.display = 'none';
                 document.getElementById('pauseBtn').textContent = 'PAUSE';
@@ -2106,6 +2253,9 @@
                 }
                 
                 if (!goalSaved) {
+                    // Play goal sound
+                    playSound('goal');
+                    
                     showGoalMessage();
                     setTimeout(showWinOverlay, 1000);
                     return;
@@ -2150,8 +2300,13 @@
         }
 
         function showWinOverlay() {
+            // Play win sound
+            playSound('win');
+            
             // Stop background music
             stopBackgroundMusic();
+            // Stop walking sound
+            stopSound('walk');
             
             document.getElementById('winOpponents').textContent = game.chapter;
             document.getElementById('winOverlay').style.display = 'flex';
@@ -2160,8 +2315,13 @@
         }
 
         function showLoseOverlay() {
+            // Play lose sound
+            playSound('lose');
+            
             // Stop background music
             stopBackgroundMusic();
+            // Stop walking sound
+            stopSound('walk');
             
             document.getElementById('loseChapter').textContent = game.chapter;
             document.getElementById('loseOpponents').textContent = game.chapter;
