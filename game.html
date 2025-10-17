@@ -855,7 +855,8 @@
             FIGHT_RANGE: 40,
             FIGHT_KNOCKBACK: 8,
             CAR_SPEED: 8,
-            TRACK_LENGTH_MULTIPLIER: 1.2
+            TRACK_LENGTH_MULTIPLIER: 1.2,
+            STOP_LINE_Y: 150 // Y position where player must stop and exit car
         };
 
         // Game State
@@ -1104,13 +1105,13 @@
             }
         }
 
-        // Car Class for racing
+        // Enhanced Car Class with realistic graphics
         class Car {
             constructor(x, y, isUser = false, isOpponent = false) {
                 this.x = x;
                 this.y = y;
-                this.width = 40;
-                this.height = 20;
+                this.width = 60;
+                this.height = 30;
                 this.speed = isUser ? CONFIG.CAR_SPEED : CONFIG.OPPONENT_SPEED;
                 this.isUser = isUser;
                 this.isOpponent = isOpponent;
@@ -1120,33 +1121,42 @@
                 this.moveRight = false;
                 this.moveUp = false;
                 this.moveDown = false;
+                this.wheelRotation = 0;
             }
 
             update() {
+                this.wheelRotation += 0.2;
+                
                 if (this.isUser && game.playerInCar) {
-                    // User car controls
-                    if (this.moveLeft) {
-                        this.x -= this.speed * 0.7;
-                    }
-                    if (this.moveRight) {
-                        this.x += this.speed * 0.7;
-                    }
-                    if (this.moveUp) {
-                        this.y -= this.speed * 0.7;
-                    }
-                    if (this.moveDown) {
-                        this.y += this.speed * 0.7;
+                    // User car controls - enhanced movement
+                    let moveX = 0, moveY = 0;
+                    
+                    if (this.moveLeft) moveX -= 1;
+                    if (this.moveRight) moveX += 1;
+                    if (this.moveUp) moveY -= 1;
+                    if (this.moveDown) moveY += 1;
+                    
+                    // Normalize diagonal movement
+                    if (moveX !== 0 && moveY !== 0) {
+                        moveX *= 0.707;
+                        moveY *= 0.707;
                     }
                     
-                    // Move forward automatically
-                    this.y += this.speed;
+                    this.x += moveX * this.speed;
+                    this.y += moveY * this.speed;
                     
                     // Boundary checks
                     this.x = Math.max(this.width/2, Math.min(game.canvas.width - this.width/2, this.x));
                     this.y = Math.max(this.height/2, Math.min(game.canvas.height - this.height/2, this.y));
                     
-                    // Check if reached goal area (top of screen)
-                    if (this.y < 100) {
+                    // Check if reached stop line
+                    if (this.y <= CONFIG.STOP_LINE_Y) {
+                        // Stop at the line
+                        this.y = CONFIG.STOP_LINE_Y;
+                        
+                        // Auto-exit car when at stop line
+                        if (!game.playerInCar) return;
+                        
                         game.playerInCar = false;
                         game.player.x = this.x;
                         game.player.y = this.y + 50;
@@ -1157,21 +1167,24 @@
                     }
                 } 
                 else if (this.isOpponent) {
-                    // Opponent car AI - try to crash into player
-                    const dx = game.player.x - this.x;
-                    const dy = game.player.y - this.y;
+                    // Enhanced Opponent car AI - much more aggressive
+                    const dx = game.playerInCar ? game.playerCar.x - this.x : game.player.x - this.x;
+                    const dy = game.playerInCar ? game.playerCar.y - this.y : game.player.y - this.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
                     
-                    if (distance < 300) {
-                        // Move toward player
-                        this.x += (dx / distance) * this.speed * 0.8;
-                        this.y += (dy / distance) * this.speed * 0.8;
-                    } else {
-                        // Patrol behavior
-                        this.y += this.speed * 0.5;
-                        if (Math.random() < 0.02) {
-                            this.x += (Math.random() - 0.5) * this.speed * 2;
-                        }
+                    // More aggressive chasing based on distance
+                    let aggression = 1.0;
+                    if (distance < 200) aggression = 1.5;
+                    if (distance < 100) aggression = 2.0;
+                    
+                    // Move toward player with increased aggression
+                    this.x += (dx / distance) * this.speed * aggression;
+                    this.y += (dy / distance) * this.speed * aggression;
+                    
+                    // Add some randomness to make it more challenging
+                    if (Math.random() < 0.05) {
+                        this.x += (Math.random() - 0.5) * this.speed * 0.5;
+                        this.y += (Math.random() - 0.5) * this.speed * 0.5;
                     }
                     
                     // Boundary checks for opponents
@@ -1182,7 +1195,8 @@
                     if (game.playerInCar) {
                         const carDx = Math.abs(this.x - game.playerCar.x);
                         const carDy = Math.abs(this.y - game.playerCar.y);
-                        if (carDx < this.width && carDy < this.height) {
+                        if (carDx < this.width/2 + game.playerCar.width/2 && 
+                            carDy < this.height/2 + game.playerCar.height/2) {
                             // Crash - player loses a life
                             game.lives--;
                             updateLivesDisplay();
@@ -1204,31 +1218,75 @@
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 
-                // Car body
+                // Car body - more realistic shape
                 ctx.fillStyle = this.color;
-                ctx.fillRect(-this.width/2, -this.height/2, this.width, this.height);
+                ctx.beginPath();
+                ctx.roundRect(-this.width/2, -this.height/2, this.width, this.height, 5);
+                ctx.fill();
                 
-                // Car details
+                // Car roof/windows
                 ctx.fillStyle = '#2c3e50';
-                ctx.fillRect(-this.width/2 + 5, -this.height/2 + 5, this.width - 10, this.height - 10);
+                ctx.beginPath();
+                ctx.roundRect(-this.width/2 + 5, -this.height/2 + 5, this.width - 10, this.height - 15, 3);
+                ctx.fill();
                 
-                // Windows
-                ctx.fillStyle = '#3498db';
-                ctx.fillRect(-this.width/2 + 8, -this.height/2 + 8, this.width - 16, 4);
+                // Windshield
+                ctx.fillStyle = '#87CEEB';
+                ctx.beginPath();
+                ctx.roundRect(-this.width/2 + 8, -this.height/2 + 8, this.width - 16, 8, 2);
+                ctx.fill();
                 
-                // Wheels
+                // Headlights
+                ctx.fillStyle = '#FFFF99';
+                ctx.fillRect(-this.width/2 + 5, -this.height/2 + 5, 4, 3);
+                ctx.fillRect(this.width/2 - 9, -this.height/2 + 5, 4, 3);
+                
+                // Realistic wheels with rotation
                 ctx.fillStyle = '#2c3e50';
-                ctx.fillRect(-this.width/2 - 2, -this.height/2 - 2, 4, 6);
-                ctx.fillRect(this.width/2 - 2, -this.height/2 - 2, 4, 6);
-                ctx.fillRect(-this.width/2 - 2, this.height/2 - 4, 4, 6);
-                ctx.fillRect(this.width/2 - 2, this.height/2 - 4, 4, 6);
+                
+                // Front wheels
+                ctx.save();
+                ctx.translate(-this.width/2 + 8, 0);
+                ctx.rotate(this.wheelRotation);
+                ctx.fillRect(-3, -6, 6, 12);
+                ctx.restore();
+                
+                ctx.save();
+                ctx.translate(this.width/2 - 8, 0);
+                ctx.rotate(this.wheelRotation);
+                ctx.fillRect(-3, -6, 6, 12);
+                ctx.restore();
+                
+                // Back wheels
+                ctx.save();
+                ctx.translate(-this.width/2 + 8, this.height/2 - 8);
+                ctx.rotate(this.wheelRotation);
+                ctx.fillRect(-3, -4, 6, 8);
+                ctx.restore();
+                
+                ctx.save();
+                ctx.translate(this.width/2 - 8, this.height/2 - 8);
+                ctx.rotate(this.wheelRotation);
+                ctx.fillRect(-3, -4, 6, 8);
+                ctx.restore();
                 
                 // Ball on user car
                 if (this.hasBall && this.isUser) {
                     ctx.fillStyle = '#f1c40f';
                     ctx.beginPath();
-                    ctx.arc(0, -this.height/2 - 10, 8, 0, Math.PI * 2);
+                    ctx.arc(0, -this.height/2 - 12, 10, 0, Math.PI * 2);
                     ctx.fill();
+                    
+                    // Ball pattern
+                    ctx.strokeStyle = '#000000';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(0, -this.height/2 - 22);
+                    ctx.lineTo(0, -this.height/2 - 2);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.arc(0, -this.height/2 - 12, 5, 0, Math.PI * 2);
+                    ctx.stroke();
                 }
                 
                 ctx.restore();
@@ -1282,11 +1340,13 @@
                     game.ball.y = this.y - 20;
                 }
                 
-                // Check collision with opponent cars
+                // Check collision with opponent cars - enhanced detection
                 for (let opponentCar of game.opponentCars) {
                     const dx = Math.abs(this.x - opponentCar.x);
                     const dy = Math.abs(this.y - opponentCar.y);
-                    if (dx < opponentCar.width/2 + this.radius && dy < opponentCar.height/2 + this.radius) {
+                    const carRadius = Math.max(opponentCar.width, opponentCar.height) / 2;
+                    
+                    if (dx < carRadius + this.radius && dy < carRadius + this.radius) {
                         // Hit by car - lose a life
                         game.lives--;
                         updateLivesDisplay();
@@ -1294,7 +1354,7 @@
                         
                         // Reset position
                         this.x = game.canvas.width / 2;
-                        this.y = game.canvas.height / 2;
+                        this.y = CONFIG.STOP_LINE_Y + 50;
                         
                         if (game.lives <= 0) {
                             showLoseOverlay();
@@ -1604,14 +1664,16 @@
                         case 'ArrowLeft': game.playerCar.moveLeft = true; break;
                         case 'ArrowRight': game.playerCar.moveRight = true; break;
                         case ' ': 
-                            // Get out of car
-                            game.playerInCar = false;
-                            game.player.x = game.playerCar.x;
-                            game.player.y = game.playerCar.y + 50;
-                            game.player.hasBall = true;
-                            game.ball.possessedBy = game.player;
-                            playSound('walk');
-                            stopSound('car');
+                            // Get out of car (only works when at stop line)
+                            if (game.playerCar.y <= CONFIG.STOP_LINE_Y) {
+                                game.playerInCar = false;
+                                game.player.x = game.playerCar.x;
+                                game.player.y = game.playerCar.y + 50;
+                                game.player.hasBall = true;
+                                game.ball.possessedBy = game.player;
+                                playSound('walk');
+                                stopSound('car');
+                            }
                             break;
                         case 'p': case 'P': togglePause(); break;
                     }
@@ -1699,8 +1761,8 @@
                 btn.addEventListener('touchstart', (e) => {
                     if (!game.paused) {
                         if (btn.classList.contains('shoot')) {
-                            // Exit car
-                            if (game.playerInCar) {
+                            // Exit car (only works when at stop line)
+                            if (game.playerInCar && game.playerCar.y <= CONFIG.STOP_LINE_Y) {
                                 game.playerInCar = false;
                                 game.player.x = game.playerCar.x;
                                 game.player.y = game.playerCar.y + 50;
@@ -2019,6 +2081,7 @@
             
             drawRaceTrack(ctx);
             drawGoalArea(ctx);
+            drawStopLine(ctx);
             
             // Draw opponent cars
             game.opponentCars.forEach(opponent => opponent.draw(ctx));
@@ -2088,6 +2151,24 @@
             ctx.font = 'bold 16px Arial';
             ctx.textAlign = 'center';
             ctx.fillText('GOAL', game.canvas.width/2, 70);
+        }
+
+        function drawStopLine(ctx) {
+            // Draw stop line where player must exit car
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 4;
+            ctx.setLineDash([10, 10]);
+            ctx.beginPath();
+            ctx.moveTo(0, CONFIG.STOP_LINE_Y);
+            ctx.lineTo(game.canvas.width, CONFIG.STOP_LINE_Y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Add stop line text
+            ctx.fillStyle = '#e74c3c';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('STOP AND EXIT CAR', game.canvas.width/2, CONFIG.STOP_LINE_Y - 10);
         }
 
         window.addEventListener('load', init);
