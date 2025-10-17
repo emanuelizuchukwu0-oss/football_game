@@ -813,7 +813,7 @@
         <div id="vehicleSelectionOverlay" class="overlay" style="display: none;">
             <h1>SELECT YOUR VEHICLE</h1>
             <div class="vehicle-options">
-                <div class="vehicle-option" data-vehicle="car">
+                <div class="vehicle-option selected" data-vehicle="car">
                     <div class="vehicle-icon">🚗</div>
                     <div class="vehicle-name">Car</div>
                     <div class="vehicle-stats">Speed: Medium<br>Handling: Good</div>
@@ -1896,6 +1896,9 @@
 
         function setupVehicleSelection() {
             const vehicleOptions = document.querySelectorAll('.vehicle-option');
+            
+            // Set default selected vehicle
+            game.selectedVehicle = 'car';
             
             vehicleOptions.forEach(option => {
                 option.addEventListener('click', () => {
