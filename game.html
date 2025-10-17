@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Football Challenge</title>
     <style>
-        /* YOUR EXISTING CSS - COMPLETELY UNCHANGED */
+        /* YOUR EXISTING CSS - UNCHANGED */
         * {
             margin: 0;
             padding: 0;
@@ -853,33 +853,33 @@
         </div>
     </div>
 
-    <!-- Sound effects -->
+    <!-- Sound effects - REMOVED NON-EXISTENT FILES -->
     <audio id="backgroundMusic" loop>
-        <source src="mixkit-hazy-after-hours-132.mp3" type="audio/mpeg">
+        <source src="#" type="audio/mpeg">
     </audio>
     <audio id="loseSound">
-        <source src="lose.wav" type="audio/mpeg">
+        <source src="#" type="audio/mpeg">
     </audio>
     <audio id="winSound">
-        <source src="win.wav" type="audio/mpeg">
+        <source src="#" type="audio/mpeg">
     </audio>
     <audio id="kickSound">
-        <source src="kick.wav" type="audio/mpeg">
+        <source src="#" type="audio/mpeg">
     </audio>
     <audio id="goalSound">
-        <source src="goal.wav" type="audio/mpeg">
+        <source src="#" type="audio/mpeg">
     </audio>
     <audio id="cannonSound">
-        <source src="cannon.wav" type="audio/mpeg">
+        <source src="#" type="audio/mpeg">
     </audio>
     <audio id="hitSound">
-        <source src="hit.mp3" type="audio/mpeg">
+        <source src="#" type="audio/mpeg">
     </audio>
     <audio id="stealSound">
-        <source src="steal.wav" type="audio/mpeg">
+        <source src="#" type="audio/mpeg">
     </audio>
     <audio id="walkSound" loop>
-        <source src="walk.wav" type="audio/mpeg">
+        <source src="#" type="audio/mpeg">
     </audio>
 
     <script>
@@ -1043,7 +1043,7 @@
 
     // Initialize audio system
     function initAudio() {
-        // Create audio elements programmatically since files might not exist
+        // Create audio elements programmatically
         sounds.backgroundMusic = document.getElementById('backgroundMusic') || new Audio();
         sounds.lose = document.getElementById('loseSound') || new Audio();
         sounds.win = document.getElementById('winSound') || new Audio();
@@ -1068,7 +1068,9 @@
         // Preload all sounds
         Object.values(sounds).forEach(sound => {
             if (sound) {
-                sound.load();
+                sound.load().catch(e => {
+                    console.log('Audio load failed:', e);
+                });
             }
         });
     }
@@ -1170,7 +1172,7 @@
                 y: this.y,
                 radius: 8,
                 speedX: Math.cos(this.angle) * CONFIG.CANNON_SPEED,
-                speedY = Math.sin(this.angle) * CONFIG.CANNON_SPEED,
+                speedY: Math.sin(this.angle) * CONFIG.CANNON_SPEED, // FIXED: Changed = to :
                 color: '#000000',
                 update: function() {
                     this.x += this.speedX;
@@ -1907,12 +1909,13 @@
         
         // Get canvas and context
         game.canvas = document.getElementById('gameCanvas');
-        game.ctx = game.canvas.getContext('2d');
-        
         if (!game.canvas) {
             console.error("Canvas element not found!");
+            setTimeout(init, 100); // Retry after 100ms
             return;
         }
+        
+        game.ctx = game.canvas.getContext('2d');
         
         // Initialize audio system
         initAudio();
@@ -2641,7 +2644,7 @@
     // FIXED: Properly initialize the game when window loads
     window.addEventListener('load', function() {
         console.log("Window loaded, initializing game...");
-        init();
+        setTimeout(init, 100); // Small delay to ensure DOM is ready
     });
 
     // FIXED: Add error handling for any initialization issues
@@ -2652,3 +2655,5 @@
 
 <!-- Add this container for hybrid components -->
 <div id="hybrid-components"></div>
+</body>
+</html>
