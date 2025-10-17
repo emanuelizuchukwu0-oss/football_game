@@ -487,6 +487,198 @@
             }
         }
 
+        /* Huawei Devices */
+        @media (max-width: 360px) and (orientation: landscape),
+               (max-width: 400px) and (max-height: 360px) and (orientation: landscape) {
+            #mobileControls {
+                bottom: 35px !important;
+                padding: 0 12px;
+            }
+            
+            .joystick-container {
+                width: 75px !important;
+                height: 75px !important;
+            }
+            
+            .control-btn {
+                width: 55px !important;
+                height: 55px !important;
+                font-size: 0.7rem !important;
+            }
+        }
+
+        /* Tecno Devices */
+        @media (max-width: 380px) and (orientation: landscape),
+               (max-width: 420px) and (max-height: 380px) and (orientation: landscape) {
+            #mobileControls {
+                bottom: 32px !important;
+                padding: 0 14px;
+            }
+            
+            .joystick-container {
+                width: 72px !important;
+                height: 72px !important;
+            }
+            
+            .control-btn {
+                width: 52px !important;
+                height: 52px !important;
+                font-size: 0.68rem !important;
+            }
+        }
+
+        /* iPhone Devices */
+        @media (max-width: 390px) and (orientation: landscape),
+               (max-width: 430px) and (max-height: 390px) and (orientation: landscape),
+               (max-width: 414px) and (orientation: landscape) {
+            #mobileControls {
+                bottom: 40px !important;
+                padding: 0 16px;
+            }
+            
+            .joystick-container {
+                width: 78px !important;
+                height: 78px !important;
+            }
+            
+            .control-btn {
+                width: 58px !important;
+                height: 58px !important;
+                font-size: 0.72rem !important;
+            }
+        }
+
+        /* Samsung Devices */
+        @media (max-width: 412px) and (orientation: landscape),
+               (max-width: 450px) and (max-height: 412px) and (orientation: landscape) {
+            #mobileControls {
+                bottom: 38px !important;
+                padding: 0 15px;
+            }
+            
+            .joystick-container {
+                width: 76px !important;
+                height: 76px !important;
+            }
+            
+            .control-btn {
+                width: 56px !important;
+                height: 56px !important;
+                font-size: 0.7rem !important;
+            }
+        }
+
+        /* Infinity Devices */
+        @media (max-width: 420px) and (orientation: landscape),
+               (max-width: 460px) and (max-height: 420px) and (orientation: landscape) {
+            #mobileControls {
+                bottom: 36px !important;
+                padding: 0 13px;
+            }
+            
+            .joystick-container {
+                width: 74px !important;
+                height: 74px !important;
+            }
+            
+            .control-btn {
+                width: 54px !important;
+                height: 54px !important;
+                font-size: 0.69rem !important;
+            }
+        }
+
+        /* Nokia Devices */
+        @media (max-width: 370px) and (orientation: landscape),
+               (max-width: 410px) and (max-height: 370px) and (orientation: landscape) {
+            #mobileControls {
+                bottom: 34px !important;
+                padding: 0 12px;
+            }
+            
+            .joystick-container {
+                width: 70px !important;
+                height: 70px !important;
+            }
+            
+            .control-btn {
+                width: 50px !important;
+                height: 50px !important;
+                font-size: 0.67rem !important;
+            }
+        }
+
+        /* Extra small height screens */
+        @media (max-height: 350px) and (orientation: landscape) {
+            #mobileControls {
+                bottom: 25px !important;
+                padding: 0 10px;
+            }
+            
+            .joystick-container {
+                width: 62px !important;
+                height: 62px !important;
+            }
+            
+            .control-btn {
+                width: 46px !important;
+                height: 46px !important;
+                font-size: 0.64rem !important;
+            }
+            
+            #uiContainer {
+                transform: scale(0.45);
+            }
+            
+            .btn {
+                min-height: 40px;
+                padding: 6px 12px;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Ultra small height screens */
+        @media (max-height: 300px) and (orientation: landscape) {
+            #mobileControls {
+                bottom: 22px !important;
+                padding: 0 8px;
+            }
+            
+            .joystick-container {
+                width: 58px !important;
+                height: 58px !important;
+            }
+            
+            .control-btn {
+                width: 44px !important;
+                height: 44px !important;
+                font-size: 0.62rem !important;
+            }
+            
+            #uiContainer {
+                transform: scale(0.4);
+                margin-top: 2px;
+            }
+            
+            .btn-pause {
+                transform: scale(0.7);
+                top: 2px;
+                right: 2px;
+            }
+            
+            .btn-sound {
+                transform: scale(0.7);
+                top: 2px;
+                right: 45px;
+            }
+            
+            .btn {
+                min-height: 38px;
+                padding: 5px 10px;
+                font-size: 0.7rem;
+            }
+        }
+
         /* Enhanced iPhone notch safe areas */
         @supports(padding: max(0px)) {
             #mobileControls {
