@@ -759,9 +759,12 @@
     40% {transform: translate(-50%, -50%) scale(1.1);}
     60% {transform: translate(-50%, -50%) scale(1.05);}
 }
+       /* YOUR EXISTING CSS - UNCHANGED */
+        /* ... all your CSS remains exactly the same ... */
     </style>
 </head>
 <body>
+    <!-- YOUR EXISTING HTML - UNCHANGED -->
     <div id="orientationMessage">
         <h1>Please Rotate Your Device</h1>
         <p>This game works best in landscape mode. Please rotate your device to continue.</p>
@@ -772,7 +775,6 @@
         <canvas id="gameCanvas"></canvas>
         
         <button id="pauseBtn" class="btn btn-pause" style="display: none;">PAUSE</button>
-        <!-- Sound button is hidden with CSS -->
         <button id="soundBtn" class="btn btn-sound" style="display: none;">🔇 SOUND</button>
         
         <div id="uiContainer">
@@ -853,7 +855,7 @@
         </div>
     </div>
 
-    <!-- Sound effects - REMOVED NON-EXISTENT FILES -->
+    <!-- Sound effects -->
     <audio id="backgroundMusic" loop>
         <source src="#" type="audio/mpeg">
     </audio>
@@ -881,8 +883,7 @@
     <audio id="walkSound" loop>
         <source src="#" type="audio/mpeg">
     </audio>
-
-    <script>
+  <script>
     // ===== JS HYBRID FRAMEWORK =====
     class JSHybrid {
         constructor() {
@@ -1043,7 +1044,6 @@
 
     // Initialize audio system
     function initAudio() {
-        // Create audio elements programmatically
         sounds.backgroundMusic = document.getElementById('backgroundMusic') || new Audio();
         sounds.lose = document.getElementById('loseSound') || new Audio();
         sounds.win = document.getElementById('winSound') || new Audio();
@@ -1064,6 +1064,7 @@
         sounds.hit.volume = 0.7;
         sounds.steal.volume = 0.5;
         sounds.walk.volume = 0.3;
+    }
         
         // Preload all sounds
         Object.values(sounds).forEach(sound => {
@@ -1073,7 +1074,7 @@
                 });
             }
         });
-    }
+    
 
     // Play sound with safety checks
     function playSound(soundName) {
@@ -2652,6 +2653,274 @@
         console.error('Game error:', e.error);
     });
 </script>
+
+<!-- Add this container for hybrid components -->
+<div id="hybrid-components"></div>
+    // ===== FIXED: SIMPLIFIED BUTTON EVENT HANDLERS =====
+    
+    // Direct button event handlers - SIMPLIFIED APPROACH
+    function setupButtonHandlers() {
+        console.log("Setting up button handlers...");
+        
+        // Start button
+        const startBtn = document.getElementById('startBtn');
+        if (startBtn) {
+            startBtn.addEventListener('click', startGame);
+            startBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                startBtn.style.transform = 'scale(0.95)';
+                startBtn.style.opacity = '0.9';
+            });
+            startBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                startBtn.style.transform = 'scale(1)';
+                startBtn.style.opacity = '1';
+                startGame();
+            });
+            console.log("Start button handler attached");
+        } else {
+            console.error("Start button not found!");
+        }
+
+        // Pause/Resume buttons
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resumeBtn = document.getElementById('resumeBtn');
+        if (pauseBtn) pauseBtn.addEventListener('click', togglePause);
+        if (resumeBtn) resumeBtn.addEventListener('click', togglePause);
+
+        // Game control buttons
+        const replayBtn = document.getElementById('replayBtn');
+        const nextChapterBtn = document.getElementById('nextChapterBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        
+        if (replayBtn) replayBtn.addEventListener('click', replayChapter);
+        if (nextChapterBtn) nextChapterBtn.addEventListener('click', nextChapter);
+        if (restartBtn) restartBtn.addEventListener('click', restartGame);
+    }
+
+    // ===== REST OF YOUR GAME CODE REMAINS THE SAME =====
+    // [All your existing Player, Cannon, Ball classes and game functions remain exactly the same]
+    // Only the initialization and event handling is changed
+
+    // Initialize the game - FIXED VERSION
+    function init() {
+        console.log("Game initialization started...");
+        
+        // Get canvas and context
+        game.canvas = document.getElementById('gameCanvas');
+        if (!game.canvas) {
+            console.error("Canvas element not found!");
+            setTimeout(init, 100);
+            return;
+        }
+        
+        game.ctx = game.canvas.getContext('2d');
+        
+        // Initialize audio system
+        initAudio();
+        
+        // Initialize hybrid components
+        initHybridComponents();
+        
+        game.screenType = detectScreenType();
+        setupCanvas();
+        
+        game.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                       ('ontouchstart' in window) || 
+                       (navigator.maxTouchPoints > 0);
+        
+        if (game.isMobile) {
+            document.getElementById('mobileControls').style.display = 'flex';
+            setupMobileControls();
+            optimizeMobileControls();
+        } else {
+            setupKeyboardControls();
+        }
+        
+        // FIXED: Use simplified button handlers
+        setupButtonHandlers();
+        
+        // Set up window event listeners
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('orientationchange', handleResize);
+        
+        resetGame();
+        
+        game.animationId = requestAnimationFrame(gameLoop);
+        console.log("Game initialization completed!");
+    }
+
+    // ===== YOUR EXISTING GAME FUNCTIONS (UNCHANGED) =====
+    // [Keep all your existing functions like:]
+    // - setupCanvas()
+    // - setupMobileControls() 
+    // - setupKeyboardControls()
+    // - resetGame()
+    // - startGame()
+    // - togglePause()
+    // - replayChapter()
+    // - nextChapter()
+    // - restartGame()
+    // - gameLoop()
+    // - update()
+    // - render()
+    // - And all the Player, Cannon, Ball classes
+
+    // FIXED: Enhanced startGame function with better error handling
+    function startGame() {
+        console.log("Start button clicked - starting game...");
+        try {
+            const startOverlay = document.getElementById('startOverlay');
+            const pauseBtn = document.getElementById('pauseBtn');
+            
+            if (startOverlay) {
+                startOverlay.style.display = 'none';
+                console.log("Start overlay hidden");
+            } else {
+                console.error("Start overlay not found!");
+            }
+            
+            if (pauseBtn) {
+                pauseBtn.style.display = 'block';
+                console.log("Pause button shown");
+            }
+            
+            game.gameStarted = true;
+            console.log("Game started flag set to true");
+            
+            playBackgroundMusic();
+            
+            // Force a render update
+            render();
+            
+        } catch (error) {
+            console.error("Error in startGame:", error);
+        }
+    }
+
+    // ===== HYBRID COMPONENTS =====
+    
+    // FPS Counter Component
+    JSHybrid.component('FPSCounter', () => {
+        const [fps, setFps] = useState(0);
+        
+        setTimeout(() => {
+            if (game.lastTime) {
+                const currentFPS = Math.round(1000 / (performance.now() - game.lastTime));
+                setFps(currentFPS);
+            }
+        }, 1000);
+
+        return JSHybrid.createElement('div', {
+            className: 'hybrid-stats',
+            style: { display: game.gameStarted ? 'block' : 'none' }
+        }, `FPS: ${fps}`);
+    });
+
+    // Game Info Component
+    JSHybrid.component('GameInfo', () => {
+        return JSHybrid.createElement('div', {
+            className: 'hybrid-debug',
+            style: { display: game.gameStarted ? 'block' : 'none' }
+        }, [
+            JSHybrid.createElement('div', { key: 'chapter' }, `Chapter: ${game.chapter || 1}`),
+            JSHybrid.createElement('div', { key: 'lives' }, `Lives: ${game.lives || 7}`),
+            JSHybrid.createElement('div', { key: 'screen' }, `Screen: ${game.screenType || 'mobile'}`)
+        ]);
+    });
+
+    // Initialize hybrid components
+    function initHybridComponents() {
+        if (!document.getElementById('hybrid-components')) {
+            const container = document.createElement('div');
+            container.id = 'hybrid-components';
+            document.body.appendChild(container);
+        }
+        
+        JSHybrid.render('FPSCounter', 'hybrid-components');
+        JSHybrid.render('GameInfo', 'hybrid-components');
+        
+        setInterval(() => {
+            JSHybrid.updateComponents();
+        }, 1000);
+    }
+
+    // FIXED: Better initialization with DOM ready check
+    function checkDOMReady() {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            setTimeout(init, 100);
+        }
+    }
+
+    // Start the initialization
+    checkDOMReady();
+
+    // Error handling
+    window.addEventListener('error', function(e) {
+        console.error('Game error:', e.error);
+    });
+
+    // ===== IMPORTANT: ADD YOUR EXISTING GAME FUNCTIONS HERE =====
+    // Paste all your existing functions (setupCanvas, Player class, Ball class, etc.)
+    // that I haven't included above to keep this response manageable
+    // They should work exactly as they are in your original code
+
+    </script>
+
+    <!-- Add this at the END of your script tag - paste all your existing game functions here -->
+    <script>
+    // ===== PASTE ALL YOUR EXISTING GAME FUNCTIONS HERE =====
+    // This includes:
+    // - setupCanvas()
+    // - optimizeMobileControls() 
+    // - handleResize()
+    // - setupKeyboardControls()
+    // - setupMobileControls()
+    // - Player class
+    // - Cannon class  
+    // - Ball class
+    // - resetGame()
+    // - togglePause()
+    // - replayChapter()
+    // - nextChapter()
+    // - restartGame()
+    // - gameLoop()
+    // - update()
+    // - checkGoals()
+    // - loseLife()
+    // - showGoalMessage()
+    // - showWinOverlay()
+    // - showLoseOverlay()
+    // - updateLivesDisplay()
+    // - updateChapterDisplay()
+    // - render()
+    // - drawField()
+    // - drawGoals()
+    // - drawBoundaries()
+    // And any other functions from your original code
+
+    // Example placeholder - replace with your actual functions:
+    function setupCanvas() {
+        if (!game.canvas) return;
+        
+        game.canvas.width = window.innerWidth;
+        game.canvas.height = window.innerHeight;
+        
+        let fieldRatio;
+        switch(game.screenType) {
+            case 'desktop': fieldRatio = 2.2; break;
+            case 'tablet': fieldRatio = 2.1; break;
+            case 'wide-mobile': fieldRatio = 1.9; break;
+            case 'narrow-mobile': fieldRatio = 1.7; break;
+            default: fieldRatio = 1.8;
+        }
+        game.canvas.width = Math.max(game.canvas.width, game.canvas.height * fieldRatio);
+    }
+
+    // ... continue pasting all your other existing functions here
+    </script>
 
 <!-- Add this container for hybrid components -->
 <div id="hybrid-components"></div>
