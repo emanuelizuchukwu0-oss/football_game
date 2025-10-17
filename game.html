@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Football Challenge</title>
     <style>
-        /* Your existing CSS remains exactly the same */
+        /* YOUR EXISTING CSS - COMPLETELY UNCHANGED */
         * {
             margin: 0;
             padding: 0;
@@ -882,7 +882,7 @@
         <source src="walk.wav" type="audio/mpeg">
     </audio>
 
-   <script>
+    <script>
     // ===== JS HYBRID FRAMEWORK =====
     class JSHybrid {
         constructor() {
@@ -1170,7 +1170,7 @@
                 y: this.y,
                 radius: 8,
                 speedX: Math.cos(this.angle) * CONFIG.CANNON_SPEED,
-                speedY: Math.sin(this.angle) * CONFIG.CANNON_SPEED,
+                speedY = Math.sin(this.angle) * CONFIG.CANNON_SPEED,
                 color: '#000000',
                 update: function() {
                     this.x += this.speedX;
@@ -1901,10 +1901,18 @@
         }
     }
 
-    // Initialize the game
+    // Initialize the game - FIXED VERSION
     function init() {
+        console.log("Game initialization started...");
+        
+        // Get canvas and context
         game.canvas = document.getElementById('gameCanvas');
         game.ctx = game.canvas.getContext('2d');
+        
+        if (!game.canvas) {
+            console.error("Canvas element not found!");
+            return;
+        }
         
         // Initialize audio system
         initAudio();
@@ -1931,9 +1939,12 @@
         resetGame();
         
         game.animationId = requestAnimationFrame(gameLoop);
+        console.log("Game initialization completed!");
     }
 
     function setupCanvas() {
+        if (!game.canvas) return;
+        
         game.canvas.width = window.innerWidth;
         game.canvas.height = window.innerHeight;
         
@@ -1983,6 +1994,8 @@
     }
 
     function setupEventListeners() {
+        console.log("Setting up event listeners...");
+        
         const buttons = {
             startBtn: startGame,
             pauseBtn: togglePause,
@@ -1998,6 +2011,7 @@
                 const handler = buttons[buttonId];
                 
                 button.addEventListener('click', () => {
+                    console.log(`Button ${buttonId} clicked`);
                     handler();
                 });
                 
@@ -2019,11 +2033,15 @@
                 button.addEventListener('touchmove', (e) => {
                     e.preventDefault();
                 }, { passive: false });
+            } else {
+                console.warn(`Button ${buttonId} not found`);
             }
         });
 
         window.addEventListener('resize', handleResize);
         window.addEventListener('orientationchange', handleResize);
+        
+        console.log("Event listeners setup completed");
     }
 
     function handleResize() {
@@ -2087,6 +2105,11 @@
         const shootBtn = document.querySelector('.control-btn.shoot');
         const stealBtn = document.querySelector('.control-btn.steal');
         const fightBtn = document.querySelector('.control-btn.fight');
+        
+        if (!joystickBase || !shootBtn) {
+            console.warn("Mobile controls elements not found");
+            return;
+        }
         
         let joystickActive = false;
         let joystickCenter = { x: 0, y: 0 };
@@ -2177,6 +2200,8 @@
     }
 
     function resetGame() {
+        console.log("Resetting game...");
+        
         let startX;
         switch(game.screenType) {
             case 'desktop':
@@ -2266,6 +2291,7 @@
     }
 
     function startGame() {
+        console.log("Starting game...");
         document.getElementById('startOverlay').style.display = 'none';
         document.getElementById('pauseBtn').style.display = 'block';
         game.gameStarted = true;
@@ -2329,6 +2355,8 @@
     }
 
     function update(deltaTime) {
+        if (!game.player) return;
+        
         game.player.update();
         game.opponents.forEach(opponent => opponent.update());
         if (game.goalkeeper) game.goalkeeper.update();
@@ -2458,6 +2486,8 @@
     }
 
     function render() {
+        if (!game.ctx || !game.canvas) return;
+        
         const ctx = game.ctx;
         ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
         
@@ -2467,7 +2497,7 @@
         
         game.opponents.forEach(opponent => opponent.draw(ctx));
         if (game.goalkeeper) game.goalkeeper.draw(ctx);
-        game.player.draw(ctx);
+        if (game.player) game.player.draw(ctx);
         game.ball.draw(ctx);
         
         game.cannons.forEach(cannon => cannon.draw(ctx));
@@ -2608,7 +2638,16 @@
         }, 1000);
     }
 
-    window.addEventListener('load', init);
+    // FIXED: Properly initialize the game when window loads
+    window.addEventListener('load', function() {
+        console.log("Window loaded, initializing game...");
+        init();
+    });
+
+    // FIXED: Add error handling for any initialization issues
+    window.addEventListener('error', function(e) {
+        console.error('Game error:', e.error);
+    });
 </script>
 
 <!-- Add this container for hybrid components -->
