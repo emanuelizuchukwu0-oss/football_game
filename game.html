@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Football Challenge</title>
+    <title>Racing Challenge</title>
     <style>
         /* Your existing CSS remains exactly the same */
         * {
@@ -69,7 +69,7 @@
         }
 
         canvas {
-            background: #27ae60;
+            background: #2c3e50;
             display: block;
             width: 100%;
             height: 100%;
@@ -764,9 +764,9 @@
         </div>
         
         <div id="startOverlay" class="overlay">
-            <h1>FOOTBALL CHALLENGE</h1>
-            <p>Score against increasingly more opponents! Start with 1 opponent, then 2, 3, and so on up to 22!</p>
-            <p>Use arrow keys to move, 'S' to steal, SPACE to shoot, and 'F' to fight. Press 'P' to pause.</p>
+            <h1>RACING CHALLENGE</h1>
+            <p>Drive to the goal, get out of your car, and score! Avoid opponent cars and cannon fire!</p>
+            <p>Use arrow keys to drive, SPACE to get out of car, 'S' to steal. Press 'P' to pause.</p>
             <div class="btn-container">
                 <button id="startBtn" class="btn">START GAME</button>
             </div>
@@ -832,6 +832,9 @@
     <audio id="walkSound" loop>
         <source src="walk.wav" type="audio/mpeg">
     </audio>
+    <audio id="carSound" loop>
+        <source src="car.wav" type="audio/mpeg">
+    </audio>
 
     <script>
         // Game Constants and Configuration
@@ -850,7 +853,9 @@
             CANNON_COOLDOWN: 120,
             FIGHT_COOLDOWN: 30,
             FIGHT_RANGE: 40,
-            FIGHT_KNOCKBACK: 8
+            FIGHT_KNOCKBACK: 8,
+            CAR_SPEED: 8,
+            TRACK_LENGTH_MULTIPLIER: 1.2
         };
 
         // Game State
@@ -872,7 +877,9 @@
             lastTime: 0,
             animationId: null,
             paused: false,
-            screenType: 'mobile'
+            screenType: 'mobile',
+            trackLength: 0,
+            playerInCar: true
         };
 
         // Sound elements
@@ -885,7 +892,8 @@
             cannon: null,
             hit: null,
             steal: null,
-            walk: null
+            walk: null,
+            car: null
         };
 
         // Initialize audio system
@@ -899,6 +907,7 @@
             sounds.hit = document.getElementById('hitSound');
             sounds.steal = document.getElementById('stealSound');
             sounds.walk = document.getElementById('walkSound');
+            sounds.car = document.getElementById('carSound');
             
             // Set volumes
             sounds.backgroundMusic.volume = 0.3;
@@ -910,6 +919,7 @@
             sounds.hit.volume = 0.7;
             sounds.steal.volume = 0.5;
             sounds.walk.volume = 0.3;
+            sounds.car.volume = 0.4;
             
             // Preload all sounds
             Object.values(sounds).forEach(sound => {
@@ -1094,330 +1104,99 @@
             }
         }
 
-        // Player Class (keeping your existing player class)
-        class Player {
-            constructor(x, y, isUser = false, isGoalkeeper = false) {
+        // Car Class for racing
+        class Car {
+            constructor(x, y, isUser = false, isOpponent = false) {
                 this.x = x;
                 this.y = y;
-                
-                let baseRadius, speedMultiplier;
-                const screenType = game.screenType;
-                
-                switch(screenType) {
-                    case 'desktop':
-                        baseRadius = isGoalkeeper ? 22 : 26;
-                        speedMultiplier = 1.0;
-                        break;
-                    case 'tablet':
-                        baseRadius = isGoalkeeper ? 16 : 20;
-                        speedMultiplier = 0.85;
-                        break;
-                    case 'wide-mobile':
-                        baseRadius = isGoalkeeper ? 14 : 16;
-                        speedMultiplier = 0.75;
-                        break;
-                    case 'narrow-mobile':
-                        baseRadius = isGoalkeeper ? 12 : 14;
-                        speedMultiplier = 0.65;
-                        break;
-                    default:
-                        baseRadius = isGoalkeeper ? 13 : 15;
-                        speedMultiplier = 0.7;
-                }
-                
-                this.radius = baseRadius;
-                this.speed = (isUser ? CONFIG.PLAYER_SPEED : 
-                            isGoalkeeper ? CONFIG.GOALKEEPER_SPEED : CONFIG.OPPONENT_SPEED) * speedMultiplier;
+                this.width = 40;
+                this.height = 20;
+                this.speed = isUser ? CONFIG.CAR_SPEED : CONFIG.OPPONENT_SPEED;
                 this.isUser = isUser;
-                this.isGoalkeeper = isGoalkeeper;
-                this.color = isUser ? '#3498db' : 
-                            isGoalkeeper ? '#9b59b6' : '#e74c3c';
+                this.isOpponent = isOpponent;
+                this.color = isUser ? '#3498db' : '#e74c3c';
                 this.hasBall = isUser;
-                
-                this.moveUp = false;
-                this.moveDown = false;
                 this.moveLeft = false;
                 this.moveRight = false;
-                
-                this.animationFrame = 0;
-                this.kicking = false;
-                this.kickFrame = 0;
-                this.fighting = false;
-                this.fightFrame = 0;
-                this.fightCooldown = 0;
-                
-                this.targetX = x;
-                this.targetY = y;
-                this.aggression = 0.4 + (game.chapter * 0.015);
-                
-                this.randomMoveTimer = 0;
-                this.randomMoveDirection = 0;
-                
-                this.shootCooldown = 0;
-                
-                this.knockbackX = 0;
-                this.knockbackY = 0;
-                this.knockbackFrames = 0;
-                
-                this.isMoving = false;
+                this.moveUp = false;
+                this.moveDown = false;
             }
 
             update() {
-                this.animationFrame++;
-                
-                if (this.shootCooldown > 0) {
-                    this.shootCooldown--;
-                }
-                
-                if (this.fightCooldown > 0) {
-                    this.fightCooldown--;
-                }
-                
-                if (this.knockbackFrames > 0) {
-                    this.x += this.knockbackX;
-                    this.y += this.knockbackY;
-                    this.knockbackFrames--;
-                } else {
-                    if (this.isUser) {
-                        let moveX = 0, moveY = 0;
-                        
-                        if (this.moveUp) moveY -= 1;
-                        if (this.moveDown) moveY += 1;
-                        if (this.moveLeft) moveX -= 1;
-                        if (this.moveRight) moveX += 1;
-                        
-                        if (moveX !== 0 && moveY !== 0) {
-                            moveX *= 0.707;
-                            moveY *= 0.707;
-                        }
-                        
-                        let movementSpeed = this.speed;
-                        if (game.screenType.includes('mobile')) {
-                            movementSpeed *= 0.9;
-                        }
-                        
-                        this.x += moveX * movementSpeed;
-                        this.y += moveY * movementSpeed;
-                        
-                        // Check if player is moving for walking sound
-                        const wasMoving = this.isMoving;
-                        this.isMoving = (moveX !== 0 || moveY !== 0);
-                        
-                        // Control walking sound
-                        if (this.isMoving && !wasMoving) {
-                            playSound('walk');
-                        } else if (!this.isMoving && wasMoving) {
-                            stopSound('walk');
-                        }
-                    } 
-                    else if (this.isGoalkeeper) {
-                        const goalCenter = game.canvas.height / 2;
-                        const goalTop = goalCenter - CONFIG.GOAL_HEIGHT/2 + 15;
-                        const goalBottom = goalCenter + CONFIG.GOAL_HEIGHT/2 - 15;
-                        
-                        const chapterDifficulty = Math.min(1, game.chapter / 8);
-                        const randomMovementChance = 0.04 + (chapterDifficulty * 0.08);
-                        const movementSpeed = this.speed * (0.8 + chapterDifficulty * 0.4);
-                        
-                        this.randomMoveTimer--;
-                        
-                        if (this.randomMoveTimer <= 0 || Math.random() < randomMovementChance) {
-                            this.randomMoveDirection = (Math.random() * 2 - 1) * (0.8 + chapterDifficulty);
-                            this.randomMoveTimer = 25 + Math.random() * 50;
-                        }
-                        
-                        if (game.ball.possessedBy === game.player) {
-                            this.y += this.randomMoveDirection * movementSpeed;
-                        } 
-                        else {
-                            const ballY = game.ball.y;
-                            let targetY;
-                            
-                            if (ballY < goalTop) {
-                                targetY = goalTop;
-                            } else if (ballY > goalBottom) {
-                                targetY = goalBottom;
-                            } else {
-                                targetY = ballY;
-                            }
-                            
-                            const randomOffset = (Math.random() - 0.5) * 20 * chapterDifficulty;
-                            targetY += randomOffset;
-                            
-                            const dy = targetY - this.y;
-                            if (Math.abs(dy) > 2) {
-                                this.y += (dy > 0 ? 1 : -1) * movementSpeed;
-                            }
-                            
-                            if (Math.random() < 0.015 * chapterDifficulty) {
-                                this.y += (Math.random() - 0.5) * 30;
-                            }
-                        }
-                        
-                        if (this.y < goalTop) {
-                            this.y = goalTop;
-                            this.randomMoveDirection *= -1;
-                        } else if (this.y > goalBottom) {
-                            this.y = goalBottom;
-                            this.randomMoveDirection *= -1;
-                        }
+                if (this.isUser && game.playerInCar) {
+                    // User car controls
+                    if (this.moveLeft) {
+                        this.x -= this.speed * 0.7;
                     }
-                    else {
-                        const aggression = 0.6 + (game.chapter * 0.025);
-                        const opponentSpeed = this.speed * (0.9 + (game.chapter - 1) * 0.08);
-                        
-                        if (game.ball.possessedBy === game.player) {
-                            const dx = game.player.x - this.x;
-                            const dy = game.player.y - this.y;
-                            const distance = Math.sqrt(dx * dx + dy * dy);
-                            
-                            const interceptDistance = game.screenType.includes('mobile') ? 90 : 110;
-                            if (distance < interceptDistance) {
-                                this.x += (dx / distance) * opponentSpeed * aggression;
-                                this.y += (dy / distance) * opponentSpeed * aggression;
-                                
-                                const stealDistance = game.screenType.includes('mobile') ? 28 : 32;
-                                if (distance < stealDistance && Math.random() < (0.04 + game.chapter * 0.015)) {
-                                    this.stealFromUser();
-                                }
-                            } else {
-                                const defensiveX = game.canvas.width * 0.7 - (this.x % 80) * 0.5;
-                                const defensiveY = game.canvas.height / 2 + Math.sin(this.animationFrame * 0.08) * 35;
-                                
-                                const ddx = defensiveX - this.x;
-                                const ddy = defensiveY - this.y;
-                                const defensiveDist = Math.sqrt(ddx * ddx + ddy * ddy);
-                                
-                                if (defensiveDist > 10) {
-                                    this.x += (ddx / defensiveDist) * opponentSpeed * 0.4;
-                                    this.y += (ddy / defensiveDist) * opponentSpeed * 0.4;
-                                }
-                            }
-                        } else if (!game.ball.possessedBy || game.ball.possessedBy === this) {
-                            const dx = game.ball.x - this.x;
-                            const dy = game.ball.y - this.y;
-                            const distance = Math.sqrt(dx * dx + dy * dy);
-                            
-                            if (distance > 10) {
-                                this.x += (dx / distance) * opponentSpeed * aggression;
-                                this.y += (dy / distance) * opponentSpeed * aggression;
-                            }
-                            
-                            const possessionDistance = game.screenType.includes('mobile') ? 18 : 22;
-                            if (distance < possessionDistance && !game.ball.possessedBy && Math.random() < (0.08 + game.chapter * 0.008)) {
-                                game.ball.possessedBy = this;
-                                this.hasBall = true;
-                                this.speed = CONFIG.OPPONENT_SPEED * 0.7; // Slow down when possessing ball
-                                game.ballLost = true;
-                                game.recoveryTimer = CONFIG.RECOVERY_TIME;
-                            }
-                            
-                            if (this.hasBall && this.shootCooldown === 0) {
-                                const isInShootingPosition = this.x < game.canvas.width * 0.7;
-                                const hasClearPath = Math.abs(this.y - game.canvas.height/2) < CONFIG.GOAL_HEIGHT/2;
-                                
-                                if (isInShootingPosition && hasClearPath && Math.random() < 0.012) {
-                                    this.shootTowardsGoal();
-                                    this.shootCooldown = 80;
-                                }
-                            }
-                        } else if (game.ball.possessedBy && game.ball.possessedBy !== this) {
-                            const formationX = game.canvas.width * 0.8 - (this.x % 70) * 0.7;
-                            const formationY = 80 + (this.y % 150);
-                            
-                            const fdx = formationX - this.x;
-                            const fdy = formationY - this.y;
-                            const formationDist = Math.sqrt(fdx * fdx + fdy * fdy);
-                            
-                            if (formationDist > 10) {
-                                this.x += (fdx / formationDist) * opponentSpeed * 0.25;
-                                this.y += (fdy / formationDist) * opponentSpeed * 0.25;
-                            }
-                        }
+                    if (this.moveRight) {
+                        this.x += this.speed * 0.7;
                     }
-                }
-                
-                const boundaryMargin = 5;
-                
-                // Prevent player from entering goal posts
-                if (this.isUser) {
-                    // Left goal area
-                    const leftGoalX = 25;
-                    const leftGoalYTop = game.canvas.height / 2 - CONFIG.GOAL_HEIGHT/2;
-                    const leftGoalYBottom = game.canvas.height / 2 + CONFIG.GOAL_HEIGHT/2;
-                    
-                    // Right goal area
-                    const rightGoalX = game.canvas.width - 25;
-                    const rightGoalYTop = game.canvas.height / 2 - CONFIG.GOAL_HEIGHT/2;
-                    const rightGoalYBottom = game.canvas.height / 2 + CONFIG.GOAL_HEIGHT/2;
-                    
-                    // Check if player is trying to enter left goal
-                    if (this.x - this.radius < leftGoalX && 
-                        this.y > leftGoalYTop && this.y < leftGoalYBottom) {
-                        this.x = leftGoalX + this.radius;
+                    if (this.moveUp) {
+                        this.y -= this.speed * 0.7;
+                    }
+                    if (this.moveDown) {
+                        this.y += this.speed * 0.7;
                     }
                     
-                    // Check if player is trying to enter right goal
-                    if (this.x + this.radius > rightGoalX && 
-                        this.y > rightGoalYTop && this.y < rightGoalYBottom) {
-                        this.x = rightGoalX - this.radius;
-                    }
-                }
-                
-                this.x = Math.max(this.radius + boundaryMargin, Math.min(game.canvas.width - this.radius - boundaryMargin, this.x));
-                
-                if (this.isGoalkeeper) {
-                    this.y = Math.max(game.canvas.height / 2 - CONFIG.GOAL_HEIGHT/2 + 15, 
-                                     Math.min(game.canvas.height / 2 + CONFIG.GOAL_HEIGHT/2 - 15, this.y));
-                } else {
-                    this.y = Math.max(this.radius + boundaryMargin, Math.min(game.canvas.height - this.radius - boundaryMargin, this.y));
-                }
-                
-                const ballOffset = game.screenType === 'desktop' ? 30 : 
-                                 game.screenType === 'tablet' ? 25 : 20;
-                if (this.hasBall && game.ball.possessedBy === this) {
-                    game.ball.x = this.x + (this.isUser ? ballOffset : -ballOffset);
-                    game.ball.y = this.y;
-                }
-                
-                if (this.kicking) {
-                    this.kickFrame++;
-                    if (this.kickFrame > 8) {
-                        this.kicking = false;
-                        this.kickFrame = 0;
-                    }
-                }
-                
-                if (this.fighting) {
-                    this.fightFrame++;
-                    if (this.fightFrame > 10) {
-                        this.fighting = false;
-                        this.fightFrame = 0;
-                    }
-                }
-            }
-
-            shootTowardsGoal() {
-                if (this.hasBall && !this.isUser) {
-                    // Play kick sound for opponent shooting
-                    playSound('kick');
+                    // Move forward automatically
+                    this.y += this.speed;
                     
-                    const goalX = 0;
-                    const goalY = game.canvas.height / 2;
+                    // Boundary checks
+                    this.x = Math.max(this.width/2, Math.min(game.canvas.width - this.width/2, this.x));
+                    this.y = Math.max(this.height/2, Math.min(game.canvas.height - this.height/2, this.y));
                     
-                    const dx = goalX - this.x;
-                    const dy = goalY - this.y;
+                    // Check if reached goal area (top of screen)
+                    if (this.y < 100) {
+                        game.playerInCar = false;
+                        game.player.x = this.x;
+                        game.player.y = this.y + 50;
+                        game.player.hasBall = true;
+                        game.ball.possessedBy = game.player;
+                        playSound('walk');
+                        stopSound('car');
+                    }
+                } 
+                else if (this.isOpponent) {
+                    // Opponent car AI - try to crash into player
+                    const dx = game.player.x - this.x;
+                    const dy = game.player.y - this.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
                     
-                    const accuracy = Math.max(0.5, 0.7 - (game.chapter - 1) * 0.015);
-                    const randomOffset = (Math.random() - 0.5) * (1 - accuracy) * 120;
+                    if (distance < 300) {
+                        // Move toward player
+                        this.x += (dx / distance) * this.speed * 0.8;
+                        this.y += (dy / distance) * this.speed * 0.8;
+                    } else {
+                        // Patrol behavior
+                        this.y += this.speed * 0.5;
+                        if (Math.random() < 0.02) {
+                            this.x += (Math.random() - 0.5) * this.speed * 2;
+                        }
+                    }
                     
-                    game.ball.speedX = (dx / distance) * CONFIG.BALL_SPEED * 0.7;
-                    game.ball.speedY = ((dy + randomOffset) / distance) * CONFIG.BALL_SPEED * 0.7;
-                    game.ball.possessedBy = null;
-                    this.hasBall = false;
-                    this.speed = CONFIG.OPPONENT_SPEED + (game.chapter * 0.1); // Reset speed
-                    this.kicking = true;
+                    // Boundary checks for opponents
+                    this.x = Math.max(this.width/2, Math.min(game.canvas.width - this.width/2, this.x));
+                    this.y = Math.max(this.height/2, Math.min(game.canvas.height - this.height/2, this.y));
+                    
+                    // Check collision with player car
+                    if (game.playerInCar) {
+                        const carDx = Math.abs(this.x - game.playerCar.x);
+                        const carDy = Math.abs(this.y - game.playerCar.y);
+                        if (carDx < this.width && carDy < this.height) {
+                            // Crash - player loses a life
+                            game.lives--;
+                            updateLivesDisplay();
+                            playSound('hit');
+                            
+                            // Reset player position
+                            game.playerCar.x = game.canvas.width / 2;
+                            game.playerCar.y = game.canvas.height - 100;
+                            
+                            if (game.lives <= 0) {
+                                showLoseOverlay();
+                            }
+                        }
+                    }
                 }
             }
 
@@ -1425,317 +1204,224 @@
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 
-                const scaleFactor = game.screenType === 'desktop' ? 1.3 : 
-                                  game.screenType === 'tablet' ? 1.1 : 
-                                  game.screenType === 'wide-mobile' ? 1.0 : 0.9;
+                // Car body
+                ctx.fillStyle = this.color;
+                ctx.fillRect(-this.width/2, -this.height/2, this.width, this.height);
                 
+                // Car details
+                ctx.fillStyle = '#2c3e50';
+                ctx.fillRect(-this.width/2 + 5, -this.height/2 + 5, this.width - 10, this.height - 10);
+                
+                // Windows
+                ctx.fillStyle = '#3498db';
+                ctx.fillRect(-this.width/2 + 8, -this.height/2 + 8, this.width - 16, 4);
+                
+                // Wheels
+                ctx.fillStyle = '#2c3e50';
+                ctx.fillRect(-this.width/2 - 2, -this.height/2 - 2, 4, 6);
+                ctx.fillRect(this.width/2 - 2, -this.height/2 - 2, 4, 6);
+                ctx.fillRect(-this.width/2 - 2, this.height/2 - 4, 4, 6);
+                ctx.fillRect(this.width/2 - 2, this.height/2 - 4, 4, 6);
+                
+                // Ball on user car
+                if (this.hasBall && this.isUser) {
+                    ctx.fillStyle = '#f1c40f';
+                    ctx.beginPath();
+                    ctx.arc(0, -this.height/2 - 10, 8, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
+                ctx.restore();
+            }
+        }
+
+        // Player Class (for when out of car)
+        class Player {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = 15;
+                this.speed = CONFIG.PLAYER_SPEED;
+                this.color = '#3498db';
+                this.hasBall = true;
+                
+                this.moveUp = false;
+                this.moveDown = false;
+                this.moveLeft = false;
+                this.moveRight = false;
+                
+                this.animationFrame = 0;
+            }
+
+            update() {
+                this.animationFrame++;
+                
+                let moveX = 0, moveY = 0;
+                
+                if (this.moveUp) moveY -= 1;
+                if (this.moveDown) moveY += 1;
+                if (this.moveLeft) moveX -= 1;
+                if (this.moveRight) moveX += 1;
+                
+                if (moveX !== 0 && moveY !== 0) {
+                    moveX *= 0.707;
+                    moveY *= 0.707;
+                }
+                
+                this.x += moveX * this.speed;
+                this.y += moveY * this.speed;
+                
+                // Boundary checks
+                const boundaryMargin = 5;
+                this.x = Math.max(this.radius + boundaryMargin, Math.min(game.canvas.width - this.radius - boundaryMargin, this.x));
+                this.y = Math.max(this.radius + boundaryMargin, Math.min(game.canvas.height - this.radius - boundaryMargin, this.y));
+                
+                // Update ball position if player has it
+                if (this.hasBall && game.ball.possessedBy === this) {
+                    game.ball.x = this.x;
+                    game.ball.y = this.y - 20;
+                }
+                
+                // Check collision with opponent cars
+                for (let opponentCar of game.opponentCars) {
+                    const dx = Math.abs(this.x - opponentCar.x);
+                    const dy = Math.abs(this.y - opponentCar.y);
+                    if (dx < opponentCar.width/2 + this.radius && dy < opponentCar.height/2 + this.radius) {
+                        // Hit by car - lose a life
+                        game.lives--;
+                        updateLivesDisplay();
+                        playSound('hit');
+                        
+                        // Reset position
+                        this.x = game.canvas.width / 2;
+                        this.y = game.canvas.height / 2;
+                        
+                        if (game.lives <= 0) {
+                            showLoseOverlay();
+                        }
+                    }
+                }
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                
+                // Player body
                 ctx.fillStyle = this.color;
                 ctx.beginPath();
                 ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
                 ctx.fill();
                 
-                if (this.isUser) {
-                    ctx.strokeStyle = '#f1c40f';
-                    ctx.lineWidth = 1.5 * scaleFactor;
-                    ctx.stroke();
-                }
+                // Player outline
+                ctx.strokeStyle = '#f1c40f';
+                ctx.lineWidth = 2;
+                ctx.stroke();
                 
-                if (this.isGoalkeeper) {
-                    ctx.strokeStyle = '#ffffff';
-                    ctx.lineWidth = 1 * scaleFactor;
-                    ctx.stroke();
-                    
-                    ctx.fillStyle = '#FFFFFF';
-                    ctx.fillRect(-14 * scaleFactor, -3 * scaleFactor, 6 * scaleFactor, 5 * scaleFactor);
-                    ctx.fillRect(8 * scaleFactor, -3 * scaleFactor, 6 * scaleFactor, 5 * scaleFactor);
-                }
-                
-                const headRadius = this.isGoalkeeper ? 6 : 7;
+                // Face
                 ctx.fillStyle = '#FFDBAC';
                 ctx.beginPath();
-                ctx.arc(0, -5 * scaleFactor, headRadius * scaleFactor, 0, Math.PI * 2);
+                ctx.arc(0, -3, 8, 0, Math.PI * 2);
                 ctx.fill();
                 
                 ctx.fillStyle = '#2C3E50';
                 ctx.beginPath();
-                ctx.arc(-3 * scaleFactor, -6 * scaleFactor, 1.5 * scaleFactor, 0, Math.PI * 2);
-                ctx.arc(3 * scaleFactor, -6 * scaleFactor, 1.5 * scaleFactor, 0, Math.PI * 2);
+                ctx.arc(-3, -5, 1.5, 0, Math.PI * 2);
+                ctx.arc(3, -5, 1.5, 0, Math.PI * 2);
                 ctx.fill();
                 
                 ctx.strokeStyle = '#2C3E50';
-                ctx.lineWidth = 1 * scaleFactor;
+                ctx.lineWidth = 1;
                 ctx.beginPath();
-                ctx.arc(0, -3 * scaleFactor, 3 * scaleFactor, 0.1, Math.PI - 0.1);
+                ctx.arc(0, -1, 3, 0.1, Math.PI - 0.1);
                 ctx.stroke();
                 
-                const armSwing = Math.sin(this.animationFrame * 0.2) * 10;
+                // Arms and legs (animation)
+                const armSwing = Math.sin(this.animationFrame * 0.2) * 8;
                 ctx.fillStyle = this.color;
                 
                 ctx.save();
                 ctx.rotate((armSwing * Math.PI) / 180);
-                ctx.fillRect(-16 * scaleFactor, -3 * scaleFactor, 10 * scaleFactor, 5 * scaleFactor);
+                ctx.fillRect(-16, -5, 10, 4);
                 ctx.restore();
                 
                 ctx.save();
                 ctx.rotate((-armSwing * Math.PI) / 180);
-                ctx.fillRect(6 * scaleFactor, -3 * scaleFactor, 10 * scaleFactor, 5 * scaleFactor);
+                ctx.fillRect(6, -5, 10, 4);
                 ctx.restore();
                 
-                const legSwing = Math.sin(this.animationFrame * 0.2) * 12;
+                const legSwing = Math.sin(this.animationFrame * 0.2) * 10;
                 ctx.fillStyle = '#2C3E50';
                 
                 ctx.save();
                 ctx.rotate((legSwing * Math.PI) / 180);
-                ctx.fillRect(-5 * scaleFactor, 12 * scaleFactor, 4 * scaleFactor, 16 * scaleFactor);
+                ctx.fillRect(-5, 10, 4, 12);
                 ctx.restore();
                 
                 ctx.save();
                 ctx.rotate((-legSwing * Math.PI) / 180);
-                ctx.fillRect(1 * scaleFactor, 12 * scaleFactor, 4 * scaleFactor, 16 * scaleFactor);
+                ctx.fillRect(1, 10, 4, 12);
                 ctx.restore();
                 
-                if (this.kicking) {
-                    ctx.fillStyle = '#2C3E50';
-                    ctx.save();
-                    ctx.rotate((45 * Math.PI) / 180);
-                    ctx.fillRect(3 * scaleFactor, 10 * scaleFactor, 4 * scaleFactor, 20 * scaleFactor);
-                    ctx.restore();
-                }
-                
-                if (this.fighting) {
-                    ctx.fillStyle = '#f1c40f';
-                    const fightOffset = this.fightFrame * 2;
-                    ctx.beginPath();
-                    ctx.arc(20 * scaleFactor + fightOffset, 0, 8 * scaleFactor, 0, Math.PI * 2);
-                    ctx.fill();
-                    
-                    if (this.fightFrame > 5) {
-                        ctx.fillStyle = 'rgba(255, 255, 0, 0.5)';
-                        ctx.beginPath();
-                        ctx.arc(30 * scaleFactor + fightOffset, 0, 12 * scaleFactor, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-                }
-                
-                const indicatorOffset = game.screenType === 'desktop' ? 28 : 
-                                      game.screenType === 'tablet' ? 24 : 20;
+                // Ball indicator
                 if (this.hasBall) {
                     ctx.fillStyle = '#f1c40f';
                     ctx.beginPath();
-                    ctx.arc(this.isUser ? indicatorOffset : -indicatorOffset, 0, 5 * scaleFactor, 0, Math.PI * 2);
+                    ctx.arc(0, -25, 5, 0, Math.PI * 2);
                     ctx.fill();
                 }
                 
                 ctx.restore();
             }
 
-            shoot() {
-                if (this.hasBall && this.isUser) {
-                    // Play kick sound
-                    playSound('kick');
-                    
-                    const goalX = game.canvas.width;
-                    const goalY = game.canvas.height / 2;
-                    
-                    const dx = goalX - this.x;
-                    const dy = goalY - this.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    
-                    const accuracy = Math.max(0.7, 1 - (game.chapter - 1) * 0.04);
-                    const randomOffset = (Math.random() - 0.5) * (1 - accuracy) * 70;
-                    
-                    game.ball.speedX = (dx / distance) * CONFIG.BALL_SPEED;
-                    game.ball.speedY = ((dy + randomOffset) / distance) * CONFIG.BALL_SPEED;
-                    game.ball.possessedBy = null;
-                    this.hasBall = false;
-                    this.kicking = true;
-                }
-            }
-
             steal() {
-                if (!this.hasBall && this.isUser) {
-                    if (game.ball.possessedBy && !game.ball.possessedBy.isUser) {
-                        const dx = game.ball.possessedBy.x - this.x;
-                        const dy = game.ball.possessedBy.y - this.y;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-                        
-                        const stealChance = Math.max(0.35, 0.75 - (game.chapter - 1) * 0.04);
-                        
-                        if (distance < 40 && Math.random() < stealChance) {
-                            // Play steal sound
-                            playSound('steal');
-                            
-                            game.ball.possessedBy.hasBall = false;
-                            game.ball.possessedBy = this;
-                            this.hasBall = true;
-                            game.ballLost = false;
-                            game.recoveryTimer = CONFIG.RECOVERY_TIME;
-                        }
-                    }
-                    else if (!game.ball.possessedBy) {
-                        const dx = game.ball.x - this.x;
-                        const dy = game.ball.y - this.y;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-                        
-                        if (distance < 35 && Math.random() < 0.8) {
-                            // Play steal sound
-                            playSound('steal');
-                            
-                            game.ball.possessedBy = this;
-                            this.hasBall = true;
-                            game.ballLost = false;
-                            game.recoveryTimer = CONFIG.RECOVERY_TIME;
-                            game.ball.speedX = 0;
-                            game.ball.speedY = 0;
-                        }
-                    }
-                }
-            }
-            
-            stealFromUser() {
-                if (!this.hasBall && game.ball.possessedBy && game.ball.possessedBy.isUser) {
-                    const dx = game.ball.possessedBy.x - this.x;
-                    const dy = game.ball.possessedBy.y - this.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    
-                    const stealChance = Math.min(0.5, 0.25 + (game.chapter - 1) * 0.02);
-                    
-                    if (distance < 35 && Math.random() < stealChance) {
-                        // Play steal sound
-                        playSound('steal');
-                        
-                        game.ball.possessedBy.hasBall = false;
-                        game.ball.possessedBy = this;
-                        this.hasBall = true;
-                        this.speed = CONFIG.OPPONENT_SPEED * 0.7; // Slow down when possessing ball
-                        game.ballLost = true;
-                        game.recoveryTimer = CONFIG.RECOVERY_TIME;
-                    }
-                }
-            }
-            
-            fight() {
-                if (this.isUser && this.fightCooldown === 0) {
-                    // Play fight sound
-                    playSound('fight');
-                    
-                    this.fighting = true;
-                    this.fightFrame = 0;
-                    this.fightCooldown = CONFIG.FIGHT_COOLDOWN;
-                    
-                    for (let opponent of game.opponents) {
-                        const dx = opponent.x - this.x;
-                        const dy = opponent.y - this.y;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-                        
-                        if (distance < CONFIG.FIGHT_RANGE) {
-                            const knockbackForce = CONFIG.FIGHT_KNOCKBACK;
-                            opponent.knockbackX = (dx / distance) * knockbackForce;
-                            opponent.knockbackY = (dy / distance) * knockbackForce;
-                            opponent.knockbackFrames = 10;
-                            
-                            if (opponent.hasBall) {
-                                opponent.hasBall = false;
-                                game.ball.possessedBy = null;
-                                game.ballLost = false;
-                                game.recoveryTimer = CONFIG.RECOVERY_TIME;
-                            }
-                        }
-                    }
-                }
+                // Steal functionality when needed
+                playSound('steal');
             }
         }
 
         // Ball Class
         class Ball {
             constructor() {
-                this.x = 80;
-                this.y = game.canvas.height / 2;
-                
-                switch(game.screenType) {
-                    case 'desktop':
-                        this.radius = 10;
-                        break;
-                    case 'tablet':
-                        this.radius = 8;
-                        break;
-                    case 'wide-mobile':
-                        this.radius = 7;
-                        break;
-                    case 'narrow-mobile':
-                        this.radius = 6;
-                        break;
-                    default:
-                        this.radius = 6.5;
-                }
-                
+                this.x = game.canvas.width / 2;
+                this.y = game.canvas.height - 50;
+                this.radius = 8;
                 this.speedX = 0;
                 this.speedY = 0;
-                this.possessedBy = game.player;
+                this.possessedBy = null;
                 this.rotation = 0;
             }
 
             update() {
-                this.speedX *= 0.96;
-                this.speedY *= 0.96;
-                
-                this.x += this.speedX;
-                this.y += this.speedY;
-                
-                this.rotation += this.speedX * 0.08;
-                
-                if (this.x - this.radius < 0) {
-                    this.x = this.radius;
-                    this.speedX *= -0.6;
-                }
-                if (this.x + this.radius > game.canvas.width) {
-                    this.x = game.canvas.width - this.radius;
-                    this.speedX *= -0.6;
-                }
-                if (this.y - this.radius < 0) {
-                    this.y = this.radius;
-                    this.speedY *= -0.6;
-                }
-                if (this.y + this.radius > game.canvas.height) {
-                    this.y = game.canvas.height - this.radius;
-                    this.speedY *= -0.6;
-                }
-                
-                if (Math.abs(this.speedX) < 0.08) this.speedX = 0;
-                if (Math.abs(this.speedY) < 0.08) this.speedY = 0;
-                
                 if (!this.possessedBy) {
-                    for (let opponent of game.opponents) {
-                        const dx = opponent.x - this.x;
-                        const dy = opponent.y - this.y;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-                        
-                        const possessionDistance = game.screenType.includes('mobile') ? 20 : 23;
-                        if (distance < possessionDistance && Math.random() < (0.04 + game.chapter * 0.008)) {
-                            this.possessedBy = opponent;
-                            opponent.hasBall = true;
-                            opponent.speed = CONFIG.OPPONENT_SPEED * 0.7; // Slow down when possessing ball
-                            this.speedX = 0;
-                            this.speedY = 0;
-                            
-                            if (!game.ballLost) {
-                                game.ballLost = true;
-                                game.recoveryTimer = CONFIG.RECOVERY_TIME;
-                            }
-                            break;
-                        }
-                    }
-                }
-                
-                if (!this.possessedBy && game.goalkeeper) {
-                    const dx = game.goalkeeper.x - this.x;
-                    const dy = game.goalkeeper.y - this.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    this.speedX *= 0.96;
+                    this.speedY *= 0.96;
                     
-                    if (distance < game.goalkeeper.radius + this.radius) {
-                        this.speedX = -this.speedX * 0.7;
-                        this.speedY = (this.y - game.goalkeeper.y) * 0.25;
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    
+                    this.rotation += this.speedX * 0.08;
+                    
+                    // Boundary checks
+                    if (this.x - this.radius < 0) {
+                        this.x = this.radius;
+                        this.speedX *= -0.6;
                     }
+                    if (this.x + this.radius > game.canvas.width) {
+                        this.x = game.canvas.width - this.radius;
+                        this.speedX *= -0.6;
+                    }
+                    if (this.y - this.radius < 0) {
+                        this.y = this.radius;
+                        this.speedY *= -0.6;
+                    }
+                    if (this.y + this.radius > game.canvas.height) {
+                        this.y = game.canvas.height - this.radius;
+                        this.speedY *= -0.6;
+                    }
+                    
+                    if (Math.abs(this.speedX) < 0.08) this.speedX = 0;
+                    if (Math.abs(this.speedY) < 0.08) this.speedY = 0;
                 }
             }
 
@@ -1750,7 +1436,7 @@
                 ctx.fill();
                 
                 ctx.strokeStyle = '#000000';
-                ctx.lineWidth = game.screenType === 'desktop' ? 1.5 : 1;
+                ctx.lineWidth = 1;
                 ctx.beginPath();
                 
                 for (let i = 0; i < 5; i++) {
@@ -1804,24 +1490,8 @@
             game.canvas.width = window.innerWidth;
             game.canvas.height = window.innerHeight;
             
-            let fieldRatio;
-            switch(game.screenType) {
-                case 'desktop':
-                    fieldRatio = 2.2;
-                    break;
-                case 'tablet':
-                    fieldRatio = 2.1;
-                    break;
-                case 'wide-mobile':
-                    fieldRatio = 1.9;
-                    break;
-                case 'narrow-mobile':
-                    fieldRatio = 1.7;
-                    break;
-                default:
-                    fieldRatio = 1.8;
-            }
-            game.canvas.width = Math.max(game.canvas.width, game.canvas.height * fieldRatio);
+            // Calculate track length based on chapter
+            game.trackLength = game.canvas.height * (1 + (game.chapter - 1) * 0.2);
         }
 
         function optimizeMobileControls() {
@@ -1926,24 +1596,53 @@
             document.addEventListener('keydown', (e) => {
                 if (!game.gameStarted || game.paused) return;
                 
-                switch(e.key) {
-                    case 'ArrowUp': game.player.moveUp = true; break;
-                    case 'ArrowDown': game.player.moveDown = true; break;
-                    case 'ArrowLeft': game.player.moveLeft = true; break;
-                    case 'ArrowRight': game.player.moveRight = true; break;
-                    case ' ': game.player.shoot(); break;
-                    case 's': game.player.steal(); break;
-                    case 'f': case 'F': game.player.fight(); break;
-                    case 'p': case 'P': togglePause(); break;
+                if (game.playerInCar) {
+                    // Car controls
+                    switch(e.key) {
+                        case 'ArrowUp': game.playerCar.moveUp = true; break;
+                        case 'ArrowDown': game.playerCar.moveDown = true; break;
+                        case 'ArrowLeft': game.playerCar.moveLeft = true; break;
+                        case 'ArrowRight': game.playerCar.moveRight = true; break;
+                        case ' ': 
+                            // Get out of car
+                            game.playerInCar = false;
+                            game.player.x = game.playerCar.x;
+                            game.player.y = game.playerCar.y + 50;
+                            game.player.hasBall = true;
+                            game.ball.possessedBy = game.player;
+                            playSound('walk');
+                            stopSound('car');
+                            break;
+                        case 'p': case 'P': togglePause(); break;
+                    }
+                } else {
+                    // Player on foot controls
+                    switch(e.key) {
+                        case 'ArrowUp': game.player.moveUp = true; break;
+                        case 'ArrowDown': game.player.moveDown = true; break;
+                        case 'ArrowLeft': game.player.moveLeft = true; break;
+                        case 'ArrowRight': game.player.moveRight = true; break;
+                        case 's': game.player.steal(); break;
+                        case 'p': case 'P': togglePause(); break;
+                    }
                 }
             });
             
             document.addEventListener('keyup', (e) => {
-                switch(e.key) {
-                    case 'ArrowUp': game.player.moveUp = false; break;
-                    case 'ArrowDown': game.player.moveDown = false; break;
-                    case 'ArrowLeft': game.player.moveLeft = false; break;
-                    case 'ArrowRight': game.player.moveRight = false; break;
+                if (game.playerInCar) {
+                    switch(e.key) {
+                        case 'ArrowUp': game.playerCar.moveUp = false; break;
+                        case 'ArrowDown': game.playerCar.moveDown = false; break;
+                        case 'ArrowLeft': game.playerCar.moveLeft = false; break;
+                        case 'ArrowRight': game.playerCar.moveRight = false; break;
+                    }
+                } else {
+                    switch(e.key) {
+                        case 'ArrowUp': game.player.moveUp = false; break;
+                        case 'ArrowDown': game.player.moveDown = false; break;
+                        case 'ArrowLeft': game.player.moveLeft = false; break;
+                        case 'ArrowRight': game.player.moveRight = false; break;
+                    }
                 }
             });
         }
@@ -1984,19 +1683,34 @@
                 if (joystickActive) {
                     joystickActive = false;
                     joystickHandle.style.transform = 'translate(-50%, -50%)';
-                    game.player.moveUp = game.player.moveDown = game.player.moveLeft = game.player.moveRight = false;
+                    if (game.playerInCar) {
+                        game.playerCar.moveUp = game.playerCar.moveDown = game.playerCar.moveLeft = game.playerCar.moveRight = false;
+                    } else {
+                        game.player.moveUp = game.player.moveDown = game.player.moveLeft = game.player.moveRight = false;
+                    }
                 }
             });
             
-            [shootBtn, stealBtn, fightBtn].forEach(btn => {
+            // Update button labels and functionality
+            shootBtn.textContent = "EXIT";
+            fightBtn.style.display = 'none'; // Remove fight button
+            
+            [shootBtn, stealBtn].forEach(btn => {
                 btn.addEventListener('touchstart', (e) => {
                     if (!game.paused) {
                         if (btn.classList.contains('shoot')) {
-                            game.player.shoot();
+                            // Exit car
+                            if (game.playerInCar) {
+                                game.playerInCar = false;
+                                game.player.x = game.playerCar.x;
+                                game.player.y = game.playerCar.y + 50;
+                                game.player.hasBall = true;
+                                game.ball.possessedBy = game.player;
+                                playSound('walk');
+                                stopSound('car');
+                            }
                         } else if (btn.classList.contains('steal')) {
                             game.player.steal();
-                        } else if (btn.classList.contains('fight')) {
-                            game.player.fight();
                         }
                     }
                     e.preventDefault();
@@ -2033,10 +1747,18 @@
                 const moveY = Math.sin(angle) * (limitedDistance / maxDistance);
                 
                 const sensitivity = game.screenType.includes('mobile') ? 0.4 : 0.3;
-                game.player.moveUp = moveY < -sensitivity;
-                game.player.moveDown = moveY > sensitivity;
-                game.player.moveLeft = moveX < -sensitivity;
-                game.player.moveRight = moveX > sensitivity;
+                
+                if (game.playerInCar) {
+                    game.playerCar.moveUp = moveY < -sensitivity;
+                    game.playerCar.moveDown = moveY > sensitivity;
+                    game.playerCar.moveLeft = moveX < -sensitivity;
+                    game.playerCar.moveRight = moveX > sensitivity;
+                } else {
+                    game.player.moveUp = moveY < -sensitivity;
+                    game.player.moveDown = moveY > sensitivity;
+                    game.player.moveLeft = moveX < -sensitivity;
+                    game.player.moveRight = moveX > sensitivity;
+                }
             }
             
             updateJoystickCenter();
@@ -2044,91 +1766,62 @@
         }
 
         function resetGame() {
-            let startX;
-            switch(game.screenType) {
-                case 'desktop':
-                    startX = 100;
-                    break;
-                case 'tablet':
-                    startX = 90;
-                    break;
-                case 'wide-mobile':
-                    startX = 85;
-                    break;
-                case 'narrow-mobile':
-                    startX = 75;
-                    break;
-                default:
-                    startX = 80;
-            }
-            game.player = new Player(startX, game.canvas.height / 2, true);
+            // Set up track length based on chapter
+            setupCanvas();
             
-            let keeperX;
-            switch(game.screenType) {
-                case 'desktop':
-                    keeperX = game.canvas.width - 40;
-                    break;
-                case 'tablet':
-                    keeperX = game.canvas.width - 35;
-                    break;
-                default:
-                    keeperX = game.canvas.width - 30;
-            }
-            game.goalkeeper = new Player(keeperX, game.canvas.height / 2, false, true);
+            // Create player car
+            game.playerCar = new Car(game.canvas.width / 2, game.canvas.height - 100, true);
             
-            game.opponents = [];
+            // Create player character (for when out of car)
+            game.player = new Player(game.canvas.width / 2, game.canvas.height / 2);
+            
+            // Create opponent cars
+            game.opponentCars = [];
             const opponentsCount = game.chapter;
             
-            const rows = Math.ceil(Math.sqrt(opponentsCount));
-            const cols = Math.ceil(opponentsCount / rows);
-            
-            let xSpacing, ySpacing, startY;
-            switch(game.screenType) {
-                case 'desktop':
-                    xSpacing = 50;
-                    ySpacing = 60;
-                    startY = 70;
-                    break;
-                case 'tablet':
-                    xSpacing = 45;
-                    ySpacing = 55;
-                    startY = 65;
-                    break;
-                default:
-                    xSpacing = 40;
-                    ySpacing = 50;
-                    startY = 60;
-            }
-            
             for (let i = 0; i < opponentsCount; i++) {
-                const row = Math.floor(i / cols);
-                const col = i % cols;
-                
-                const x = game.canvas.width - 150 - col * xSpacing;
-                const y = startY + row * ySpacing;
-                
-                const opponent = new Player(x, y, false);
-                opponent.speed = CONFIG.OPPONENT_SPEED + (game.chapter * 0.1);
-                game.opponents.push(opponent);
+                const x = Math.random() * (game.canvas.width - 80) + 40;
+                const y = Math.random() * game.canvas.height * 0.7;
+                const opponentCar = new Car(x, y, false, true);
+                opponentCar.speed = CONFIG.OPPONENT_SPEED + (game.chapter * 0.1);
+                game.opponentCars.push(opponentCar);
             }
             
-            // FIXED: Cannons initialization
+            // Set up cannons
             game.cannons = [];
             game.cannonBalls = [];
             
             if (game.chapter >= 2) {
-                // Add cannons - FIXED positioning
+                // Base cannons
                 const cannon1 = new Cannon(game.canvas.width - 120, 80);
                 const cannon2 = new Cannon(game.canvas.width - 120, game.canvas.height - 80);
                 game.cannons.push(cannon1, cannon2);
+                
+                // Add one more cannon in chapter 5
+                if (game.chapter >= 5) {
+                    const cannon3 = new Cannon(game.canvas.width - 120, game.canvas.height / 2);
+                    game.cannons.push(cannon3);
+                }
+                
+                // Add one more cannon in chapter 10
+                if (game.chapter >= 10) {
+                    const cannon4 = new Cannon(game.canvas.width - 120, game.canvas.height / 4);
+                    game.cannons.push(cannon4);
+                }
             }
             
+            // Create ball
             game.ball = new Ball();
+            game.ball.possessedBy = game.playerCar;
             
             game.lives = CONFIG.LIVES;
             game.recoveryTimer = CONFIG.RECOVERY_TIME;
             game.ballLost = false;
             game.paused = false;
+            game.playerInCar = true;
+            
+            // Start car sound
+            playSound('car');
             
             updateLivesDisplay();
             updateChapterDisplay();
@@ -2150,16 +1843,23 @@
                 document.getElementById('pauseOverlay').style.display = 'flex';
                 document.getElementById('pauseBtn').textContent = 'RESUME';
                 
-                // Pause background music
+                // Pause background music and sounds
                 stopBackgroundMusic();
-                // Stop walking sound
                 stopSound('walk');
+                stopSound('car');
             } else {
                 document.getElementById('pauseOverlay').style.display = 'none';
                 document.getElementById('pauseBtn').textContent = 'PAUSE';
                 
                 // Resume background music
                 playBackgroundMusic();
+                
+                // Resume appropriate sound based on player state
+                if (game.playerInCar) {
+                    playSound('car');
+                } else {
+                    playSound('walk');
+                }
             }
         }
 
@@ -2205,29 +1905,22 @@
         }
 
         function update(deltaTime) {
-            // Update game objects
-            game.player.update();
-            game.opponents.forEach(opponent => opponent.update());
-            if (game.goalkeeper) game.goalkeeper.update();
+            // Update game objects based on player state
+            if (game.playerInCar) {
+                game.playerCar.update();
+            } else {
+                game.player.update();
+            }
+            
+            game.opponentCars.forEach(opponent => opponent.update());
             game.ball.update();
             
-            // FIXED: Cannon update - using simple objects instead of class instances
+            // Update cannons and cannon balls
             game.cannons.forEach(cannon => cannon.update());
             
-            // FIXED: Cannon ball update - safe iteration
             for (let i = game.cannonBalls.length - 1; i >= 0; i--) {
                 if (game.cannonBalls[i] && typeof game.cannonBalls[i].update === 'function') {
                     game.cannonBalls[i].update();
-                }
-            }
-            
-            if (game.ballLost && game.ball.possessedBy && !game.ball.possessedBy.isUser) {
-                game.recoveryTimer -= deltaTime / 1000;
-                document.getElementById('recoveryTimer').textContent = Math.ceil(game.recoveryTimer);
-                
-                if (game.recoveryTimer <= 0) {
-                    loseLife();
-                    game.recoveryTimer = CONFIG.RECOVERY_TIME;
                 }
             }
             
@@ -2235,24 +1928,9 @@
         }
 
         function checkGoals() {
-            if (game.ball.x > game.canvas.width - 25 && 
-                game.ball.y > game.canvas.height / 2 - CONFIG.GOAL_HEIGHT/2 && 
-                game.ball.y < game.canvas.height / 2 + CONFIG.GOAL_HEIGHT/2) {
-                
-                let goalSaved = false;
-                if (game.goalkeeper) {
-                    const dx = game.ball.x - game.goalkeeper.x;
-                    const dy = game.ball.y - game.goalkeeper.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    
-                    if (distance < game.goalkeeper.radius + game.ball.radius + 8) {
-                        goalSaved = true;
-                        game.ball.speedX = -game.ball.speedX * 0.7;
-                        game.ball.speedY = (game.ball.y - game.goalkeeper.y) * 0.4;
-                    }
-                }
-                
-                if (!goalSaved) {
+            // Check if player scored (ball in goal area at top of screen)
+            if (!game.playerInCar && game.ball.possessedBy === game.player) {
+                if (game.ball.y < 50 && game.ball.x > game.canvas.width/2 - 50 && game.ball.x < game.canvas.width/2 + 50) {
                     // Play goal sound
                     playSound('goal');
                     
@@ -2260,17 +1938,6 @@
                     setTimeout(showWinOverlay, 1000);
                     return;
                 }
-            }
-            
-            if (game.ball.x < 25 && 
-                game.ball.y > game.canvas.height / 2 - CONFIG.GOAL_HEIGHT/2 && 
-                game.ball.y < game.canvas.height / 2 + CONFIG.GOAL_HEIGHT/2) {
-                
-                loseLife();
-                game.ball.x = game.canvas.width / 2;
-                game.ball.y = game.canvas.height / 2;
-                game.ball.speedX = game.ball.speedY = 0;
-                game.ball.possessedBy = null;
             }
         }
 
@@ -2303,10 +1970,10 @@
             // Play win sound
             playSound('win');
             
-            // Stop background music
+            // Stop background music and sounds
             stopBackgroundMusic();
-            // Stop walking sound
             stopSound('walk');
+            stopSound('car');
             
             document.getElementById('winOpponents').textContent = game.chapter;
             document.getElementById('winOverlay').style.display = 'flex';
@@ -2318,10 +1985,10 @@
             // Play lose sound
             playSound('lose');
             
-            // Stop background music
+            // Stop background music and sounds
             stopBackgroundMusic();
-            // Stop walking sound
             stopSound('walk');
+            stopSound('car');
             
             document.getElementById('loseChapter').textContent = game.chapter;
             document.getElementById('loseOpponents').textContent = game.chapter;
@@ -2350,16 +2017,25 @@
             const ctx = game.ctx;
             ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
             
-            drawField(ctx);
-            drawGoals(ctx);
-            drawBoundaries(ctx);
+            drawRaceTrack(ctx);
+            drawGoalArea(ctx);
             
-            game.opponents.forEach(opponent => opponent.draw(ctx));
-            if (game.goalkeeper) game.goalkeeper.draw(ctx);
-            game.player.draw(ctx);
-            game.ball.draw(ctx);
+            // Draw opponent cars
+            game.opponentCars.forEach(opponent => opponent.draw(ctx));
             
-            // FIXED: Draw cannons and cannon balls
+            // Draw player based on state
+            if (game.playerInCar) {
+                game.playerCar.draw(ctx);
+            } else {
+                game.player.draw(ctx);
+            }
+            
+            // Draw ball if not possessed
+            if (!game.ball.possessedBy) {
+                game.ball.draw(ctx);
+            }
+            
+            // Draw cannons and cannon balls
             game.cannons.forEach(cannon => cannon.draw(ctx));
             game.cannonBalls.forEach(ball => {
                 if (ball && typeof ball.draw === 'function') {
@@ -2368,66 +2044,50 @@
             });
         }
 
-        function drawField(ctx) {
-            ctx.fillStyle = '#27ae60';
+        function drawRaceTrack(ctx) {
+            // Draw road
+            ctx.fillStyle = '#34495e';
             ctx.fillRect(0, 0, game.canvas.width, game.canvas.height);
             
-            ctx.strokeStyle = '#229954';
-            ctx.lineWidth = 0.8;
-            
-            const patternSize = game.screenType.includes('mobile') ? 30 : 35;
-            for (let i = 0; i < game.canvas.width; i += patternSize) {
-                for (let j = 0; j < game.canvas.height; j += patternSize) {
-                    ctx.beginPath();
-                    ctx.moveTo(i, j);
-                    ctx.lineTo(i + 15, j + 15);
-                    ctx.stroke();
-                }
-            }
-            
+            // Draw lane markings
             ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 1.5;
-            
-            ctx.beginPath();
-            ctx.moveTo(game.canvas.width / 2, 0);
-            ctx.lineTo(game.canvas.width / 2, game.canvas.height);
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.arc(game.canvas.width / 2, game.canvas.height / 2, 60, 0, Math.PI * 2);
-            ctx.stroke();
-        }
-
-        function drawGoals(ctx) {
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 1.5;
-            
-            ctx.strokeRect(0, game.canvas.height / 2 - CONFIG.GOAL_HEIGHT/2, 25, CONFIG.GOAL_HEIGHT);
-            ctx.strokeRect(game.canvas.width - 25, game.canvas.height / 2 - CONFIG.GOAL_HEIGHT/2, 25, CONFIG.GOAL_HEIGHT);
-            
-            ctx.strokeStyle = 'rgba(255, 0, 0, 0.3)';
-            ctx.setLineDash([4, 4]);
-            
-            const goalAreaWidth = game.screenType.includes('mobile') ? 35 : 40;
-            ctx.strokeRect(0, 0, goalAreaWidth, game.canvas.height);
-            ctx.strokeRect(game.canvas.width - goalAreaWidth, 0, goalAreaWidth, game.canvas.height);
-            ctx.setLineDash([]);
-        }
-
-        function drawBoundaries(ctx) {
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
             ctx.lineWidth = 2;
-            ctx.setLineDash([5, 5]);
+            ctx.setLineDash([20, 20]);
             
-            const boundaryMargin = 5;
-            ctx.strokeRect(
-                boundaryMargin, 
-                boundaryMargin, 
-                game.canvas.width - boundaryMargin * 2, 
-                game.canvas.height - boundaryMargin * 2
-            );
-            
+            const laneWidth = game.canvas.width / 3;
+            for (let i = 1; i < 3; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * laneWidth, 0);
+                ctx.lineTo(i * laneWidth, game.canvas.height);
+                ctx.stroke();
+            }
             ctx.setLineDash([]);
+            
+            // Draw road boundaries
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(5, 5, game.canvas.width - 10, game.canvas.height - 10);
+            
+            // Draw finish line at top
+            ctx.fillStyle = '#f1c40f';
+            for (let i = 0; i < game.canvas.width; i += 20) {
+                ctx.fillRect(i, 0, 10, 30);
+            }
+        }
+
+        function drawGoalArea(ctx) {
+            // Draw goal area at top center
+            ctx.strokeStyle = '#27ae60';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([5, 5]);
+            ctx.strokeRect(game.canvas.width/2 - 50, 0, 100, 50);
+            ctx.setLineDash([]);
+            
+            // Add goal text
+            ctx.fillStyle = '#27ae60';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('GOAL', game.canvas.width/2, 70);
         }
 
         window.addEventListener('load', init);
