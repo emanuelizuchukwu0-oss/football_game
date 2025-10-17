@@ -2431,6 +2431,390 @@
         }
 
         window.addEventListener('load', init);
+        // Add this to your existing JavaScript code
+
+// Enhanced boundary checking for small screens
+function enforceScreenBoundaries() {
+    const screenType = detectScreenType();
+    const isSmallPhone = screenType.includes('small-phone') || 
+                        screenType.includes('regular-phone') || 
+                        window.innerWidth <= 480;
+    
+    if (!isSmallPhone) return;
+    
+    // Get game container dimensions
+    const container = document.getElementById('gameContainer');
+    const containerRect = container.getBoundingClientRect();
+    
+    // Boundary margins for small screens
+    const boundaryMargin = 15;
+    
+    // Check and adjust player position
+    if (game.player) {
+        game.player.x = Math.max(
+            game.player.radius + boundaryMargin,
+            Math.min(
+                game.canvas.width - game.player.radius - boundaryMargin,
+                game.player.x
+            )
+        );
+        
+        game.player.y = Math.max(
+            game.player.radius + boundaryMargin,
+            Math.min(
+                game.canvas.height - game.player.radius - boundaryMargin,
+                game.player.y
+            )
+        );
+    }
+    
+    // Check and adjust ball position
+    if (game.ball) {
+        game.ball.x = Math.max(
+            game.ball.radius + boundaryMargin,
+            Math.min(
+                game.canvas.width - game.ball.radius - boundaryMargin,
+                game.ball.x
+            )
+        );
+        
+        game.ball.y = Math.max(
+            game.ball.radius + boundaryMargin,
+            Math.min(
+                game.canvas.height - game.ball.radius - boundaryMargin,
+                game.ball.y
+            )
+        );
+    }
+    
+    // Adjust opponent positions
+    game.opponents.forEach(opponent => {
+        opponent.x = Math.max(
+            opponent.radius + boundaryMargin,
+            Math.min(
+                game.canvas.width - opponent.radius - boundaryMargin,
+                opponent.x
+            )
+        );
+        
+        opponent.y = Math.max(
+            opponent.radius + boundaryMargin,
+            Math.min(
+                game.canvas.height - opponent.radius - boundaryMargin,
+                opponent.y
+            )
+        );
+    });
+}
+
+// Enhanced canvas setup for small screens
+function setupCanvas() {
+    const config = SCREEN_CONFIG[game.screenType] || SCREEN_CONFIG.default;
+    const isSmallPhone = game.screenType.includes('small-phone') || 
+                        game.screenType.includes('regular-phone') || 
+                        window.innerWidth <= 480;
+    
+    if (isSmallPhone) {
+        // More aggressive scaling for small phones
+        config.scale *= 0.85;
+        config.fieldRatio = Math.min(config.fieldRatio, 1.6);
+        config.goalHeight *= 0.8;
+    }
+    
+    // Set canvas size with scaling
+    game.canvas.width = window.innerWidth * config.scale;
+    game.canvas.height = window.innerHeight * config.scale;
+    
+    // Apply field ratio with limits for small screens
+    const maxFieldRatio = isSmallPhone ? 1.8 : 2.6;
+    game.canvas.width = Math.max(
+        game.canvas.width, 
+        Math.min(game.canvas.height * config.fieldRatio, game.canvas.height * maxFieldRatio)
+    );
+    
+    // Center the canvas on screen
+    game.canvas.style.width = `${window.innerWidth}px`;
+    game.canvas.style.height = `${window.innerHeight}px`;
+}
+
+// Enhanced mobile controls optimization
+function optimizeMobileControls() {
+    const mobileControls = document.getElementById('mobileControls');
+    if (!mobileControls) return;
+    
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const aspectRatio = width / height;
+    const isSmallPhone = width <= 480;
+    
+    let bottomPosition = 30;
+    let controlScale = 1;
+    
+    if (isSmallPhone) {
+        // More compact controls for small phones
+        bottomPosition = 20;
+        controlScale = 0.8;
+        
+        // Adjust controls based on very small screens
+        if (height < 350) {
+            bottomPosition = 15;
+            controlScale = 0.7;
+        } else if (height < 400) {
+            bottomPosition = 18;
+            controlScale = 0.75;
+        }
+    } else {
+        // Standard mobile adjustments
+        if (height < 350) {
+            bottomPosition = 25;
+            controlScale = 0.8;
+        } else if (height < 400) {
+            bottomPosition = 28;
+            controlScale = 0.85;
+        } else if (height > 500) {
+            bottomPosition = 35;
+            controlScale = 1.1;
+        }
+    }
+    
+    if (aspectRatio > 2.0) {
+        bottomPosition += 5;
+    }
+    
+    mobileControls.style.bottom = `${bottomPosition}px`;
+    
+    // Apply scaling to control elements
+    const joystickContainers = document.querySelectorAll('.joystick-container');
+    const controlBtns = document.querySelectorAll('.control-btn');
+    
+    joystickContainers.forEach(container => {
+        container.style.transform = `scale(${controlScale})`;
+    });
+    
+    controlBtns.forEach(btn => {
+        btn.style.transform = `scale(${controlScale})`;
+    });
+}
+
+// Enhanced game loop with boundary enforcement
+function gameLoop(timestamp) {
+    const deltaTime = timestamp - game.lastTime;
+    game.lastTime = timestamp;
+    
+    if (game.gameStarted && !game.paused) {
+        update(deltaTime);
+        enforceScreenBoundaries(); // Add boundary enforcement
+    }
+    
+    render();
+    game.animationId = requestAnimationFrame(gameLoop);
+}
+
+// Enhanced player class with small screen adjustments
+class Player {
+    constructor(x, y, isUser = false, isGoalkeeper = false) {
+        this.x = x;
+        this.y = y;
+        
+        const config = SCREEN_CONFIG[game.screenType] || SCREEN_CONFIG.default;
+        const isSmallPhone = game.screenType.includes('small-phone') || 
+                            game.screenType.includes('regular-phone') || 
+                            window.innerWidth <= 480;
+        
+        // Adjust sizes for small screens
+        let sizeMultiplier = 1;
+        if (isSmallPhone) {
+            sizeMultiplier = 0.8;
+        }
+        
+        if (isGoalkeeper) {
+            this.radius = config.opponentRadius * sizeMultiplier;
+        } else if (isUser) {
+            this.radius = config.playerRadius * sizeMultiplier;
+        } else {
+            this.radius = config.opponentRadius * sizeMultiplier;
+        }
+        
+        // Adjust speed for small screens
+        let speedMultiplier = 1;
+        if (isSmallPhone) {
+            speedMultiplier = 0.9; // Slightly slower on small screens
+        }
+        
+        this.speed = (isUser ? CONFIG.PLAYER_SPEED : 
+                    isGoalkeeper ? CONFIG.GOALKEEPER_SPEED : CONFIG.OPPONENT_SPEED) * speedMultiplier;
+        
+        // ... rest of player constructor remains the same
+    }
+    
+    update() {
+        // ... existing update code
+        
+        // Enhanced boundary checking for small screens
+        const isSmallPhone = game.screenType.includes('small-phone') || 
+                            game.screenType.includes('regular-phone') || 
+                            window.innerWidth <= 480;
+        
+        if (isSmallPhone) {
+            const safeMargin = this.radius + 10;
+            
+            // Prevent sticking to edges
+            if (this.x <= safeMargin) this.x = safeMargin;
+            if (this.x >= game.canvas.width - safeMargin) this.x = game.canvas.width - safeMargin;
+            if (this.y <= safeMargin) this.y = safeMargin;
+            if (this.y >= game.canvas.height - safeMargin) this.y = game.canvas.height - safeMargin;
+        }
+    }
+}
+
+// Enhanced resize handler
+function handleResize() {
+    game.screenType = detectScreenType();
+    setupCanvas();
+    
+    const isSmallPhone = game.screenType.includes('small-phone') || 
+                        game.screenType.includes('regular-phone') || 
+                        window.innerWidth <= 480;
+    
+    if (game.isMobile) {
+        if (window.innerHeight > window.innerWidth) {
+            document.getElementById('orientationMessage').style.display = 'flex';
+            document.getElementById('gameContainer').style.display = 'none';
+            
+            if (game.gameStarted && !game.paused) {
+                togglePause();
+            }
+        } else {
+            document.getElementById('orientationMessage').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'block';
+            
+            optimizeMobileControls();
+            
+            if (game.gameStarted && game.paused) {
+                setTimeout(togglePause, 100);
+            }
+        }
+        
+        // Additional small phone UI adjustments
+        if (isSmallPhone) {
+            // Scale down UI elements
+            document.getElementById('uiContainer').style.transform = 'scale(0.6)';
+            document.querySelector('.btn-pause').style.transform = 'scale(0.7)';
+        }
+    }
+    
+    if (game.gameStarted) {
+        resetGame();
+    }
+}
+
+// Add CSS for small phone optimizations
+const smallPhoneCSS = `
+@media (max-width: 480px) and (orientation: landscape) {
+    #gameContainer {
+        overflow: hidden;
+        position: relative;
+    }
+    
+    canvas {
+        max-width: 100% !important;
+        max-height: 100% !important;
+        object-fit: contain;
+    }
+    
+    #mobileControls {
+        bottom: 15px !important;
+        padding: 0 8px !important;
+    }
+    
+    .joystick-container {
+        width: 60px !important;
+        height: 60px !important;
+    }
+    
+    .control-btn {
+        width: 45px !important;
+        height: 45px !important;
+        font-size: 0.6rem !important;
+    }
+    
+    #uiContainer {
+        transform: scale(0.5) !important;
+        top: 2px !important;
+        left: 2px !important;
+    }
+    
+    .btn-pause {
+        transform: scale(0.7) !important;
+        top: 2px !important;
+        right: 2px !important;
+        padding: 4px 8px !important;
+        font-size: 0.6rem !important;
+    }
+    
+    .overlay h1 {
+        font-size: 1.2rem !important;
+    }
+    
+    .overlay h2 {
+        font-size: 1rem !important;
+    }
+    
+    .overlay p {
+        font-size: 0.7rem !important;
+    }
+    
+    .btn {
+        padding: 6px 12px !important;
+        font-size: 0.7rem !important;
+        min-width: 70px !important;
+        min-height: 36px !important;
+    }
+}
+
+/* Extra small height screens */
+@media (max-height: 320px) and (orientation: landscape) {
+    #mobileControls {
+        bottom: 12px !important;
+        padding: 0 6px !important;
+    }
+    
+    .joystick-container {
+        width: 55px !important;
+        height: 55px !important;
+    }
+    
+    .control-btn {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 0.55rem !important;
+    }
+    
+    #uiContainer {
+        transform: scale(0.4) !important;
+    }
+}
+`;
+
+// Inject the CSS
+const style = document.createElement('style');
+style.textContent = smallPhoneCSS;
+document.head.appendChild(style);
+
+// Initialize with enhanced detection
+function init() {
+    // ... existing init code
+    
+    // Enhanced small phone detection
+    const isSmallPhone = window.innerWidth <= 480;
+    if (isSmallPhone) {
+        console.log('Small phone detected - applying optimizations');
+        // Apply additional small phone optimizations
+        document.body.classList.add('small-phone-optimized');
+    }
+    
+    // ... rest of init code
+}
     </script>
 </body>
 </html>
