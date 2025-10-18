@@ -353,6 +353,75 @@
             animation-delay: 0.4s;
         }
 
+        /* NEW: Stage Selection Styles */
+        .stage-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            max-width: 320px;
+            margin: 20px auto;
+            padding: 0 10px;
+        }
+
+        .stage-btn {
+            width: 70px;
+            height: 70px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .stage-btn.completed {
+            background: #27ae60;
+        }
+
+        .stage-btn.current {
+            background: #f39c12;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(243, 156, 18, 0.7);
+        }
+
+        .stage-btn:active {
+            transform: scale(0.95);
+        }
+
+        .stage-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .thumbs-container {
+            display: flex;
+            margin-top: 5px;
+        }
+
+        .thumbs-up-small {
+            font-size: 0.8rem;
+            margin: 0 1px;
+        }
+
+        .stage-locked {
+            background: #7f8c8d !important;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .stage-locked:after {
+            content: "🔒";
+            position: absolute;
+            font-size: 1.2rem;
+        }
+
         /* Force landscape mode on mobile */
         @media (max-width: 768px) and (orientation: portrait) {
             #orientationMessage {
@@ -387,6 +456,19 @@
                 font-size: 0.8rem;
                 min-width: 90px;
             }
+
+            /* NEW: Adjust stage grid for mobile landscape */
+            .stage-grid {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 8px;
+                max-width: 380px;
+            }
+
+            .stage-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 0.9rem;
+            }
         }
 
         /* Desktop screens - Larger characters */
@@ -416,6 +498,18 @@
             
             #uiContainer {
                 transform: scale(0.8);
+            }
+
+            /* NEW: Adjust stage grid for desktop */
+            .stage-grid {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 15px;
+                max-width: 400px;
+            }
+
+            .stage-btn {
+                width: 70px;
+                height: 70px;
             }
         }
 
@@ -456,6 +550,23 @@
                 width: 50px;
                 height: 50px;
                 font-size: 0.7rem;
+            }
+
+            /* NEW: Adjust stage grid for small screens */
+            .stage-grid {
+                grid-template-columns: repeat(6, 1fr);
+                gap: 6px;
+                max-width: 360px;
+            }
+
+            .stage-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 0.8rem;
+            }
+
+            .thumbs-up-small {
+                font-size: 0.6rem;
             }
         }
 
@@ -769,6 +880,17 @@
             <p>Use arrow keys to drive, SPACE to get out of car, 'S' to steal. Press 'P' to pause.</p>
             <div class="btn-container">
                 <button id="startBtn" class="btn">START GAME</button>
+                <button id="selectStageBtn" class="btn btn-secondary">SELECT STAGE</button>
+            </div>
+        </div>
+        
+        <!-- NEW: Stage Selection Overlay -->
+        <div id="stageSelectionOverlay" class="overlay" style="display: none;">
+            <h1>SELECT STAGE</h1>
+            <p>Choose a chapter to play. Completed chapters show thumbs up.</p>
+            <div id="stageGrid" class="stage-grid"></div>
+            <div class="btn-container">
+                <button id="backToMenuBtn" class="btn">BACK TO MENU</button>
             </div>
         </div>
         
@@ -777,6 +899,7 @@
             <p>Take a break and get ready for the next challenge!</p>
             <div class="btn-container">
                 <button id="resumeBtn" class="btn">RESUME GAME</button>
+                <button id="stageSelectFromPauseBtn" class="btn btn-secondary">STAGE SELECT</button>
             </div>
         </div>
         
@@ -791,6 +914,7 @@
             <div class="btn-container">
                 <button id="replayBtn" class="btn">PLAY AGAIN</button>
                 <button id="nextChapterBtn" class="btn btn-secondary">NEXT CHAPTER</button>
+                <button id="stageSelectFromWinBtn" class="btn">STAGE SELECT</button>
             </div>
         </div>
         
@@ -800,6 +924,7 @@
             <p>You couldn't score against <span id="loseOpponents">1</span> opponents!</p>
             <div class="btn-container">
                 <button id="restartBtn" class="btn">PLAY AGAIN</button>
+                <button id="stageSelectFromLoseBtn" class="btn btn-secondary">STAGE SELECT</button>
             </div>
         </div>
     </div>
@@ -870,6 +995,12 @@
             MOBILE_OPPONENT_SPAWN_AREA: 0.6 // Spread opponents over larger area
         };
 
+        // NEW: Game Progress Storage
+        const STORAGE_KEYS = {
+            CURRENT_CHAPTER: 'racingChallenge_currentChapter',
+            COMPLETED_CHAPTERS: 'racingChallenge_completedChapters'
+        };
+
         // Game State
         let game = {
             canvas: null,
@@ -882,6 +1013,8 @@
             cannonBalls: [],
             lives: CONFIG.LIVES,
             chapter: 1,
+            currentChapter: 1, // NEW: Current progress
+            completedChapters: [], // NEW: Track completed chapters
             recoveryTimer: CONFIG.RECOVERY_TIME,
             ballLost: false,
             gameStarted: false,
@@ -910,6 +1043,85 @@
             walk: null,
             car: null
         };
+
+        // NEW: Initialize game progress from localStorage
+        function initGameProgress() {
+            const savedCurrentChapter = localStorage.getItem(STORAGE_KEYS.CURRENT_CHAPTER);
+            const savedCompletedChapters = localStorage.getItem(STORAGE_KEYS.COMPLETED_CHAPTERS);
+            
+            if (savedCurrentChapter) {
+                game.currentChapter = parseInt(savedCurrentChapter);
+                game.chapter = game.currentChapter;
+            }
+            
+            if (savedCompletedChapters) {
+                game.completedChapters = JSON.parse(savedCompletedChapters);
+            }
+        }
+
+        // NEW: Save game progress to localStorage
+        function saveGameProgress() {
+            localStorage.setItem(STORAGE_KEYS.CURRENT_CHAPTER, game.currentChapter.toString());
+            localStorage.setItem(STORAGE_KEYS.COMPLETED_CHAPTERS, JSON.stringify(game.completedChapters));
+        }
+
+        // NEW: Mark chapter as completed
+        function markChapterCompleted(chapter) {
+            if (!game.completedChapters.includes(chapter)) {
+                game.completedChapters.push(chapter);
+            }
+            
+            // Update current chapter to the next one if it's higher
+            if (chapter >= game.currentChapter && chapter < CONFIG.CHAPTERS) {
+                game.currentChapter = chapter + 1;
+            }
+            
+            saveGameProgress();
+        }
+
+        // NEW: Show stage selection screen
+        function showStageSelection() {
+            document.getElementById('stageSelectionOverlay').style.display = 'flex';
+            const stageGrid = document.getElementById('stageGrid');
+            stageGrid.innerHTML = '';
+            
+            for (let i = 1; i <= CONFIG.CHAPTERS; i++) {
+                const stageBtn = document.createElement('button');
+                stageBtn.className = 'stage-btn';
+                stageBtn.textContent = i;
+                
+                // Check if chapter is completed
+                if (game.completedChapters.includes(i)) {
+                    stageBtn.classList.add('completed');
+                    stageBtn.innerHTML = `${i}<div class="thumbs-container">
+                        <div class="thumbs-up-small">👍</div>
+                        <div class="thumbs-up-small">👍</div>
+                        <div class="thumbs-up-small">👍</div>
+                    </div>`;
+                } 
+                // Check if chapter is the current one
+                else if (i === game.currentChapter) {
+                    stageBtn.classList.add('current');
+                }
+                // Check if chapter is locked
+                else if (i > game.currentChapter) {
+                    stageBtn.classList.add('stage-locked');
+                    stageBtn.disabled = true;
+                }
+                
+                // Add click event
+                if (!stageBtn.disabled) {
+                    stageBtn.addEventListener('click', () => {
+                        game.chapter = i;
+                        document.getElementById('stageSelectionOverlay').style.display = 'none';
+                        resetGame();
+                        startGame();
+                    });
+                }
+                
+                stageGrid.appendChild(stageBtn);
+            }
+        }
 
         // Initialize audio system
         function initAudio() {
@@ -1577,6 +1789,9 @@
             game.canvas = document.getElementById('gameCanvas');
             game.ctx = game.canvas.getContext('2d');
             
+            // NEW: Initialize game progress
+            initGameProgress();
+            
             // Initialize audio system
             initAudio();
             
@@ -1659,7 +1874,13 @@
                 resumeBtn: togglePause,
                 replayBtn: replayChapter,
                 nextChapterBtn: nextChapter,
-                restartBtn: restartGame
+                restartBtn: restartGame,
+                // NEW: Stage selection buttons
+                selectStageBtn: showStageSelection,
+                backToMenuBtn: backToMenu,
+                stageSelectFromPauseBtn: showStageSelection,
+                stageSelectFromWinBtn: showStageSelection,
+                stageSelectFromLoseBtn: showStageSelection
             };
 
             Object.keys(buttons).forEach(buttonId => {
@@ -1694,6 +1915,12 @@
 
             window.addEventListener('resize', handleResize);
             window.addEventListener('orientationchange', handleResize);
+        }
+
+        // NEW: Back to menu function
+        function backToMenu() {
+            document.getElementById('stageSelectionOverlay').style.display = 'none';
+            document.getElementById('startOverlay').style.display = 'flex';
         }
 
         function handleResize() {
@@ -2022,7 +2249,13 @@
 
         function nextChapter() {
             document.getElementById('winOverlay').style.display = 'none';
-            game.chapter = Math.min(game.chapter + 1, CONFIG.CHAPTERS);
+            
+            // NEW: Mark current chapter as completed
+            markChapterCompleted(game.chapter);
+            
+            // NEW: Set chapter to the next one or current progress
+            game.chapter = Math.min(game.chapter + 1, game.currentChapter);
+            
             resetGame();
             game.gameStarted = true;
             
@@ -2032,7 +2265,6 @@
 
         function restartGame() {
             document.getElementById('loseOverlay').style.display = 'none';
-            game.chapter = 1;
             resetGame();
             game.gameStarted = true;
             
@@ -2086,6 +2318,9 @@
                     game.ball.x < game.canvas.width/2 + goalAreaWidth/2) {
                     // Play goal sound
                     playSound('goal');
+                    
+                    // NEW: Mark chapter as completed when player wins
+                    markChapterCompleted(game.chapter);
                     
                     showGoalMessage();
                     setTimeout(showWinOverlay, 1000);
