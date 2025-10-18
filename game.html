@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Racing Challenge</title>
     <style>
-        /* Your existing CSS remains exactly the same */
         * {
             margin: 0;
             padding: 0;
@@ -50,12 +49,6 @@
             z-index: 1000;
             text-align: center;
             padding: 20px;
-        }
-
-        #orientationMessage h1 {
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-            color: #f1c40f;
         }
 
         #gameContainer {
@@ -149,10 +142,6 @@
             justify-content: center;
             position: relative;
             z-index: 20;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
         }
 
         .btn:active {
@@ -188,11 +177,6 @@
 
         .btn-pause:hover {
             background: #e67e22;
-        }
-
-        /* Sound Controls - HIDDEN */
-        .btn-sound {
-            display: none !important;
         }
 
         #uiContainer {
@@ -304,10 +288,6 @@
         .control-btn.steal {
             background: rgba(231, 76, 60, 0.9);
         }
-        
-        .control-btn.fight {
-            background: rgba(155, 89, 182, 0.9);
-        }
 
         .control-btn:active {
             transform: scale(0.92);
@@ -351,6 +331,52 @@
 
         .thumbs-up:nth-child(3) {
             animation-delay: 0.4s;
+        }
+
+        /* Vehicle Selection Styles */
+        .vehicle-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            max-width: 600px;
+        }
+
+        .vehicle-option {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 120px;
+            text-align: center;
+        }
+
+        .vehicle-option:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #3498db;
+        }
+
+        .vehicle-option.selected {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, 0.1);
+        }
+
+        .vehicle-icon {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+
+        .vehicle-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .vehicle-stats {
+            font-size: 0.7rem;
+            opacity: 0.8;
         }
 
         /* Force landscape mode on mobile */
@@ -409,305 +435,8 @@
                 font-size: 0.8rem;
             }
             
-            .btn-sound {
-                padding: 6px 12px;
-                font-size: 0.8rem;
-            }
-            
             #uiContainer {
                 transform: scale(0.8);
-            }
-        }
-
-        /* Large screens - Even larger characters */
-        @media (min-width: 1400px) {
-            #gameContainer {
-                width: 90vw;
-                height: 90vh;
-                max-width: 1400px;
-                max-height: 800px;
-            }
-        }
-
-        /* Small screen optimizations */
-        @media (max-height: 500px) and (orientation: landscape) {
-            #uiContainer {
-                transform: scale(0.6);
-            }
-            
-            .btn-pause {
-                transform: scale(0.8);
-            }
-            
-            .btn-sound {
-                transform: scale(0.8);
-            }
-            
-            #mobileControls {
-                bottom: 25px;
-            }
-            
-            .joystick-container {
-                width: 65px;
-                height: 65px;
-            }
-            
-            .control-btn {
-                width: 50px;
-                height: 50px;
-                font-size: 0.7rem;
-            }
-        }
-
-        /* Very small screens */
-        @media (max-width: 320px) and (orientation: landscape) {
-            #uiContainer {
-                transform: scale(0.5);
-            }
-            
-            .btn {
-                padding: 6px 12px;
-                font-size: 0.75rem;
-                min-width: 80px;
-            }
-            
-            #mobileControls {
-                bottom: 28px;
-                padding: 0 10px;
-            }
-            
-            .joystick-container {
-                width: 65px !important;
-                height: 65px !important;
-            }
-            
-            .control-btn {
-                width: 48px !important;
-                height: 48px !important;
-                font-size: 0.65rem !important;
-            }
-        }
-
-        /* Huawei Devices */
-        @media (max-width: 360px) and (orientation: landscape),
-               (max-width: 400px) and (max-height: 360px) and (orientation: landscape) {
-            #mobileControls {
-                bottom: 35px !important;
-                padding: 0 12px;
-            }
-            
-            .joystick-container {
-                width: 75px !important;
-                height: 75px !important;
-            }
-            
-            .control-btn {
-                width: 55px !important;
-                height: 55px !important;
-                font-size: 0.7rem !important;
-            }
-        }
-
-        /* Tecno Devices */
-        @media (max-width: 380px) and (orientation: landscape),
-               (max-width: 420px) and (max-height: 380px) and (orientation: landscape) {
-            #mobileControls {
-                bottom: 32px !important;
-                padding: 0 14px;
-            }
-            
-            .joystick-container {
-                width: 72px !important;
-                height: 72px !important;
-            }
-            
-            .control-btn {
-                width: 52px !important;
-                height: 52px !important;
-                font-size: 0.68rem !important;
-            }
-        }
-
-        /* iPhone Devices */
-        @media (max-width: 390px) and (orientation: landscape),
-               (max-width: 430px) and (max-height: 390px) and (orientation: landscape),
-               (max-width: 414px) and (orientation: landscape) {
-            #mobileControls {
-                bottom: 40px !important;
-                padding: 0 16px;
-            }
-            
-            .joystick-container {
-                width: 78px !important;
-                height: 78px !important;
-            }
-            
-            .control-btn {
-                width: 58px !important;
-                height: 58px !important;
-                font-size: 0.72rem !important;
-            }
-        }
-
-        /* Samsung Devices */
-        @media (max-width: 412px) and (orientation: landscape),
-               (max-width: 450px) and (max-height: 412px) and (orientation: landscape) {
-            #mobileControls {
-                bottom: 38px !important;
-                padding: 0 15px;
-            }
-            
-            .joystick-container {
-                width: 76px !important;
-                height: 76px !important;
-            }
-            
-            .control-btn {
-                width: 56px !important;
-                height: 56px !important;
-                font-size: 0.7rem !important;
-            }
-        }
-
-        /* Infinity Devices */
-        @media (max-width: 420px) and (orientation: landscape),
-               (max-width: 460px) and (max-height: 420px) and (orientation: landscape) {
-            #mobileControls {
-                bottom: 36px !important;
-                padding: 0 13px;
-            }
-            
-            .joystick-container {
-                width: 74px !important;
-                height: 74px !important;
-            }
-            
-            .control-btn {
-                width: 54px !important;
-                height: 54px !important;
-                font-size: 0.69rem !important;
-            }
-        }
-
-        /* Nokia Devices */
-        @media (max-width: 370px) and (orientation: landscape),
-               (max-width: 410px) and (max-height: 370px) and (orientation: landscape) {
-            #mobileControls {
-                bottom: 34px !important;
-                padding: 0 12px;
-            }
-            
-            .joystick-container {
-                width: 70px !important;
-                height: 70px !important;
-            }
-            
-            .control-btn {
-                width: 50px !important;
-                height: 50px !important;
-                font-size: 0.67rem !important;
-            }
-        }
-
-        /* Extra small height screens */
-        @media (max-height: 350px) and (orientation: landscape) {
-            #mobileControls {
-                bottom: 25px !important;
-                padding: 0 10px;
-            }
-            
-            .joystick-container {
-                width: 62px !important;
-                height: 62px !important;
-            }
-            
-            .control-btn {
-                width: 46px !important;
-                height: 46px !important;
-                font-size: 0.64rem !important;
-            }
-            
-            #uiContainer {
-                transform: scale(0.45);
-            }
-            
-            .btn {
-                min-height: 40px;
-                padding: 6px 12px;
-                font-size: 0.75rem;
-            }
-        }
-
-        /* Ultra small height screens */
-        @media (max-height: 300px) and (orientation: landscape) {
-            #mobileControls {
-                bottom: 22px !important;
-                padding: 0 8px;
-            }
-            
-            .joystick-container {
-                width: 58px !important;
-                height: 58px !important;
-            }
-            
-            .control-btn {
-                width: 44px !important;
-                height: 44px !important;
-                font-size: 0.62rem !important;
-            }
-            
-            #uiContainer {
-                transform: scale(0.4);
-                margin-top: 2px;
-            }
-            
-            .btn-pause {
-                transform: scale(0.7);
-                top: 2px;
-                right: 2px;
-            }
-            
-            .btn-sound {
-                transform: scale(0.7);
-                top: 2px;
-                right: 45px;
-            }
-            
-            .btn {
-                min-height: 38px;
-                padding: 5px 10px;
-                font-size: 0.7rem;
-            }
-        }
-
-        /* Enhanced iPhone notch safe areas */
-        @supports(padding: max(0px)) {
-            #mobileControls {
-                padding-left: max(15px, env(safe-area-inset-left));
-                padding-right: max(15px, env(safe-area-inset-right));
-                padding-bottom: max(15px, env(safe-area-inset-bottom));
-            }
-            
-            #uiContainer {
-                margin-left: max(5px, env(safe-area-inset-left));
-                margin-top: max(5px, env(safe-area-inset-top));
-            }
-            
-            .btn-pause {
-                margin-right: max(5px, env(safe-area-inset-right));
-                margin-top: max(5px, env(safe-area-inset-top));
-            }
-            
-            .btn-sound {
-                margin-right: max(55px, env(safe-area-inset-right));
-                margin-top: max(5px, env(safe-area-inset-top));
-            }
-        }
-
-        /* Android specific optimizations */
-        @supports not (-webkit-touch-callout: none) {
-            #mobileControls {
-                padding-bottom: 20px;
             }
         }
     </style>
@@ -723,8 +452,6 @@
         <canvas id="gameCanvas"></canvas>
         
         <button id="pauseBtn" class="btn btn-pause" style="display: none;">PAUSE</button>
-        <!-- Sound button is hidden with CSS -->
-        <button id="soundBtn" class="btn btn-sound" style="display: none;">🔇 SOUND</button>
         
         <div id="uiContainer">
             <div class="ui-box">
@@ -745,9 +472,6 @@
             <div class="ui-box">
                 <span>Opponents: <span id="opponentsDisplay">1</span></span>
             </div>
-            <div class="ui-box" id="timerContainer">
-                <span>Recovery: <span id="recoveryTimer">5</span>s</span>
-            </div>
         </div>
         
         <div id="mobileControls">
@@ -757,18 +481,58 @@
                 </div>
             </div>
             <div class="action-buttons">
-                <div class="control-btn shoot">SHOOT</div>
+                <div class="control-btn shoot">EXIT</div>
                 <div class="control-btn steal">STEAL</div>
-                <div class="control-btn fight">FIGHT</div>
             </div>
         </div>
         
+        <!-- Start Overlay -->
         <div id="startOverlay" class="overlay">
             <h1>RACING CHALLENGE</h1>
-            <p>Drive to the goal, get out of your car, and score! Avoid opponent cars and cannon fire!</p>
-            <p>Use arrow keys to drive, SPACE to get out of car, 'S' to steal. Press 'P' to pause.</p>
+            <p>Drive to the goal, get out of your vehicle, and score! Avoid opponent vehicles and cannon fire!</p>
+            <p>Use arrow keys to drive, SPACE to get out of vehicle, 'S' to steal. Press 'P' to pause.</p>
             <div class="btn-container">
                 <button id="startBtn" class="btn">START GAME</button>
+            </div>
+        </div>
+        
+        <!-- Vehicle Selection Overlay -->
+        <div id="vehicleSelectionOverlay" class="overlay" style="display: none;">
+            <h1>SELECT YOUR VEHICLE</h1>
+            <div class="vehicle-options">
+                <div class="vehicle-option selected" data-vehicle="car">
+                    <div class="vehicle-icon">🚗</div>
+                    <div class="vehicle-name">Car</div>
+                    <div class="vehicle-stats">Speed: Medium<br>Handling: Good</div>
+                </div>
+                <div class="vehicle-option" data-vehicle="airplane">
+                    <div class="vehicle-icon">✈️</div>
+                    <div class="vehicle-name">Airplane</div>
+                    <div class="vehicle-stats">Speed: High<br>Handling: Medium</div>
+                </div>
+                <div class="vehicle-option" data-vehicle="bus">
+                    <div class="vehicle-icon">🚌</div>
+                    <div class="vehicle-name">Long Bus</div>
+                    <div class="vehicle-stats">Speed: Low<br>Handling: Poor</div>
+                </div>
+                <div class="vehicle-option" data-vehicle="truck">
+                    <div class="vehicle-icon">🚚</div>
+                    <div class="vehicle-name">Truck</div>
+                    <div class="vehicle-stats">Speed: Low<br>Handling: Poor</div>
+                </div>
+                <div class="vehicle-option" data-vehicle="motorcycle">
+                    <div class="vehicle-icon">🏍️</div>
+                    <div class="vehicle-name">Motorcycle</div>
+                    <div class="vehicle-stats">Speed: High<br>Handling: Excellent</div>
+                </div>
+                <div class="vehicle-option" data-vehicle="sports">
+                    <div class="vehicle-icon">🏎️</div>
+                    <div class="vehicle-name">Sports Car</div>
+                    <div class="vehicle-stats">Speed: Very High<br>Handling: Good</div>
+                </div>
+            </div>
+            <div class="btn-container">
+                <button id="confirmVehicleBtn" class="btn">CONFIRM SELECTION</button>
             </div>
         </div>
         
@@ -804,38 +568,6 @@
         </div>
     </div>
 
-    <!-- Sound effects -->
-    <audio id="backgroundMusic" loop>
-        <source src="mixkit-hazy-after-hours-132.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="loseSound">
-        <source src="lose.wav" type="audio/mpeg">
-    </audio>
-    <audio id="winSound">
-        <source src="win.wav" type="audio/mpeg">
-    </audio>
-    <audio id="kickSound">
-        <source src="kick.wav" type="audio/mpeg">
-    </audio>
-    <audio id="goalSound">
-        <source src="goal.wav" type="audio/mpeg">
-    </audio>
-    <audio id="cannonSound">
-        <source src="cannon.wav" type="audio/mpeg">
-    </audio>
-    <audio id="hitSound">
-        <source src="hit.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="stealSound">
-        <source src="steal.wav" type="audio/mpeg">
-    </audio>
-    <audio id="walkSound" loop>
-        <source src="walk.wav" type="audio/mpeg">
-    </audio>
-    <audio id="carSound" loop>
-        <source src="car.wav" type="audio/mpeg">
-    </audio>
-
     <script>
         // Game Constants and Configuration
         const CONFIG = {
@@ -856,7 +588,15 @@
             FIGHT_KNOCKBACK: 8,
             CAR_SPEED: 8,
             TRACK_LENGTH_MULTIPLIER: 1.2,
-            STOP_LINE_Y: 150 // Y position where player must stop and exit car
+            STOP_LINE_Y: 150,
+            VEHICLE_TYPES: {
+                car: { speed: 8, handling: 1.0, width: 60, height: 30, color: '#3498db' },
+                airplane: { speed: 12, handling: 0.8, width: 80, height: 40, color: '#9b59b6' },
+                bus: { speed: 5, handling: 0.6, width: 100, height: 40, color: '#e67e22' },
+                truck: { speed: 6, handling: 0.7, width: 120, height: 50, color: '#7f8c8d' },
+                motorcycle: { speed: 10, handling: 1.2, width: 40, height: 20, color: '#e74c3c' },
+                sports: { speed: 14, handling: 1.1, width: 70, height: 30, color: '#e91e63' }
+            }
         };
 
         // Game State
@@ -864,8 +604,8 @@
             canvas: null,
             ctx: null,
             player: null,
-            opponents: [],
-            goalkeeper: null,
+            playerCar: null,
+            opponentVehicles: [],
             ball: null,
             cannons: [],
             cannonBalls: [],
@@ -880,96 +620,194 @@
             paused: false,
             screenType: 'mobile',
             trackLength: 0,
-            playerInCar: true
+            playerInCar: true,
+            selectedVehicle: 'car',
+            trackOffset: 0,
+            maxTrackOffset: 0,
+            invincible: false,
+            invincibleTimer: 0
         };
 
-        // Sound elements
-        const sounds = {
-            backgroundMusic: null,
-            lose: null,
-            win: null,
-            kick: null,
-            goal: null,
-            cannon: null,
-            hit: null,
-            steal: null,
-            walk: null,
-            car: null
-        };
+        // Initialize the game
+        function init() {
+            game.canvas = document.getElementById('gameCanvas');
+            game.ctx = game.canvas.getContext('2d');
+            
+            game.screenType = detectScreenType();
+            setupCanvas();
+            
+            game.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                           ('ontouchstart' in window) || 
+                           (navigator.maxTouchPoints > 0);
+            
+            if (game.isMobile) {
+                document.getElementById('mobileControls').style.display = 'flex';
+                setupMobileControls();
+                optimizeMobileControls();
+            } else {
+                setupKeyboardControls();
+            }
+            
+            setupEventListeners();
+            setupVehicleSelection();
+            
+            game.animationId = requestAnimationFrame(gameLoop);
+        }
 
-        // Initialize audio system
-        function initAudio() {
-            sounds.backgroundMusic = document.getElementById('backgroundMusic');
-            sounds.lose = document.getElementById('loseSound');
-            sounds.win = document.getElementById('winSound');
-            sounds.kick = document.getElementById('kickSound');
-            sounds.goal = document.getElementById('goalSound');
-            sounds.cannon = document.getElementById('cannonSound');
-            sounds.hit = document.getElementById('hitSound');
-            sounds.steal = document.getElementById('stealSound');
-            sounds.walk = document.getElementById('walkSound');
-            sounds.car = document.getElementById('carSound');
+        function setupCanvas() {
+            game.canvas.width = window.innerWidth;
+            game.canvas.height = window.innerHeight;
             
-            // Set volumes
-            sounds.backgroundMusic.volume = 0.3;
-            sounds.lose.volume = 0.7;
-            sounds.win.volume = 0.7;
-            sounds.kick.volume = 0.6;
-            sounds.goal.volume = 0.8;
-            sounds.cannon.volume = 0.6;
-            sounds.hit.volume = 0.7;
-            sounds.steal.volume = 0.5;
-            sounds.walk.volume = 0.3;
-            sounds.car.volume = 0.4;
+            // Calculate track length based on chapter
+            game.trackLength = game.canvas.height * (1 + (game.chapter - 1) * 0.2);
+            game.maxTrackOffset = game.trackLength - game.canvas.height;
+        }
+
+        function optimizeMobileControls() {
+            const mobileControls = document.getElementById('mobileControls');
+            if (!mobileControls) return;
             
-            // Preload all sounds
-            Object.values(sounds).forEach(sound => {
-                if (sound) {
-                    sound.load();
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const aspectRatio = width / height;
+            
+            let bottomPosition = 30;
+            
+            if (height < 350) {
+                bottomPosition = 25;
+            } else if (height < 400) {
+                bottomPosition = 28;
+            } else if (height > 500) {
+                bottomPosition = 35;
+            }
+            
+            if (aspectRatio > 2.0) {
+                bottomPosition += 5;
+            }
+            
+            mobileControls.style.bottom = `${bottomPosition}px`;
+        }
+
+        function setupEventListeners() {
+            const buttons = {
+                startBtn: showVehicleSelection,
+                pauseBtn: togglePause,
+                resumeBtn: togglePause,
+                replayBtn: replayChapter,
+                nextChapterBtn: nextChapter,
+                restartBtn: restartGame,
+                confirmVehicleBtn: confirmVehicleSelection
+            };
+
+            Object.keys(buttons).forEach(buttonId => {
+                const button = document.getElementById(buttonId);
+                if (button) {
+                    const handler = buttons[buttonId];
+                    
+                    button.addEventListener('click', () => {
+                        handler();
+                    });
+                    
+                    button.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        button.style.transform = 'scale(0.95)';
+                        button.style.opacity = '0.9';
+                    }, { passive: false });
+                    
+                    button.addEventListener('touchend', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        button.style.transform = 'scale(1)';
+                        button.style.opacity = '1';
+                        handler();
+                    }, { passive: false });
                 }
+            });
+
+            window.addEventListener('resize', handleResize);
+            window.addEventListener('orientationchange', handleResize);
+        }
+
+        function setupVehicleSelection() {
+            const vehicleOptions = document.querySelectorAll('.vehicle-option');
+            
+            // Set default selected vehicle
+            game.selectedVehicle = 'car';
+            
+            vehicleOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    // Remove selected class from all options
+                    vehicleOptions.forEach(opt => opt.classList.remove('selected'));
+                    // Add selected class to clicked option
+                    option.classList.add('selected');
+                    // Store selected vehicle
+                    game.selectedVehicle = option.getAttribute('data-vehicle');
+                });
+                
+                // Add touch events for mobile
+                option.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    option.style.transform = 'scale(0.95)';
+                });
+                
+                option.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    option.style.transform = 'scale(1)';
+                    
+                    // Remove selected class from all options
+                    vehicleOptions.forEach(opt => opt.classList.remove('selected'));
+                    // Add selected class to clicked option
+                    option.classList.add('selected');
+                    // Store selected vehicle
+                    game.selectedVehicle = option.getAttribute('data-vehicle');
+                });
             });
         }
 
-        // Play sound with safety checks
-        function playSound(soundName) {
-            const sound = sounds[soundName];
-            if (sound) {
-                // Reset sound to beginning if it's already playing
-                sound.currentTime = 0;
-                sound.play().catch(e => {
-                    console.log('Audio play failed:', e);
-                });
+        function showVehicleSelection() {
+            document.getElementById('startOverlay').style.display = 'none';
+            document.getElementById('vehicleSelectionOverlay').style.display = 'flex';
+        }
+
+        function confirmVehicleSelection() {
+            document.getElementById('vehicleSelectionOverlay').style.display = 'none';
+            document.getElementById('pauseBtn').style.display = 'block';
+            game.gameStarted = true;
+            
+            // Initialize game with selected vehicle
+            resetGame();
+        }
+
+        function handleResize() {
+            game.screenType = detectScreenType();
+            setupCanvas();
+            
+            if (game.isMobile) {
+                if (window.innerHeight > window.innerWidth) {
+                    document.getElementById('orientationMessage').style.display = 'flex';
+                    document.getElementById('gameContainer').style.display = 'none';
+                    
+                    if (game.gameStarted && !game.paused) {
+                        togglePause();
+                    }
+                } else {
+                    document.getElementById('orientationMessage').style.display = 'none';
+                    document.getElementById('gameContainer').style.display = 'block';
+                    
+                    optimizeMobileControls();
+                    
+                    if (game.gameStarted && game.paused) {
+                        setTimeout(togglePause, 100);
+                    }
+                }
+            }
+            
+            if (game.gameStarted) {
+                resetGame();
             }
         }
 
-        // Stop sound
-        function stopSound(soundName) {
-            const sound = sounds[soundName];
-            if (sound) {
-                sound.pause();
-                sound.currentTime = 0;
-            }
-        }
-
-        // Play background music
-        function playBackgroundMusic() {
-            if (sounds.backgroundMusic) {
-                sounds.backgroundMusic.currentTime = 0;
-                sounds.backgroundMusic.play().catch(e => {
-                    console.log('Background music play failed:', e);
-                });
-            }
-        }
-
-        // Stop background music
-        function stopBackgroundMusic() {
-            if (sounds.backgroundMusic) {
-                sounds.backgroundMusic.pause();
-                sounds.backgroundMusic.currentTime = 0;
-            }
-        }
-
-        // Enhanced device detection
         function detectScreenType() {
             const width = window.innerWidth;
             const height = window.innerHeight;
@@ -990,132 +828,20 @@
             }
         }
 
-        // SIMPLIFIED Cannon Class - FIXED VERSION
-        class Cannon {
-            constructor(x, y) {
+        // Vehicle Class
+        class Vehicle {
+            constructor(x, y, isUser = false, isOpponent = false, type = 'car') {
                 this.x = x;
                 this.y = y;
-                this.cooldown = 0;
-                this.width = 30;
-                this.height = 15;
-                this.color = '#8B4513';
-                this.barrelColor = '#654321';
-                this.angle = 0;
-            }
-
-            update() {
-                if (this.cooldown > 0) {
-                    this.cooldown--;
-                }
-                
-                // Calculate angle to player
-                const dx = game.player.x - this.x;
-                const dy = game.player.y - this.y;
-                this.angle = Math.atan2(dy, dx);
-                
-                // Random shooting with cooldown - FIXED LOGIC
-                if (this.cooldown === 0 && Math.random() < 0.015) {
-                    this.shoot();
-                    this.cooldown = CONFIG.CANNON_COOLDOWN;
-                }
-            }
-
-            shoot() {
-                // Play cannon sound
-                playSound('cannon');
-                
-                // Create cannon ball as simple object - FIXED
-                const cannonBall = {
-                    x: this.x,
-                    y: this.y,
-                    radius: 8,
-                    speedX: Math.cos(this.angle) * CONFIG.CANNON_SPEED,
-                    speedY: Math.sin(this.angle) * CONFIG.CANNON_SPEED,
-                    color: '#000000',
-                    update: function() {
-                        this.x += this.speedX;
-                        this.y += this.speedY;
-                        
-                        // Remove if out of bounds
-                        if (this.x < -50 || this.x > game.canvas.width + 50 || 
-                            this.y < -50 || this.y > game.canvas.height + 50) {
-                            const index = game.cannonBalls.indexOf(this);
-                            if (index > -1) {
-                                game.cannonBalls.splice(index, 1);
-                            }
-                            return;
-                        }
-                        
-                        // Check collision with player
-                        const dx = this.x - game.player.x;
-                        const dy = this.y - game.player.y;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-                        
-                        if (distance < this.radius + game.player.radius) {
-                            // Play hit sound
-                            playSound('hit');
-                            
-                            // Hit player - lose a life
-                            game.lives--;
-                            updateLivesDisplay();
-                            
-                            // Remove cannon ball
-                            const index = game.cannonBalls.indexOf(this);
-                            if (index > -1) {
-                                game.cannonBalls.splice(index, 1);
-                            }
-                            
-                            // Check for game over
-                            if (game.lives <= 0) {
-                                showLoseOverlay();
-                            }
-                        }
-                    },
-                    draw: function(ctx) {
-                        ctx.fillStyle = this.color;
-                        ctx.beginPath();
-                        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                        ctx.fill();
-                        
-                        // Add smoke trail
-                        ctx.fillStyle = 'rgba(100, 100, 100, 0.5)';
-                        ctx.beginPath();
-                        ctx.arc(this.x - this.speedX * 0.5, this.y - this.speedY * 0.5, this.radius * 0.7, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-                };
-                
-                game.cannonBalls.push(cannonBall);
-            }
-
-            draw(ctx) {
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.rotate(this.angle);
-                
-                // Draw cannon base
-                ctx.fillStyle = this.color;
-                ctx.fillRect(-this.width/2, -this.height/2, this.width, this.height);
-                
-                // Draw cannon barrel
-                ctx.fillStyle = this.barrelColor;
-                ctx.fillRect(this.width/2 - 5, -5, 25, 10);
-                
-                ctx.restore();
-            }
-        }
-
-        // Enhanced Car Class with realistic graphics
-        class Car {
-            constructor(x, y, isUser = false, isOpponent = false) {
-                this.x = x;
-                this.y = y;
-                this.width = 60;
-                this.height = 30;
-                this.speed = isUser ? CONFIG.CAR_SPEED : CONFIG.OPPONENT_SPEED;
+                this.type = type;
+                const vehicleConfig = CONFIG.VEHICLE_TYPES[type] || CONFIG.VEHICLE_TYPES.car;
+                this.width = vehicleConfig.width;
+                this.height = vehicleConfig.height;
+                this.speed = vehicleConfig.speed * (isUser ? 1 : 0.7);
+                this.handling = vehicleConfig.handling;
                 this.isUser = isUser;
                 this.isOpponent = isOpponent;
-                this.color = isUser ? '#3498db' : '#e74c3c';
+                this.color = isUser ? vehicleConfig.color : '#e74c3c';
                 this.hasBall = isUser;
                 this.moveLeft = false;
                 this.moveRight = false;
@@ -1128,7 +854,7 @@
                 this.wheelRotation += 0.2;
                 
                 if (this.isUser && game.playerInCar) {
-                    // User car controls - enhanced movement
+                    // User vehicle controls
                     let moveX = 0, moveY = 0;
                     
                     if (this.moveLeft) moveX -= 1;
@@ -1142,6 +868,10 @@
                         moveY *= 0.707;
                     }
                     
+                    // Apply handling factor
+                    moveX *= this.handling;
+                    moveY *= this.handling;
+                    
                     this.x += moveX * this.speed;
                     this.y += moveY * this.speed;
                     
@@ -1154,20 +884,18 @@
                         // Stop at the line
                         this.y = CONFIG.STOP_LINE_Y;
                         
-                        // Auto-exit car when at stop line
-                        if (!game.playerInCar) return;
-                        
-                        game.playerInCar = false;
-                        game.player.x = this.x;
-                        game.player.y = this.y + 50;
-                        game.player.hasBall = true;
-                        game.ball.possessedBy = game.player;
-                        playSound('walk');
-                        stopSound('car');
+                        // Auto-exit vehicle when at stop line
+                        if (game.playerInCar) {
+                            game.playerInCar = false;
+                            game.player.x = this.x;
+                            game.player.y = this.y + 50;
+                            game.player.hasBall = true;
+                            game.ball.possessedBy = game.player;
+                        }
                     }
                 } 
                 else if (this.isOpponent) {
-                    // Enhanced Opponent car AI - much more aggressive
+                    // Opponent vehicle AI
                     const dx = game.playerInCar ? game.playerCar.x - this.x : game.player.x - this.x;
                     const dy = game.playerInCar ? game.playerCar.y - this.y : game.player.y - this.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
@@ -1181,7 +909,7 @@
                     this.x += (dx / distance) * this.speed * aggression;
                     this.y += (dy / distance) * this.speed * aggression;
                     
-                    // Add some randomness to make it more challenging
+                    // Add some randomness
                     if (Math.random() < 0.05) {
                         this.x += (Math.random() - 0.5) * this.speed * 0.5;
                         this.y += (Math.random() - 0.5) * this.speed * 0.5;
@@ -1191,23 +919,24 @@
                     this.x = Math.max(this.width/2, Math.min(game.canvas.width - this.width/2, this.x));
                     this.y = Math.max(this.height/2, Math.min(game.canvas.height - this.height/2, this.y));
                     
-                    // Check collision with player car
-                    if (game.playerInCar) {
-                        const carDx = Math.abs(this.x - game.playerCar.x);
-                        const carDy = Math.abs(this.y - game.playerCar.y);
-                        if (carDx < this.width/2 + game.playerCar.width/2 && 
-                            carDy < this.height/2 + game.playerCar.height/2) {
-                            // Crash - player loses a life
-                            game.lives--;
-                            updateLivesDisplay();
-                            playSound('hit');
-                            
-                            // Reset player position
-                            game.playerCar.x = game.canvas.width / 2;
-                            game.playerCar.y = game.canvas.height - 100;
-                            
-                            if (game.lives <= 0) {
-                                showLoseOverlay();
+                    // Check collision with player vehicle only if not invincible
+                    if (game.playerInCar && !game.invincible) {
+                        const vehicleDx = Math.abs(this.x - game.playerCar.x);
+                        const vehicleDy = Math.abs(this.y - game.playerCar.y);
+                        if (vehicleDx < this.width/2 + game.playerCar.width/2 && 
+                            vehicleDy < this.height/2 + game.playerCar.height/2) {
+                            // Crash - player loses a life only if not invincible
+                            if (!game.invincible) {
+                                game.lives--;
+                                updateLivesDisplay();
+                                
+                                // Set invincibility period after hit
+                                game.invincible = true;
+                                game.invincibleTimer = 120; // 2 seconds at 60fps
+                                
+                                if (game.lives <= 0) {
+                                    showLoseOverlay();
+                                }
                             }
                         }
                     }
@@ -1218,59 +947,31 @@
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 
-                // Car body - more realistic shape
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.roundRect(-this.width/2, -this.height/2, this.width, this.height, 5);
-                ctx.fill();
+                // Draw different vehicle types
+                switch(this.type) {
+                    case 'car':
+                        this.drawCar(ctx);
+                        break;
+                    case 'airplane':
+                        this.drawAirplane(ctx);
+                        break;
+                    case 'bus':
+                        this.drawBus(ctx);
+                        break;
+                    case 'truck':
+                        this.drawTruck(ctx);
+                        break;
+                    case 'motorcycle':
+                        this.drawMotorcycle(ctx);
+                        break;
+                    case 'sports':
+                        this.drawSportsCar(ctx);
+                        break;
+                    default:
+                        this.drawCar(ctx);
+                }
                 
-                // Car roof/windows
-                ctx.fillStyle = '#2c3e50';
-                ctx.beginPath();
-                ctx.roundRect(-this.width/2 + 5, -this.height/2 + 5, this.width - 10, this.height - 15, 3);
-                ctx.fill();
-                
-                // Windshield
-                ctx.fillStyle = '#87CEEB';
-                ctx.beginPath();
-                ctx.roundRect(-this.width/2 + 8, -this.height/2 + 8, this.width - 16, 8, 2);
-                ctx.fill();
-                
-                // Headlights
-                ctx.fillStyle = '#FFFF99';
-                ctx.fillRect(-this.width/2 + 5, -this.height/2 + 5, 4, 3);
-                ctx.fillRect(this.width/2 - 9, -this.height/2 + 5, 4, 3);
-                
-                // Realistic wheels with rotation
-                ctx.fillStyle = '#2c3e50';
-                
-                // Front wheels
-                ctx.save();
-                ctx.translate(-this.width/2 + 8, 0);
-                ctx.rotate(this.wheelRotation);
-                ctx.fillRect(-3, -6, 6, 12);
-                ctx.restore();
-                
-                ctx.save();
-                ctx.translate(this.width/2 - 8, 0);
-                ctx.rotate(this.wheelRotation);
-                ctx.fillRect(-3, -6, 6, 12);
-                ctx.restore();
-                
-                // Back wheels
-                ctx.save();
-                ctx.translate(-this.width/2 + 8, this.height/2 - 8);
-                ctx.rotate(this.wheelRotation);
-                ctx.fillRect(-3, -4, 6, 8);
-                ctx.restore();
-                
-                ctx.save();
-                ctx.translate(this.width/2 - 8, this.height/2 - 8);
-                ctx.rotate(this.wheelRotation);
-                ctx.fillRect(-3, -4, 6, 8);
-                ctx.restore();
-                
-                // Ball on user car
+                // Ball on user vehicle
                 if (this.hasBall && this.isUser) {
                     ctx.fillStyle = '#f1c40f';
                     ctx.beginPath();
@@ -1291,9 +992,216 @@
                 
                 ctx.restore();
             }
+
+            drawCar(ctx) {
+                // Car body
+                ctx.fillStyle = this.color;
+                ctx.fillRect(-this.width/2, -this.height/2, this.width, this.height);
+                
+                // Car roof/windows
+                ctx.fillStyle = '#2c3e50';
+                ctx.fillRect(-this.width/2 + 5, -this.height/2 + 5, this.width - 10, this.height - 15);
+                
+                // Windshield
+                ctx.fillStyle = '#87CEEB';
+                ctx.fillRect(-this.width/2 + 8, -this.height/2 + 8, this.width - 16, 8);
+                
+                // Headlights
+                ctx.fillStyle = '#FFFF99';
+                ctx.fillRect(-this.width/2 + 5, -this.height/2 + 5, 4, 3);
+                ctx.fillRect(this.width/2 - 9, -this.height/2 + 5, 4, 3);
+                
+                // Wheels
+                this.drawWheels(ctx);
+            }
+
+            drawAirplane(ctx) {
+                // Airplane body
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, this.width/2, this.height/2, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Wings
+                ctx.fillStyle = '#34495e';
+                ctx.fillRect(-this.width/2, -5, this.width, 10);
+                
+                // Tail
+                ctx.fillRect(-this.width/4, -this.height/2, 10, 15);
+                
+                // Cockpit
+                ctx.fillStyle = '#87CEEB';
+                ctx.beginPath();
+                ctx.arc(0, 0, 8, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Propeller
+                ctx.fillStyle = '#7f8c8d';
+                ctx.fillRect(this.width/2 - 5, -3, 10, 6);
+            }
+
+            drawBus(ctx) {
+                // Bus body
+                ctx.fillStyle = this.color;
+                ctx.fillRect(-this.width/2, -this.height/2, this.width, this.height);
+                
+                // Windows
+                ctx.fillStyle = '#87CEEB';
+                for (let i = 0; i < 4; i++) {
+                    ctx.fillRect(-this.width/2 + 10 + i * 20, -this.height/2 + 5, 15, 10);
+                }
+                
+                // Headlights
+                ctx.fillStyle = '#FFFF99';
+                ctx.fillRect(-this.width/2 + 5, -this.height/2 + 5, 4, 3);
+                ctx.fillRect(this.width/2 - 9, -this.height/2 + 5, 4, 3);
+                
+                // Wheels
+                this.drawWheels(ctx, 4);
+            }
+
+            drawTruck(ctx) {
+                // Truck cabin
+                ctx.fillStyle = this.color;
+                ctx.fillRect(-this.width/2, -this.height/2, this.width * 0.4, this.height);
+                
+                // Truck trailer
+                ctx.fillStyle = '#e67e22';
+                ctx.fillRect(-this.width/2 + this.width * 0.4, -this.height/2, this.width * 0.6, this.height * 0.8);
+                
+                // Windows
+                ctx.fillStyle = '#87CEEB';
+                ctx.fillRect(-this.width/2 + 5, -this.height/2 + 5, this.width * 0.4 - 10, 10);
+                
+                // Headlights
+                ctx.fillStyle = '#FFFF99';
+                ctx.fillRect(-this.width/2 + 5, -this.height/2 + 5, 4, 3);
+                
+                // Wheels
+                this.drawWheels(ctx, 6);
+            }
+
+            drawMotorcycle(ctx) {
+                // Motorcycle body
+                ctx.fillStyle = this.color;
+                ctx.fillRect(-this.width/2, -this.height/2, this.width, this.height);
+                
+                // Seat
+                ctx.fillStyle = '#8B4513';
+                ctx.fillRect(-this.width/4, -this.height/2, this.width/2, 5);
+                
+                // Handlebars
+                ctx.fillStyle = '#2c3e50';
+                ctx.fillRect(-this.width/2, -this.height/2 - 5, this.width, 3);
+                
+                // Headlight
+                ctx.fillStyle = '#FFFF99';
+                ctx.fillRect(this.width/2 - 5, -this.height/2, 4, 3);
+                
+                // Wheels
+                this.drawWheels(ctx, 2);
+            }
+
+            drawSportsCar(ctx) {
+                // Sports car body - sleek design
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, this.width/2, this.height/2, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Sports car details
+                ctx.fillStyle = '#2c3e50';
+                ctx.fillRect(-this.width/2 + 5, -this.height/2 + 5, this.width - 10, 8);
+                
+                // Windshield
+                ctx.fillStyle = '#87CEEB';
+                ctx.beginPath();
+                ctx.moveTo(-this.width/2 + 10, -this.height/2 + 5);
+                ctx.lineTo(0, this.height/2 - 10);
+                ctx.lineTo(this.width/2 - 10, -this.height/2 + 5);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Headlights
+                ctx.fillStyle = '#FFFF99';
+                ctx.fillRect(-this.width/2 + 5, -this.height/2 + 5, 4, 3);
+                ctx.fillRect(this.width/2 - 9, -this.height/2 + 5, 4, 3);
+                
+                // Spoiler
+                ctx.fillStyle = '#2c3e50';
+                ctx.fillRect(-15, -this.height/2 - 5, 30, 5);
+                
+                // Wheels
+                this.drawWheels(ctx);
+            }
+
+            drawWheels(ctx, count = 2) {
+                ctx.fillStyle = '#2c3e50';
+                
+                if (count === 2) {
+                    // Front wheels
+                    ctx.save();
+                    ctx.translate(-this.width/2 + 8, 0);
+                    ctx.rotate(this.wheelRotation);
+                    ctx.fillRect(-3, -6, 6, 12);
+                    ctx.restore();
+                    
+                    ctx.save();
+                    ctx.translate(this.width/2 - 8, 0);
+                    ctx.rotate(this.wheelRotation);
+                    ctx.fillRect(-3, -6, 6, 12);
+                    ctx.restore();
+                    
+                    // Back wheels
+                    ctx.save();
+                    ctx.translate(-this.width/2 + 8, this.height/2 - 8);
+                    ctx.rotate(this.wheelRotation);
+                    ctx.fillRect(-3, -4, 6, 8);
+                    ctx.restore();
+                    
+                    ctx.save();
+                    ctx.translate(this.width/2 - 8, this.height/2 - 8);
+                    ctx.rotate(this.wheelRotation);
+                    ctx.fillRect(-3, -4, 6, 8);
+                    ctx.restore();
+                } else if (count === 4) {
+                    // Bus/Truck wheels
+                    const wheelPositions = [
+                        [-this.width/2 + 10, 0],
+                        [-this.width/2 + 30, 0],
+                        [this.width/2 - 30, 0],
+                        [this.width/2 - 10, 0]
+                    ];
+                    
+                    wheelPositions.forEach(pos => {
+                        ctx.save();
+                        ctx.translate(pos[0], pos[1]);
+                        ctx.rotate(this.wheelRotation);
+                        ctx.fillRect(-4, -8, 8, 16);
+                        ctx.restore();
+                    });
+                } else if (count === 6) {
+                    // Truck wheels (more wheels)
+                    const wheelPositions = [
+                        [-this.width/2 + 10, 0],
+                        [-this.width/2 + 25, 0],
+                        [this.width/2 - 40, 0],
+                        [this.width/2 - 25, 0],
+                        [this.width/2 - 10, 0]
+                    ];
+                    
+                    wheelPositions.forEach(pos => {
+                        ctx.save();
+                        ctx.translate(pos[0], pos[1]);
+                        ctx.rotate(this.wheelRotation);
+                        ctx.fillRect(-4, -8, 8, 16);
+                        ctx.restore();
+                    });
+                }
+            }
         }
 
-        // Player Class (for when out of car)
+        // Player Class (for when out of vehicle)
         class Player {
             constructor(x, y) {
                 this.x = x;
@@ -1340,30 +1248,42 @@
                     game.ball.y = this.y - 20;
                 }
                 
-                // Check collision with opponent cars - enhanced detection
-                for (let opponentCar of game.opponentCars) {
-                    const dx = Math.abs(this.x - opponentCar.x);
-                    const dy = Math.abs(this.y - opponentCar.y);
-                    const carRadius = Math.max(opponentCar.width, opponentCar.height) / 2;
-                    
-                    if (dx < carRadius + this.radius && dy < carRadius + this.radius) {
-                        // Hit by car - lose a life
-                        game.lives--;
-                        updateLivesDisplay();
-                        playSound('hit');
+                // Check collision with opponent vehicles only if not invincible
+                if (!game.invincible) {
+                    for (let opponentVehicle of game.opponentVehicles) {
+                        const dx = Math.abs(this.x - opponentVehicle.x);
+                        const dy = Math.abs(this.y - opponentVehicle.y);
+                        const vehicleRadius = Math.max(opponentVehicle.width, opponentVehicle.height) / 2;
                         
-                        // Reset position
-                        this.x = game.canvas.width / 2;
-                        this.y = CONFIG.STOP_LINE_Y + 50;
-                        
-                        if (game.lives <= 0) {
-                            showLoseOverlay();
+                        if (dx < vehicleRadius + this.radius && dy < vehicleRadius + this.radius) {
+                            // Hit by vehicle - lose a life only if not invincible
+                            if (!game.invincible) {
+                                game.lives--;
+                                updateLivesDisplay();
+                                
+                                // Set invincibility period after hit
+                                game.invincible = true;
+                                game.invincibleTimer = 120; // 2 seconds at 60fps
+                                
+                                // Reset position
+                                this.x = game.canvas.width / 2;
+                                this.y = CONFIG.STOP_LINE_Y + 50;
+                                
+                                if (game.lives <= 0) {
+                                    showLoseOverlay();
+                                }
+                            }
                         }
                     }
                 }
             }
 
             draw(ctx) {
+                // Draw player with invincibility effect
+                if (game.invincible && Math.floor(game.invincibleTimer / 10) % 2 === 0) {
+                    return; // Flash effect when invincible
+                }
+                
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 
@@ -1436,15 +1356,14 @@
 
             steal() {
                 // Steal functionality when needed
-                playSound('steal');
             }
         }
 
         // Ball Class
         class Ball {
             constructor() {
-                this.x = game.canvas.width / 2;
-                this.y = game.canvas.height - 50;
+                this.x = 0;
+                this.y = 0;
                 this.radius = 8;
                 this.speedX = 0;
                 this.speedY = 0;
@@ -1517,138 +1436,134 @@
             }
         }
 
-        // Initialize the game
-        function init() {
-            game.canvas = document.getElementById('gameCanvas');
-            game.ctx = game.canvas.getContext('2d');
-            
-            // Initialize audio system
-            initAudio();
-            
-            game.screenType = detectScreenType();
-            setupCanvas();
-            
-            game.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
-                           ('ontouchstart' in window) || 
-                           (navigator.maxTouchPoints > 0);
-            
-            if (game.isMobile) {
-                document.getElementById('mobileControls').style.display = 'flex';
-                setupMobileControls();
-                optimizeMobileControls();
-            } else {
-                setupKeyboardControls();
+        // Cannon Class
+        class Cannon {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.cooldown = 0;
+                this.width = 30;
+                this.height = 15;
+                this.color = '#8B4513';
+                this.barrelColor = '#654321';
+                this.angle = 0;
             }
-            
-            setupEventListeners();
-            resetGame();
-            
-            game.animationId = requestAnimationFrame(gameLoop);
-        }
 
-        function setupCanvas() {
-            game.canvas.width = window.innerWidth;
-            game.canvas.height = window.innerHeight;
-            
-            // Calculate track length based on chapter
-            game.trackLength = game.canvas.height * (1 + (game.chapter - 1) * 0.2);
-        }
-
-        function optimizeMobileControls() {
-            const mobileControls = document.getElementById('mobileControls');
-            if (!mobileControls) return;
-            
-            const width = window.innerWidth;
-            const height = window.innerHeight;
-            const aspectRatio = width / height;
-            
-            let bottomPosition = 30;
-            
-            if (height < 350) {
-                bottomPosition = 25;
-            } else if (height < 400) {
-                bottomPosition = 28;
-            } else if (height > 500) {
-                bottomPosition = 35;
-            }
-            
-            if (aspectRatio > 2.0) {
-                bottomPosition += 5;
-            }
-            
-            mobileControls.style.bottom = `${bottomPosition}px`;
-        }
-
-        function setupEventListeners() {
-            const buttons = {
-                startBtn: startGame,
-                pauseBtn: togglePause,
-                resumeBtn: togglePause,
-                replayBtn: replayChapter,
-                nextChapterBtn: nextChapter,
-                restartBtn: restartGame
-            };
-
-            Object.keys(buttons).forEach(buttonId => {
-                const button = document.getElementById(buttonId);
-                if (button) {
-                    const handler = buttons[buttonId];
-                    
-                    button.addEventListener('click', () => {
-                        handler();
-                    });
-                    
-                    button.addEventListener('touchstart', (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        button.style.transform = 'scale(0.95)';
-                        button.style.opacity = '0.9';
-                    }, { passive: false });
-                    
-                    button.addEventListener('touchend', (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        button.style.transform = 'scale(1)';
-                        button.style.opacity = '1';
-                        handler();
-                    }, { passive: false });
-                    
-                    button.addEventListener('touchmove', (e) => {
-                        e.preventDefault();
-                    }, { passive: false });
+            update() {
+                if (this.cooldown > 0) {
+                    this.cooldown--;
                 }
-            });
-
-            window.addEventListener('resize', handleResize);
-            window.addEventListener('orientationchange', handleResize);
-        }
-
-        function handleResize() {
-            game.screenType = detectScreenType();
-            setupCanvas();
-            
-            if (game.isMobile) {
-                if (window.innerHeight > window.innerWidth) {
-                    document.getElementById('orientationMessage').style.display = 'flex';
-                    document.getElementById('gameContainer').style.display = 'none';
-                    
-                    if (game.gameStarted && !game.paused) {
-                        togglePause();
-                    }
-                } else {
-                    document.getElementById('orientationMessage').style.display = 'none';
-                    document.getElementById('gameContainer').style.display = 'block';
-                    
-                    optimizeMobileControls();
-                    
-                    if (game.gameStarted && game.paused) {
-                        setTimeout(togglePause, 100);
-                    }
+                
+                // Calculate angle to player
+                let targetX = game.playerInCar ? game.playerCar.x : game.player.x;
+                let targetY = game.playerInCar ? game.playerCar.y : game.player.y;
+                
+                const dx = targetX - this.x;
+                const dy = targetY - this.y;
+                this.angle = Math.atan2(dy, dx);
+                
+                // Random shooting with cooldown
+                if (this.cooldown === 0 && Math.random() < 0.015) {
+                    this.shoot();
+                    this.cooldown = CONFIG.CANNON_COOLDOWN;
                 }
             }
-            
-            if (game.gameStarted) {
-                resetGame();
+
+            shoot() {
+                const cannonBall = {
+                    x: this.x,
+                    y: this.y,
+                    radius: 8,
+                    speedX: Math.cos(this.angle) * CONFIG.CANNON_SPEED,
+                    speedY: Math.sin(this.angle) * CONFIG.CANNON_SPEED,
+                    color: '#000000',
+                    update: function() {
+                        this.x += this.speedX;
+                        this.y += this.speedY;
+                        
+                        // Remove if out of bounds
+                        if (this.x < -50 || this.x > game.canvas.width + 50 || 
+                            this.y < -50 || this.y > game.canvas.height + 50) {
+                            const index = game.cannonBalls.indexOf(this);
+                            if (index > -1) {
+                                game.cannonBalls.splice(index, 1);
+                            }
+                            return;
+                        }
+                        
+                        // Check collision with player only if not invincible
+                        if (!game.invincible) {
+                            let playerX, playerY, playerRadius;
+                            
+                            if (game.playerInCar) {
+                                playerX = game.playerCar.x;
+                                playerY = game.playerCar.y;
+                                playerRadius = Math.max(game.playerCar.width, game.playerCar.height) / 2;
+                            } else {
+                                playerX = game.player.x;
+                                playerY = game.player.y;
+                                playerRadius = game.player.radius;
+                            }
+                            
+                            const dx = this.x - playerX;
+                            const dy = this.y - playerY;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+                            
+                            if (distance < this.radius + playerRadius) {
+                                // Only lose life if not invincible
+                                if (!game.invincible) {
+                                    game.lives--;
+                                    updateLivesDisplay();
+                                    
+                                    // Set invincibility period after hit
+                                    game.invincible = true;
+                                    game.invincibleTimer = 120; // 2 seconds at 60fps
+                                }
+                                
+                                // Remove cannon ball
+                                const index = game.cannonBalls.indexOf(this);
+                                if (index > -1) {
+                                    game.cannonBalls.splice(index, 1);
+                                }
+                                
+                                // Check for game over
+                                if (game.lives <= 0) {
+                                    showLoseOverlay();
+                                }
+                            }
+                        }
+                    },
+                    draw: function(ctx) {
+                        ctx.fillStyle = this.color;
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Add smoke trail
+                        ctx.fillStyle = 'rgba(100, 100, 100, 0.5)';
+                        ctx.beginPath();
+                        ctx.arc(this.x - this.speedX * 0.5, this.y - this.speedY * 0.5, this.radius * 0.7, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                };
+                
+                game.cannonBalls.push(cannonBall);
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                
+                // Draw cannon base
+                ctx.fillStyle = this.color;
+                ctx.fillRect(-this.width/2, -this.height/2, this.width, this.height);
+                
+                // Draw cannon barrel
+                ctx.fillStyle = this.barrelColor;
+                ctx.fillRect(this.width/2 - 5, -5, 25, 10);
+                
+                ctx.restore();
             }
         }
 
@@ -1657,22 +1572,20 @@
                 if (!game.gameStarted || game.paused) return;
                 
                 if (game.playerInCar) {
-                    // Car controls
+                    // Vehicle controls
                     switch(e.key) {
                         case 'ArrowUp': game.playerCar.moveUp = true; break;
                         case 'ArrowDown': game.playerCar.moveDown = true; break;
                         case 'ArrowLeft': game.playerCar.moveLeft = true; break;
                         case 'ArrowRight': game.playerCar.moveRight = true; break;
                         case ' ': 
-                            // Get out of car (only works when at stop line)
+                            // Get out of vehicle (only works when at stop line)
                             if (game.playerCar.y <= CONFIG.STOP_LINE_Y) {
                                 game.playerInCar = false;
                                 game.player.x = game.playerCar.x;
                                 game.player.y = game.playerCar.y + 50;
                                 game.player.hasBall = true;
                                 game.ball.possessedBy = game.player;
-                                playSound('walk');
-                                stopSound('car');
                             }
                             break;
                         case 'p': case 'P': togglePause(); break;
@@ -1714,7 +1627,6 @@
             const joystickHandle = document.querySelector('.joystick-handle');
             const shootBtn = document.querySelector('.control-btn.shoot');
             const stealBtn = document.querySelector('.control-btn.steal');
-            const fightBtn = document.querySelector('.control-btn.fight');
             
             let joystickActive = false;
             let joystickCenter = { x: 0, y: 0 };
@@ -1753,23 +1665,17 @@
                 }
             });
             
-            // Update button labels and functionality
-            shootBtn.textContent = "EXIT";
-            fightBtn.style.display = 'none'; // Remove fight button
-            
             [shootBtn, stealBtn].forEach(btn => {
                 btn.addEventListener('touchstart', (e) => {
                     if (!game.paused) {
                         if (btn.classList.contains('shoot')) {
-                            // Exit car (only works when at stop line)
+                            // Exit vehicle (only works when at stop line)
                             if (game.playerInCar && game.playerCar.y <= CONFIG.STOP_LINE_Y) {
                                 game.playerInCar = false;
                                 game.player.x = game.playerCar.x;
                                 game.player.y = game.playerCar.y + 50;
                                 game.player.hasBall = true;
                                 game.ball.possessedBy = game.player;
-                                playSound('walk');
-                                stopSound('car');
                             }
                         } else if (btn.classList.contains('steal')) {
                             game.player.steal();
@@ -1831,22 +1737,22 @@
             // Set up track length based on chapter
             setupCanvas();
             
-            // Create player car
-            game.playerCar = new Car(game.canvas.width / 2, game.canvas.height - 100, true);
+            // Create player vehicle
+            game.playerCar = new Vehicle(game.canvas.width / 2, game.canvas.height - 100, true, false, game.selectedVehicle);
             
-            // Create player character (for when out of car)
+            // Create player character (for when out of vehicle)
             game.player = new Player(game.canvas.width / 2, game.canvas.height / 2);
             
-            // Create opponent cars
-            game.opponentCars = [];
+            // Create opponent vehicles
+            game.opponentVehicles = [];
             const opponentsCount = game.chapter;
             
             for (let i = 0; i < opponentsCount; i++) {
                 const x = Math.random() * (game.canvas.width - 80) + 40;
                 const y = Math.random() * game.canvas.height * 0.7;
-                const opponentCar = new Car(x, y, false, true);
-                opponentCar.speed = CONFIG.OPPONENT_SPEED + (game.chapter * 0.1);
-                game.opponentCars.push(opponentCar);
+                const opponentVehicle = new Vehicle(x, y, false, true, 'car');
+                opponentVehicle.speed = CONFIG.OPPONENT_SPEED + (game.chapter * 0.1);
+                game.opponentVehicles.push(opponentVehicle);
             }
             
             // Set up cannons
@@ -1874,6 +1780,8 @@
             
             // Create ball
             game.ball = new Ball();
+            game.ball.x = game.canvas.width / 2;
+            game.ball.y = game.canvas.height - 50;
             game.ball.possessedBy = game.playerCar;
             
             game.lives = CONFIG.LIVES;
@@ -1881,21 +1789,12 @@
             game.ballLost = false;
             game.paused = false;
             game.playerInCar = true;
-            
-            // Start car sound
-            playSound('car');
+            game.trackOffset = 0;
+            game.invincible = false;
+            game.invincibleTimer = 0;
             
             updateLivesDisplay();
             updateChapterDisplay();
-        }
-
-        function startGame() {
-            document.getElementById('startOverlay').style.display = 'none';
-            document.getElementById('pauseBtn').style.display = 'block';
-            game.gameStarted = true;
-            
-            // Start background music
-            playBackgroundMusic();
         }
 
         function togglePause() {
@@ -1904,24 +1803,9 @@
             if (game.paused) {
                 document.getElementById('pauseOverlay').style.display = 'flex';
                 document.getElementById('pauseBtn').textContent = 'RESUME';
-                
-                // Pause background music and sounds
-                stopBackgroundMusic();
-                stopSound('walk');
-                stopSound('car');
             } else {
                 document.getElementById('pauseOverlay').style.display = 'none';
                 document.getElementById('pauseBtn').textContent = 'PAUSE';
-                
-                // Resume background music
-                playBackgroundMusic();
-                
-                // Resume appropriate sound based on player state
-                if (game.playerInCar) {
-                    playSound('car');
-                } else {
-                    playSound('walk');
-                }
             }
         }
 
@@ -1929,9 +1813,6 @@
             document.getElementById('winOverlay').style.display = 'none';
             resetGame();
             game.gameStarted = true;
-            
-            // Resume background music
-            playBackgroundMusic();
         }
 
         function nextChapter() {
@@ -1939,9 +1820,6 @@
             game.chapter = Math.min(game.chapter + 1, CONFIG.CHAPTERS);
             resetGame();
             game.gameStarted = true;
-            
-            // Resume background music
-            playBackgroundMusic();
         }
 
         function restartGame() {
@@ -1949,9 +1827,6 @@
             game.chapter = 1;
             resetGame();
             game.gameStarted = true;
-            
-            // Resume background music
-            playBackgroundMusic();
         }
 
         function gameLoop(timestamp) {
@@ -1967,14 +1842,29 @@
         }
 
         function update(deltaTime) {
+            // Update invincibility timer
+            if (game.invincible) {
+                game.invincibleTimer--;
+                if (game.invincibleTimer <= 0) {
+                    game.invincible = false;
+                }
+            }
+            
             // Update game objects based on player state
             if (game.playerInCar) {
                 game.playerCar.update();
+                
+                // Update track offset based on player position (movable track)
+                if (game.playerCar.y < game.canvas.height * 0.3 && game.trackOffset < game.maxTrackOffset) {
+                    game.trackOffset += 2;
+                } else if (game.playerCar.y > game.canvas.height * 0.7 && game.trackOffset > 0) {
+                    game.trackOffset -= 2;
+                }
             } else {
                 game.player.update();
             }
             
-            game.opponentCars.forEach(opponent => opponent.update());
+            game.opponentVehicles.forEach(opponent => opponent.update());
             game.ball.update();
             
             // Update cannons and cannon balls
@@ -1993,25 +1883,10 @@
             // Check if player scored (ball in goal area at top of screen)
             if (!game.playerInCar && game.ball.possessedBy === game.player) {
                 if (game.ball.y < 50 && game.ball.x > game.canvas.width/2 - 50 && game.ball.x < game.canvas.width/2 + 50) {
-                    // Play goal sound
-                    playSound('goal');
-                    
                     showGoalMessage();
                     setTimeout(showWinOverlay, 1000);
                     return;
                 }
-            }
-        }
-
-        function loseLife() {
-            game.lives--;
-            updateLivesDisplay();
-            
-            if (game.lives <= 0) {
-                showLoseOverlay();
-            } else {
-                game.recoveryTimer = CONFIG.RECOVERY_TIME;
-                game.ballLost = false;
             }
         }
 
@@ -2029,14 +1904,6 @@
         }
 
         function showWinOverlay() {
-            // Play win sound
-            playSound('win');
-            
-            // Stop background music and sounds
-            stopBackgroundMusic();
-            stopSound('walk');
-            stopSound('car');
-            
             document.getElementById('winOpponents').textContent = game.chapter;
             document.getElementById('winOverlay').style.display = 'flex';
             game.gameStarted = false;
@@ -2044,14 +1911,6 @@
         }
 
         function showLoseOverlay() {
-            // Play lose sound
-            playSound('lose');
-            
-            // Stop background music and sounds
-            stopBackgroundMusic();
-            stopSound('walk');
-            stopSound('car');
-            
             document.getElementById('loseChapter').textContent = game.chapter;
             document.getElementById('loseOpponents').textContent = game.chapter;
             document.getElementById('loseOverlay').style.display = 'flex';
@@ -2083,8 +1942,8 @@
             drawGoalArea(ctx);
             drawStopLine(ctx);
             
-            // Draw opponent cars
-            game.opponentCars.forEach(opponent => opponent.draw(ctx));
+            // Draw opponent vehicles
+            game.opponentVehicles.forEach(opponent => opponent.draw(ctx));
             
             // Draw player based on state
             if (game.playerInCar) {
@@ -2108,11 +1967,11 @@
         }
 
         function drawRaceTrack(ctx) {
-            // Draw road
+            // Draw road with offset for movable track
             ctx.fillStyle = '#34495e';
             ctx.fillRect(0, 0, game.canvas.width, game.canvas.height);
             
-            // Draw lane markings
+            // Draw lane markings with offset
             ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 2;
             ctx.setLineDash([20, 20]);
@@ -2136,6 +1995,19 @@
             for (let i = 0; i < game.canvas.width; i += 20) {
                 ctx.fillRect(i, 0, 10, 30);
             }
+            
+            // Draw distance markers on the side of the road
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            
+            for (let i = 0; i < game.trackLength; i += 100) {
+                const yPos = i - game.trackOffset;
+                if (yPos >= 0 && yPos <= game.canvas.height) {
+                    ctx.fillText(`${i}m`, 20, yPos);
+                    ctx.fillText(`${i}m`, game.canvas.width - 20, yPos);
+                }
+            }
         }
 
         function drawGoalArea(ctx) {
@@ -2154,7 +2026,7 @@
         }
 
         function drawStopLine(ctx) {
-            // Draw stop line where player must exit car
+            // Draw stop line where player must exit vehicle
             ctx.strokeStyle = '#e74c3c';
             ctx.lineWidth = 4;
             ctx.setLineDash([10, 10]);
@@ -2168,7 +2040,7 @@
             ctx.fillStyle = '#e74c3c';
             ctx.font = 'bold 14px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText('STOP AND EXIT CAR', game.canvas.width/2, CONFIG.STOP_LINE_Y - 10);
+            ctx.fillText('STOP AND EXIT VEHICLE', game.canvas.width/2, CONFIG.STOP_LINE_Y - 10);
         }
 
         window.addEventListener('load', init);
