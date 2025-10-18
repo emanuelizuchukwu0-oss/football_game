@@ -710,58 +710,6 @@
                 padding-bottom: 20px;
             }
         }
-           /* Your existing CSS remains the same, but I'll add the vehicle selection styles */
-        
-        /* Vehicle Selection Styles */
-        .vehicle-options {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-            margin: 20px 0;
-            max-width: 600px;
-        }
-
-        .vehicle-option {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid transparent;
-            border-radius: 10px;
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 120px;
-            text-align: center;
-        }
-
-        .vehicle-option:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: #3498db;
-        }
-
-        .vehicle-option.selected {
-            border-color: #f1c40f;
-            background: rgba(241, 196, 15, 0.1);
-        }
-
-        .vehicle-icon {
-            font-size: 2.5rem;
-            margin-bottom: 8px;
-        }
-
-        .vehicle-name {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .vehicle-stats {
-            font-size: 0.7rem;
-            opacity: 0.8;
-        }
-
-        /* Add this to your existing overlay styles */
-        #vehicleSelectionOverlay {
-            display: none;
-        }
     </style>
 </head>
 <body>
@@ -774,8 +722,8 @@
     <div id="gameContainer">
         <canvas id="gameCanvas"></canvas>
         
-        <!-- Your existing UI elements remain the same -->
         <button id="pauseBtn" class="btn btn-pause" style="display: none;">PAUSE</button>
+        <!-- Sound button is hidden with CSS -->
         <button id="soundBtn" class="btn btn-sound" style="display: none;">🔇 SOUND</button>
         
         <div id="uiContainer">
@@ -809,63 +757,21 @@
                 </div>
             </div>
             <div class="action-buttons">
-                <div class="control-btn shoot">EXIT</div>
+                <div class="control-btn shoot">SHOOT</div>
                 <div class="control-btn steal">STEAL</div>
+                <div class="control-btn fight">FIGHT</div>
             </div>
         </div>
         
-        <!-- Start Overlay -->
         <div id="startOverlay" class="overlay">
             <h1>RACING CHALLENGE</h1>
-            <p>Drive to the goal, get out of your vehicle, and score! Avoid opponent vehicles and cannon fire!</p>
-            <p>Use arrow keys to drive, SPACE to get out of vehicle, 'S' to steal. Press 'P' to pause.</p>
+            <p>Drive to the goal, get out of your car, and score! Avoid opponent cars and cannon fire!</p>
+            <p>Use arrow keys to drive, SPACE to get out of car, 'S' to steal. Press 'P' to pause.</p>
             <div class="btn-container">
                 <button id="startBtn" class="btn">START GAME</button>
             </div>
         </div>
         
-        <!-- Vehicle Selection Overlay -->
-        <div id="vehicleSelectionOverlay" class="overlay" style="display: none;">
-            <h1>SELECT YOUR VEHICLE</h1>
-            <div class="vehicle-options">
-                <div class="vehicle-option selected" data-vehicle="car">
-                    <div class="vehicle-icon">🚗</div>
-                    <div class="vehicle-name">Car</div>
-                    <div class="vehicle-stats">Speed: Medium<br>Handling: Good</div>
-                </div>
-                <div class="vehicle-option" data-vehicle="airplane">
-                    <div class="vehicle-icon">✈️</div>
-                    <div class="vehicle-name">Airplane</div>
-                    <div class="vehicle-stats">Speed: High<br>Handling: Medium</div>
-                </div>
-                <div class="vehicle-option" data-vehicle="bus">
-                    <div class="vehicle-icon">🚌</div>
-                    <div class="vehicle-name">Long Bus</div>
-                    <div class="vehicle-stats">Speed: Low<br>Handling: Poor</div>
-                </div>
-                <div class="vehicle-option" data-vehicle="truck">
-                    <div class="vehicle-icon">🚚</div>
-                    <div class="vehicle-name">Truck</div>
-                    <div class="vehicle-stats">Speed: Low<br>Handling: Poor</div>
-                </div>
-                <div class="vehicle-option" data-vehicle="motorcycle">
-                    <div class="vehicle-icon">🏍️</div>
-                    <div class="vehicle-name">Motorcycle</div>
-                    <div class="vehicle-stats">Speed: High<br>Handling: Excellent</div>
-                </div>
-                <!-- Additional vehicle -->
-                <div class="vehicle-option" data-vehicle="sports">
-                    <div class="vehicle-icon">🏎️</div>
-                    <div class="vehicle-name">Sports Car</div>
-                    <div class="vehicle-stats">Speed: Very High<br>Handling: Good</div>
-                </div>
-            </div>
-            <div class="btn-container">
-                <button id="confirmVehicleBtn" class="btn">CONFIRM SELECTION</button>
-            </div>
-        </div>
-        
-        <!-- Your other overlays (pause, win, lose) remain the same -->
         <div id="pauseOverlay" class="overlay" style="display: none;">
             <h1>GAME PAUSED</h1>
             <p>Take a break and get ready for the next challenge!</p>
@@ -898,7 +804,7 @@
         </div>
     </div>
 
-    <!-- Your audio elements remain the same -->
+    <!-- Sound effects -->
     <audio id="backgroundMusic" loop>
         <source src="mixkit-hazy-after-hours-132.mp3" type="audio/mpeg">
     </audio>
@@ -931,41 +837,27 @@
     </audio>
 
     <script>
-       // Remove these duplicate declarations:
-// const CONFIG = { ... }; // DELETE THIS DUPLICATE
-// let game = { ... }; // DELETE THIS DUPLICATE
-
-// Keep only one CONFIG with vehicle types:
-const CONFIG = {
-    LIVES: 7,
-    RECOVERY_TIME: 5,
-    CHAPTERS: 22,
-    PLAYER_SPEED: 4,
-    OPPONENT_SPEED: 2.2,
-    BALL_SPEED: 8,
-    GOALKEEPER_SPEED: 3,
-    GOAL_HEIGHT: 180,
-    FIELD_RATIO: 2.0,
-    UI_SAFE_ZONE: 120,
-    CANNON_SPEED: 6,
-    CANNON_COOLDOWN: 120,
-    FIGHT_COOLDOWN: 30,
-    FIGHT_RANGE: 40,
-    FIGHT_KNOCKBACK: 8,
-    CAR_SPEED: 8,
-    TRACK_LENGTH_MULTIPLIER: 1.2,
-    STOP_LINE_Y: 150,
-    VEHICLE_TYPES: {
-        car: { speed: 8, handling: 1.0, width: 60, height: 30, color: '#3498db' },
-        airplane: { speed: 12, handling: 0.8, width: 80, height: 40, color: '#9b59b6' },
-        bus: { speed: 5, handling: 0.6, width: 100, height: 40, color: '#e67e22' },
-        truck: { speed: 6, handling: 0.7, width: 120, height: 50, color: '#7f8c8d' },
-        motorcycle: { speed: 10, handling: 1.2, width: 40, height: 20, color: '#e74c3c' },
-        sports: { speed: 14, handling: 1.1, width: 70, height: 30, color: '#e91e63' }
-    }
-};
-
-// Keep only one game state:
+        // Game Constants and Configuration
+        const CONFIG = {
+            LIVES: 7,
+            RECOVERY_TIME: 5,
+            CHAPTERS: 22,
+            PLAYER_SPEED: 4,
+            OPPONENT_SPEED: 2.2,
+            BALL_SPEED: 8,
+            GOALKEEPER_SPEED: 3,
+            GOAL_HEIGHT: 180,
+            FIELD_RATIO: 2.0,
+            UI_SAFE_ZONE: 120,
+            CANNON_SPEED: 6,
+            CANNON_COOLDOWN: 120,
+            FIGHT_COOLDOWN: 30,
+            FIGHT_RANGE: 40,
+            FIGHT_KNOCKBACK: 8,
+            CAR_SPEED: 8,
+            TRACK_LENGTH_MULTIPLIER: 1.2,
+            STOP_LINE_Y: 150 // Y position where player must stop and exit car
+        };
 
         // Game State
         let game = {
@@ -2135,7 +2027,6 @@ const CONFIG = {
                 }
             }, 2000);
         }
-        
 
         function showWinOverlay() {
             // Play win sound
