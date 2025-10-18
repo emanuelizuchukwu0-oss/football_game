@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Racing Challenge</title>
     <style>
-        /* Your existing CSS remains mostly the same */
+        /* Your existing CSS remains the same */
         * {
             margin: 0;
             padding: 0;
@@ -974,19 +974,20 @@
             LIVES: 7,
             RECOVERY_TIME: 5,
             CHAPTERS: 22,
-            PLAYER_SPEED: 4,
-            OPPONENT_SPEED: 2.2,
+            // SLOWER SPEEDS FOR PLAYER AND OPPONENTS
+            PLAYER_SPEED: 2.5, // Reduced from 4
+            OPPONENT_SPEED: 1.4, // Reduced from 2.2
             BALL_SPEED: 8,
             GOALKEEPER_SPEED: 3,
             GOAL_HEIGHT: 180,
             FIELD_RATIO: 2.0,
             UI_SAFE_ZONE: 120,
-            CANNON_SPEED: 6,
+            CANNON_SPEED: 4, // Reduced from 6
             CANNON_COOLDOWN: 120,
             FIGHT_COOLDOWN: 30,
             FIGHT_RANGE: 40,
             FIGHT_KNOCKBACK: 8,
-            CAR_SPEED: 8,
+            CAR_SPEED: 5, // Reduced from 8
             TRACK_LENGTH_MULTIPLIER: 1.2,
             STOP_LINE_Y: 150, // Y position where player must stop and exit car
             
@@ -1013,7 +1014,7 @@
             },
             
             // NEW: Laser settings
-            LASER_SPEED: 10,
+            LASER_SPEED: 6, // Reduced from 10
             LASER_COOLDOWN: 30,
             LASER_DAMAGE: 1, // Hits needed to destroy opponent car
             LASER_ENABLED_CHAPTERS: { start: 6, end: 15 }
