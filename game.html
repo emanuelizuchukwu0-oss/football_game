@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Racing Challenge</title>
     <style>
-        /* Your existing CSS remains exactly the same */
+        /* Your existing CSS remains mostly the same */
         * {
             margin: 0;
             padding: 0;
@@ -857,7 +857,7 @@
                 <span>Opponents: <span id="opponentsDisplay">1</span></span>
             </div>
             <div class="ui-box" id="timerContainer">
-                <span>Recovery: <span id="recoveryTimer">5</span>s</span>
+                <span>Goal in: <span id="goalTimer">2</span>s</span>
             </div>
         </div>
         
@@ -870,7 +870,7 @@
             <div class="action-buttons">
                 <div class="control-btn shoot">EXIT</div>
                 <div class="control-btn steal">STEAL</div>
-                <div class="control-btn fight">FIGHT</div>
+                <div class="control-btn fight" id="laserBtn">LASER</div>
             </div>
         </div>
         
@@ -960,9 +960,16 @@
     <audio id="carSound" loop>
         <source src="car.wav" type="audio/mpeg">
     </audio>
+    <!-- NEW: Laser and explosion sounds -->
+    <audio id="laserSound">
+        <source src="kick.wav" type="audio/mpeg">
+    </audio>
+    <audio id="explosionSound">
+        <source src="steal.wav" type="audio/mpeg">
+    </audio>
 
     <script>
-        // Game Constants and Configuration - ADJUSTED FOR MOBILE WITH LONGER TRACK
+        // Game Constants and Configuration - ENHANCED FOR MOBILE
         const CONFIG = {
             LIVES: 7,
             RECOVERY_TIME: 5,
@@ -983,16 +990,33 @@
             TRACK_LENGTH_MULTIPLIER: 1.2,
             STOP_LINE_Y: 150, // Y position where player must stop and exit car
             
-            // MOBILE-SPECIFIC SCALING
-            MOBILE_SCALE_FACTOR: 0.7, // Reduce object sizes on mobile
-            MOBILE_SPEED_FACTOR: 1.2, // Slightly increase speed on mobile for better feel
-            MIN_OBJECT_SIZE: 20, // Minimum size for any game object
-            MAX_OPPONENTS: 8, // Limit opponents on small screens
+            // ENHANCED MOBILE-SPECIFIC SCALING - MUCH SMALLER OBJECTS
+            MOBILE_SCALE_FACTOR: 0.4, // Reduced from 0.7 to make objects much smaller
+            MOBILE_SPEED_FACTOR: 1.2,
+            MIN_OBJECT_SIZE: 15, // Reduced minimum size
+            MAX_OPPONENTS: 8,
             
-            // MOBILE TRACK SETTINGS - LONGER TRACK
-            MOBILE_TRACK_LENGTH_MULTIPLIER: 1.5, // Make track longer on mobile
-            MOBILE_START_POSITION_OFFSET: 0.15, // Start further from bottom on mobile
-            MOBILE_OPPONENT_SPAWN_AREA: 0.6 // Spread opponents over larger area
+            // ENHANCED MOBILE TRACK SETTINGS - LONGER TRACK
+            MOBILE_TRACK_LENGTH_MULTIPLIER: 2.0, // Increased from 1.5 to make track even longer
+            MOBILE_START_POSITION_OFFSET: 0.1, // Start further from bottom
+            MOBILE_OPPONENT_SPAWN_AREA: 0.7, // Spread opponents over larger area
+            
+            // NEW: Goal appearance timing by chapter (in seconds)
+            GOAL_APPEARANCE_TIMES: {
+                1: 2, 2: 2, 3: 2,
+                4: 3, 5: 3, 6: 3,
+                7: 5, 8: 5, 9: 5,
+                10: 7, 11: 7, 12: 7,
+                13: 10, 14: 10, 15: 10,
+                16: 12, 17: 12, 18: 12,
+                19: 15, 20: 15, 21: 15, 22: 15
+            },
+            
+            // NEW: Laser settings
+            LASER_SPEED: 10,
+            LASER_COOLDOWN: 30,
+            LASER_DAMAGE: 1, // Hits needed to destroy opponent car
+            LASER_ENABLED_CHAPTERS: { start: 6, end: 15 }
         };
 
         // NEW: Game Progress Storage
@@ -1027,7 +1051,19 @@
             playerInCar: true,
             scaleFactor: 1, // Dynamic scaling factor
             mobileAdjusted: false,
-            trackOffset: 0 // For scrolling track on mobile
+            trackOffset: 0, // For scrolling track on mobile
+            
+            // NEW: Scrolling track variables
+            trackScrollSpeed: 0,
+            maxTrackOffset: 0,
+            
+            // NEW: Goal appearance timer
+            goalTimer: 0,
+            goalVisible: false,
+            
+            // NEW: Laser variables
+            lasers: [],
+            laserCooldown: 0
         };
 
         // Sound elements
@@ -1041,7 +1077,10 @@
             hit: null,
             steal: null,
             walk: null,
-            car: null
+            car: null,
+            // NEW: Laser and explosion sounds
+            laser: null,
+            explosion: null
         };
 
         // NEW: Initialize game progress from localStorage
@@ -1135,6 +1174,9 @@
             sounds.steal = document.getElementById('stealSound');
             sounds.walk = document.getElementById('walkSound');
             sounds.car = document.getElementById('carSound');
+            // NEW: Laser and explosion sounds
+            sounds.laser = document.getElementById('laserSound');
+            sounds.explosion = document.getElementById('explosionSound');
             
             // Set volumes
             sounds.backgroundMusic.volume = 0.3;
@@ -1147,6 +1189,9 @@
             sounds.steal.volume = 0.5;
             sounds.walk.volume = 0.3;
             sounds.car.volume = 0.4;
+            // NEW: Set volumes for laser and explosion
+            sounds.laser.volume = 0.7;
+            sounds.explosion.volume = 0.8;
             
             // Preload all sounds
             Object.values(sounds).forEach(sound => {
@@ -1216,20 +1261,20 @@
             }
         }
 
-        // Calculate mobile scaling factor
+        // Calculate mobile scaling factor - MUCH SMALLER FOR MOBILE
         function calculateMobileScale() {
             const width = window.innerWidth;
             const height = window.innerHeight;
             
             // Base scale on screen size - smaller screens get smaller objects
             if (width < 400 || height < 250) {
-                return 0.6; // Very small screens
+                return 0.3; // Very small screens - reduced from 0.6
             } else if (width < 500 || height < 300) {
-                return 0.7; // Small screens
+                return 0.35; // Small screens - reduced from 0.7
             } else if (width < 600 || height < 350) {
-                return 0.8; // Medium-small screens
+                return 0.4; // Medium-small screens - reduced from 0.8
             } else {
-                return 0.9; // Larger mobile screens
+                return 0.45; // Larger mobile screens - reduced from 0.9
             }
         }
 
@@ -1241,11 +1286,11 @@
             
             // Longer tracks for wider screens (landscape)
             if (aspectRatio > 1.8) {
-                return 1.8; // Very wide screens
+                return 2.2; // Very wide screens
             } else if (aspectRatio > 1.5) {
-                return 1.6; // Wide screens
+                return 2.0; // Wide screens
             } else {
-                return 1.4; // Standard mobile
+                return 1.8; // Standard mobile
             }
         }
 
@@ -1364,13 +1409,14 @@
             }
         }
 
-        // Enhanced Car Class with realistic graphics - ADJUSTED FOR MOBILE
+        // Enhanced Car Class with realistic graphics - MUCH SMALLER FOR MOBILE
         class Car {
             constructor(x, y, isUser = false, isOpponent = false) {
                 this.x = x;
                 this.y = y;
-                this.width = Math.max(CONFIG.MIN_OBJECT_SIZE, 60 * game.scaleFactor);
-                this.height = Math.max(CONFIG.MIN_OBJECT_SIZE/2, 30 * game.scaleFactor);
+                // MUCH SMALLER dimensions for mobile
+                this.width = Math.max(CONFIG.MIN_OBJECT_SIZE, 40 * game.scaleFactor); // Reduced from 60
+                this.height = Math.max(CONFIG.MIN_OBJECT_SIZE/2, 20 * game.scaleFactor); // Reduced from 30
                 
                 // Adjust speed for mobile
                 const speedMultiplier = game.isMobile ? CONFIG.MOBILE_SPEED_FACTOR : 1;
@@ -1385,9 +1431,15 @@
                 this.moveUp = false;
                 this.moveDown = false;
                 this.wheelRotation = 0;
+                
+                // NEW: For opponent cars - track hits from lasers
+                this.hits = 0;
+                this.destroyed = false;
             }
 
             update() {
+                if (this.destroyed) return;
+                
                 this.wheelRotation += 0.2;
                 
                 if (this.isUser && game.playerInCar) {
@@ -1407,6 +1459,13 @@
                     
                     this.x += moveX * this.speed;
                     this.y += moveY * this.speed;
+                    
+                    // NEW: Track scrolling when player moves up
+                    if (moveY < 0 && game.isMobile) {
+                        game.trackScrollSpeed = Math.abs(moveY) * this.speed * 0.5;
+                    } else {
+                        game.trackScrollSpeed = 0;
+                    }
                     
                     // Boundary checks
                     this.x = Math.max(this.width/2, Math.min(game.canvas.width - this.width/2, this.x));
@@ -1478,6 +1537,8 @@
             }
 
             draw(ctx) {
+                if (this.destroyed) return;
+                
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 
@@ -1556,12 +1617,13 @@
             }
         }
 
-        // Player Class (for when out of car) - ADJUSTED FOR MOBILE
+        // Player Class (for when out of car) - MUCH SMALLER FOR MOBILE
         class Player {
             constructor(x, y) {
                 this.x = x;
                 this.y = y;
-                this.radius = Math.max(CONFIG.MIN_OBJECT_SIZE/2, 15 * game.scaleFactor);
+                // MUCH SMALLER radius for mobile
+                this.radius = Math.max(CONFIG.MIN_OBJECT_SIZE/2, 10 * game.scaleFactor); // Reduced from 15
                 
                 // Adjust speed for mobile
                 const speedMultiplier = game.isMobile ? CONFIG.MOBILE_SPEED_FACTOR : 1;
@@ -1609,6 +1671,8 @@
                 
                 // Check collision with opponent cars - enhanced detection
                 for (let opponentCar of game.opponentCars) {
+                    if (opponentCar.destroyed) continue;
+                    
                     const dx = Math.abs(this.x - opponentCar.x);
                     const dy = Math.abs(this.y - opponentCar.y);
                     const carRadius = Math.max(opponentCar.width, opponentCar.height) / 2;
@@ -1707,12 +1771,13 @@
             }
         }
 
-        // Ball Class - ADJUSTED FOR MOBILE
+        // Ball Class - MUCH SMALLER FOR MOBILE
         class Ball {
             constructor() {
                 this.x = game.canvas.width / 2;
                 this.y = game.canvas.height - 50 * game.scaleFactor;
-                this.radius = Math.max(CONFIG.MIN_OBJECT_SIZE/3, 8 * game.scaleFactor);
+                // MUCH SMALLER radius for mobile
+                this.radius = Math.max(CONFIG.MIN_OBJECT_SIZE/3, 5 * game.scaleFactor); // Reduced from 8
                 this.speedX = 0;
                 this.speedY = 0;
                 this.possessedBy = null;
@@ -1784,6 +1849,83 @@
             }
         }
 
+        // NEW: Laser Class
+        class Laser {
+            constructor(x, y, angle) {
+                this.x = x;
+                this.y = y;
+                this.speedX = Math.cos(angle) * CONFIG.LASER_SPEED;
+                this.speedY = Math.sin(angle) * CONFIG.LASER_SPEED;
+                this.radius = 3 * game.scaleFactor;
+                this.color = '#00ff00';
+                this.life = 100; // Frames until laser disappears
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life--;
+                
+                // Remove if out of bounds or life expired
+                if (this.x < -50 || this.x > game.canvas.width + 50 || 
+                    this.y < -50 || this.y > game.canvas.height + 50 ||
+                    this.life <= 0) {
+                    const index = game.lasers.indexOf(this);
+                    if (index > -1) {
+                        game.lasers.splice(index, 1);
+                    }
+                    return;
+                }
+                
+                // Check collision with opponent cars
+                for (let opponentCar of game.opponentCars) {
+                    if (opponentCar.destroyed) continue;
+                    
+                    const dx = Math.abs(this.x - opponentCar.x);
+                    const dy = Math.abs(this.y - opponentCar.y);
+                    const carRadius = Math.max(opponentCar.width, opponentCar.height) / 2;
+                    
+                    if (dx < carRadius + this.radius && dy < carRadius + this.radius) {
+                        // Hit opponent car
+                        opponentCar.hits++;
+                        
+                        // Remove laser
+                        const index = game.lasers.indexOf(this);
+                        if (index > -1) {
+                            game.lasers.splice(index, 1);
+                        }
+                        
+                        // Check if opponent car is destroyed
+                        if (opponentCar.hits >= CONFIG.LASER_DAMAGE) {
+                            opponentCar.destroyed = true;
+                            playSound('explosion');
+                        }
+                        
+                        return;
+                    }
+                }
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                
+                // Laser beam
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Laser glow
+                ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
+                ctx.beginPath();
+                ctx.arc(0, 0, this.radius * 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+            }
+        }
+
         // Initialize the game
         function init() {
             game.canvas = document.getElementById('gameCanvas');
@@ -1840,6 +1982,9 @@
                 
             // Calculate stop line position
             game.stopLineY = CONFIG.STOP_LINE_Y * game.scaleFactor * (game.isMobile ? 0.7 : 1);
+            
+            // NEW: Calculate maximum track offset for scrolling
+            game.maxTrackOffset = game.trackLength - game.canvas.height;
         }
 
         function optimizeMobileControls() {
@@ -1981,6 +2126,15 @@
                                 stopSound('car');
                             }
                             break;
+                        case 's': 
+                            // NEW: Shoot laser if enabled
+                            if (game.chapter >= CONFIG.LASER_ENABLED_CHAPTERS.start && 
+                                game.chapter <= CONFIG.LASER_ENABLED_CHAPTERS.end) {
+                                shootLaser();
+                            } else {
+                                game.player.steal();
+                            }
+                            break;
                         case 'p': case 'P': togglePause(); break;
                     }
                 } else {
@@ -1990,7 +2144,15 @@
                         case 'ArrowDown': game.player.moveDown = true; break;
                         case 'ArrowLeft': game.player.moveLeft = true; break;
                         case 'ArrowRight': game.player.moveRight = true; break;
-                        case 's': game.player.steal(); break;
+                        case 's': 
+                            // NEW: Shoot laser if enabled
+                            if (game.chapter >= CONFIG.LASER_ENABLED_CHAPTERS.start && 
+                                game.chapter <= CONFIG.LASER_ENABLED_CHAPTERS.end) {
+                                shootLaser();
+                            } else {
+                                game.player.steal();
+                            }
+                            break;
                         case 'p': case 'P': togglePause(); break;
                     }
                 }
@@ -2015,12 +2177,40 @@
             });
         }
 
+        // NEW: Shoot laser function
+        function shootLaser() {
+            if (game.laserCooldown > 0) return;
+            
+            // Play laser sound
+            playSound('laser');
+            
+            // Determine laser starting position
+            let startX, startY, angle;
+            
+            if (game.playerInCar) {
+                startX = game.playerCar.x;
+                startY = game.playerCar.y - game.playerCar.height/2;
+                angle = -Math.PI/2; // Shoot upward
+            } else {
+                startX = game.player.x;
+                startY = game.player.y - game.player.radius;
+                angle = -Math.PI/2; // Shoot upward
+            }
+            
+            // Create laser
+            const laser = new Laser(startX, startY, angle);
+            game.lasers.push(laser);
+            
+            // Set cooldown
+            game.laserCooldown = CONFIG.LASER_COOLDOWN;
+        }
+
         function setupMobileControls() {
             const joystickBase = document.querySelector('.joystick-base');
             const joystickHandle = document.querySelector('.joystick-handle');
             const shootBtn = document.querySelector('.control-btn.shoot');
             const stealBtn = document.querySelector('.control-btn.steal');
-            const fightBtn = document.querySelector('.control-btn.fight');
+            const laserBtn = document.querySelector('.control-btn.fight');
             
             let joystickActive = false;
             let joystickCenter = { x: 0, y: 0 };
@@ -2032,6 +2222,19 @@
                     x: joystickRect.left + joystickRect.width / 2,
                     y: joystickRect.top + joystickRect.height / 2
                 };
+            }
+            
+            // NEW: Update button labels based on chapter
+            function updateButtonLabels() {
+                if (game.chapter >= CONFIG.LASER_ENABLED_CHAPTERS.start && 
+                    game.chapter <= CONFIG.LASER_ENABLED_CHAPTERS.end) {
+                    laserBtn.textContent = "LASER";
+                    laserBtn.style.display = 'flex';
+                    stealBtn.textContent = "STEAL";
+                } else {
+                    laserBtn.style.display = 'none';
+                    stealBtn.textContent = "STEAL";
+                }
             }
             
             joystickBase.addEventListener('touchstart', (e) => {
@@ -2061,9 +2264,9 @@
             
             // Update button labels and functionality
             shootBtn.textContent = "EXIT";
-            fightBtn.style.display = 'none'; // Remove fight button
+            updateButtonLabels();
             
-            [shootBtn, stealBtn].forEach(btn => {
+            [shootBtn, stealBtn, laserBtn].forEach(btn => {
                 btn.addEventListener('touchstart', (e) => {
                     if (!game.paused) {
                         if (btn.classList.contains('shoot')) {
@@ -2079,6 +2282,8 @@
                             }
                         } else if (btn.classList.contains('steal')) {
                             game.player.steal();
+                        } else if (btn.classList.contains('fight') && btn.textContent === "LASER") {
+                            shootLaser();
                         }
                     }
                     e.preventDefault();
@@ -2131,7 +2336,12 @@
             
             updateJoystickCenter();
             window.addEventListener('resize', updateJoystickCenter);
+            
+            // Return function to update button labels
+            return updateButtonLabels;
         }
+
+        let updateButtonLabels; // Will be set in resetGame
 
         function resetGame() {
             // Set up track length based on chapter
@@ -2189,17 +2399,35 @@
             game.ball = new Ball();
             game.ball.possessedBy = game.playerCar;
             
+            // NEW: Reset track scrolling
+            game.trackOffset = 0;
+            game.trackScrollSpeed = 0;
+            
+            // NEW: Reset goal timer
+            game.goalTimer = CONFIG.GOAL_APPEARANCE_TIMES[game.chapter] || 2;
+            game.goalVisible = false;
+            
+            // NEW: Reset lasers
+            game.lasers = [];
+            game.laserCooldown = 0;
+            
             game.lives = CONFIG.LIVES;
             game.recoveryTimer = CONFIG.RECOVERY_TIME;
             game.ballLost = false;
             game.paused = false;
             game.playerInCar = true;
             
+            // NEW: Update button labels if on mobile
+            if (game.isMobile && updateButtonLabels) {
+                updateButtonLabels();
+            }
+            
             // Start car sound
             playSound('car');
             
             updateLivesDisplay();
             updateChapterDisplay();
+            updateGoalTimerDisplay();
         }
 
         function startGame() {
@@ -2285,6 +2513,27 @@
         }
 
         function update(deltaTime) {
+            // NEW: Update track scrolling
+            if (game.isMobile && game.trackScrollSpeed > 0) {
+                game.trackOffset = Math.min(game.trackOffset + game.trackScrollSpeed, game.maxTrackOffset);
+            }
+            
+            // NEW: Update goal timer
+            if (!game.goalVisible) {
+                game.goalTimer -= deltaTime / 1000;
+                updateGoalTimerDisplay();
+                
+                if (game.goalTimer <= 0) {
+                    game.goalVisible = true;
+                    document.getElementById('timerContainer').style.display = 'none';
+                }
+            }
+            
+            // NEW: Update laser cooldown
+            if (game.laserCooldown > 0) {
+                game.laserCooldown--;
+            }
+            
             // Update game objects based on player state
             if (game.playerInCar) {
                 game.playerCar.update();
@@ -2304,12 +2553,19 @@
                 }
             }
             
+            // NEW: Update lasers
+            for (let i = game.lasers.length - 1; i >= 0; i--) {
+                if (game.lasers[i] && typeof game.lasers[i].update === 'function') {
+                    game.lasers[i].update();
+                }
+            }
+            
             checkGoals();
         }
 
         function checkGoals() {
             // Check if player scored (ball in goal area at top of screen)
-            if (!game.playerInCar && game.ball.possessedBy === game.player) {
+            if (!game.playerInCar && game.ball.possessedBy === game.player && game.goalVisible) {
                 const goalAreaHeight = 50 * game.scaleFactor;
                 const goalAreaWidth = 100 * game.scaleFactor;
                 
@@ -2401,12 +2657,22 @@
             document.getElementById('opponentsDisplay').textContent = game.chapter;
         }
 
+        // NEW: Update goal timer display
+        function updateGoalTimerDisplay() {
+            document.getElementById('goalTimer').textContent = Math.max(0, Math.ceil(game.goalTimer));
+        }
+
         function render() {
             const ctx = game.ctx;
             ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
             
             drawRaceTrack(ctx);
-            drawGoalArea(ctx);
+            
+            // NEW: Only draw goal area if visible
+            if (game.goalVisible) {
+                drawGoalArea(ctx);
+            }
+            
             drawStopLine(ctx);
             
             // Draw opponent cars
@@ -2429,6 +2695,13 @@
             game.cannonBalls.forEach(ball => {
                 if (ball && typeof ball.draw === 'function') {
                     ball.draw(ctx);
+                }
+            });
+            
+            // NEW: Draw lasers
+            game.lasers.forEach(laser => {
+                if (laser && typeof laser.draw === 'function') {
+                    laser.draw(ctx);
                 }
             });
         }
@@ -2470,10 +2743,10 @@
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
                 ctx.font = '10px Arial';
                 ctx.textAlign = 'center';
-                for (let i = 1; i <= 3; i++) {
-                    const markerY = game.canvas.height * (i * 0.25);
-                    ctx.fillText(`${i * 25}m`, 30, markerY);
-                    ctx.fillText(`${i * 25}m`, game.canvas.width - 30, markerY);
+                for (let i = 1; i <= 5; i++) {
+                    const markerY = game.canvas.height * (i * 0.2);
+                    ctx.fillText(`${i * 50}m`, 30, markerY);
+                    ctx.fillText(`${i * 50}m`, game.canvas.width - 30, markerY);
                 }
             }
         }
@@ -2514,7 +2787,14 @@
             ctx.fillText('STOP AND EXIT CAR', game.canvas.width/2, game.stopLineY - 10 * game.scaleFactor);
         }
 
-        window.addEventListener('load', init);
+        // Initialize the game
+        window.addEventListener('load', function() {
+            init();
+            // Set up mobile controls and get the updateButtonLabels function
+            if (game.isMobile) {
+                updateButtonLabels = setupMobileControls();
+            }
+        });
     </script>
 </body>
 </html>
