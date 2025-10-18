@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Racing Challenge</title>
+    <title>Laser Shooting Challenge</title>
     <style>
         * {
             margin: 0;
@@ -853,7 +853,7 @@
                 <span>Chapter: <span id="chapterDisplay">1</span></span>
             </div>
             <div class="ui-box">
-                <span>Opponents: <span id="opponentsDisplay">1</span></span>
+                <span>Opponents: <span id="opponentsDisplay">5</span></span>
             </div>
             <div class="ui-box" id="timerContainer">
                 <span>Goal in: <span id="goalTimer">2</span>s</span>
@@ -874,11 +874,10 @@
         </div>
         
         <div id="startOverlay" class="overlay">
-            <h1>RACING CHALLENGE</h1>
-            <p>Drive to the goal, get out of your car, and score! Avoid opponent cars and cannon fire!</p>
-            <p>Use arrow keys to drive, SPACE to get out of car, 'S' to steal. Press 'P' to pause.</p>
+            <h1>LASER SHOOTING CHALLENGE</h1>
+            <p>Shoot lasers at opponents at the top of the screen! Eliminate all opponents to reach the goal!</p>
+            <p>Use arrow keys to move, SPACE to shoot lasers. Press 'P' to pause.</p>
             <div class="btn-container">
-                <!-- REMOVED: Start Game button -->
                 <button id="selectStageBtn" class="btn">START GAME</button>
             </div>
         </div>
@@ -904,7 +903,7 @@
         
         <div id="winOverlay" class="overlay" style="display: none;">
             <h1>LEVEL COMPLETE!</h1>
-            <h2>You scored against <span id="winOpponents">1</span> opponents!</h2>
+            <h2>You eliminated <span id="winOpponents">5</span> opponents!</h2>
             <div style="display: flex; justify-content: center; margin: 12px 0;">
                 <div class="thumbs-up">👍</div>
                 <div class="thumbs-up">👍</div>
@@ -920,7 +919,7 @@
         <div id="loseOverlay" class="overlay" style="display: none;">
             <h1>GAME OVER</h1>
             <h2>You lost on Chapter <span id="loseChapter">1</span></h2>
-            <p>You couldn't score against <span id="loseOpponents">1</span> opponents!</p>
+            <p>You couldn't eliminate all <span id="loseOpponents">5</span> opponents!</p>
             <div class="btn-container">
                 <button id="restartBtn" class="btn">PLAY AGAIN</button>
                 <button id="stageSelectFromLoseBtn" class="btn btn-secondary">STAGE SELECT</button>
@@ -1016,13 +1015,18 @@
             LASER_SPEED: 6, // Reduced from 10
             LASER_COOLDOWN: 30,
             LASER_DAMAGE: 1, // Hits needed to destroy opponent car
-            LASER_ENABLED_CHAPTERS: { start: 6, end: 15 }
+            LASER_ENABLED_CHAPTERS: { start: 1, end: 22 }, // All chapters now use lasers
+            OPPONENT_LASER_ENABLED_CHAPTERS: { start: 5, end: 22 }, // Opponents shoot back from chapter 5
+            
+            // NEW: Power-up settings
+            POWERUP_CHANCE: 0.3, // 30% chance to spawn power-up when opponent is destroyed
+            POWERUP_TYPES: ['life', 'bigLaser', 'doubleLaser', 'aiBuddy']
         };
 
         // NEW: Game Progress Storage
         const STORAGE_KEYS = {
-            CURRENT_CHAPTER: 'racingChallenge_currentChapter',
-            COMPLETED_CHAPTERS: 'racingChallenge_completedChapters'
+            CURRENT_CHAPTER: 'laserChallenge_currentChapter',
+            COMPLETED_CHAPTERS: 'laserChallenge_completedChapters'
         };
 
         // Game State
@@ -1063,7 +1067,22 @@
             
             // NEW: Laser variables
             lasers: [],
-            laserCooldown: 0
+            laserCooldown: 0,
+            
+            // NEW: Opponent laser variables
+            opponentLasers: [],
+            opponentLaserCooldown: 0,
+            
+            // NEW: Power-up variables
+            powerups: [],
+            activePowerups: {
+                bigLaser: { active: false, timer: 0 },
+                doubleLaser: { active: false, timer: 0 },
+                aiBuddy: { active: false, timer: 0 }
+            },
+            
+            // NEW: AI buddy variables
+            aiBuddy: null
         };
 
         // Sound elements
@@ -1080,7 +1099,8 @@
             car: null,
             // NEW: Laser and explosion sounds
             laser: null,
-            explosion: null
+            explosion: null,
+            powerup: null
         };
 
         // NEW: Initialize game progress from localStorage
@@ -1294,58 +1314,60 @@
             }
         }
 
-        // SIMPLIFIED Cannon Class - FIXED VERSION
-        class Cannon {
-            constructor(x, y) {
+        // NEW: Opponent Class (moves side to side at the top)
+        class Opponent {
+            constructor(x, y, speed) {
                 this.x = x;
                 this.y = y;
-                this.cooldown = 0;
-                this.width = 30 * game.scaleFactor;
-                this.height = 15 * game.scaleFactor;
-                this.color = '#8B4513';
-                this.barrelColor = '#654321';
-                this.angle = 0;
+                this.width = 40 * game.scaleFactor;
+                this.height = 20 * game.scaleFactor;
+                this.speedX = speed;
+                this.destroyed = false;
+                this.color = '#e74c3c';
+                this.laserCooldown = 0;
             }
 
             update() {
-                if (this.cooldown > 0) {
-                    this.cooldown--;
+                if (this.destroyed) return;
+                
+                // Move side to side
+                this.x += this.speedX;
+                
+                // Bounce off walls
+                if (this.x < this.width/2 || this.x > game.canvas.width - this.width/2) {
+                    this.speedX *= -1;
                 }
                 
-                // Calculate angle to player
-                const dx = game.player.x - this.x;
-                const dy = game.player.y - this.y;
-                this.angle = Math.atan2(dy, dx);
+                // Update laser cooldown
+                if (this.laserCooldown > 0) {
+                    this.laserCooldown--;
+                }
                 
-                // Random shooting with cooldown - FIXED LOGIC
-                if (this.cooldown === 0 && Math.random() < 0.015) {
-                    this.shoot();
-                    this.cooldown = CONFIG.CANNON_COOLDOWN;
+                // Shoot laser if enabled and cooldown is ready
+                if (game.chapter >= CONFIG.OPPONENT_LASER_ENABLED_CHAPTERS.start && 
+                    game.chapter <= CONFIG.OPPONENT_LASER_ENABLED_CHAPTERS.end &&
+                    this.laserCooldown === 0 && Math.random() < 0.01) {
+                    this.shootLaser();
+                    this.laserCooldown = 120; // 2 seconds cooldown
                 }
             }
 
-            shoot() {
-                // Play cannon sound
-                playSound('cannon');
-                
-                // Create cannon ball as simple object - FIXED
-                const cannonBall = {
+            shootLaser() {
+                // Create opponent laser
+                const laser = {
                     x: this.x,
-                    y: this.y,
-                    radius: 8 * game.scaleFactor,
-                    speedX: Math.cos(this.angle) * CONFIG.CANNON_SPEED,
-                    speedY: Math.sin(this.angle) * CONFIG.CANNON_SPEED,
-                    color: '#000000',
+                    y: this.y + this.height/2,
+                    speedY: CONFIG.LASER_SPEED * 0.7, // Slightly slower than player lasers
+                    radius: 3 * game.scaleFactor,
+                    color: '#ff0000',
                     update: function() {
-                        this.x += this.speedX;
                         this.y += this.speedY;
                         
                         // Remove if out of bounds
-                        if (this.x < -50 || this.x > game.canvas.width + 50 || 
-                            this.y < -50 || this.y > game.canvas.height + 50) {
-                            const index = game.cannonBalls.indexOf(this);
+                        if (this.y > game.canvas.height + 50) {
+                            const index = game.opponentLasers.indexOf(this);
                             if (index > -1) {
-                                game.cannonBalls.splice(index, 1);
+                                game.opponentLasers.splice(index, 1);
                             }
                             return;
                         }
@@ -1356,17 +1378,14 @@
                         const distance = Math.sqrt(dx * dx + dy * dy);
                         
                         if (distance < this.radius + game.player.radius) {
-                            // Play hit sound
-                            playSound('hit');
-                            
                             // Hit player - lose a life
                             game.lives--;
                             updateLivesDisplay();
                             
-                            // Remove cannon ball
-                            const index = game.cannonBalls.indexOf(this);
+                            // Remove laser
+                            const index = game.opponentLasers.indexOf(this);
                             if (index > -1) {
-                                game.cannonBalls.splice(index, 1);
+                                game.opponentLasers.splice(index, 1);
                             }
                             
                             // Check for game over
@@ -1381,236 +1400,298 @@
                         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                         ctx.fill();
                         
-                        // Add smoke trail
-                        ctx.fillStyle = 'rgba(100, 100, 100, 0.5)';
+                        // Add glow
+                        ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
                         ctx.beginPath();
-                        ctx.arc(this.x - this.speedX * 0.5, this.y - this.speedY * 0.5, this.radius * 0.7, 0, Math.PI * 2);
+                        ctx.arc(this.x, this.y, this.radius * 2, 0, Math.PI * 2);
                         ctx.fill();
                     }
                 };
                 
-                game.cannonBalls.push(cannonBall);
+                game.opponentLasers.push(laser);
             }
 
             draw(ctx) {
+                if (this.destroyed) return;
+                
                 ctx.save();
                 ctx.translate(this.x, this.y);
-                ctx.rotate(this.angle);
                 
-                // Draw cannon base
+                // Draw opponent body
                 ctx.fillStyle = this.color;
                 ctx.fillRect(-this.width/2, -this.height/2, this.width, this.height);
                 
-                // Draw cannon barrel
-                ctx.fillStyle = this.barrelColor;
-                ctx.fillRect(this.width/2 - 5, -5, 25, 10);
+                // Draw opponent details
+                ctx.fillStyle = '#2c3e50';
+                ctx.fillRect(-this.width/2 + 5, -this.height/2 + 5, this.width - 10, this.height - 10);
+                
+                // Draw eyes
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(-this.width/2 + 8, -this.height/2 + 8, 6, 6);
+                ctx.fillRect(this.width/2 - 14, -this.height/2 + 8, 6, 6);
+                
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(-this.width/2 + 9, -this.height/2 + 9, 4, 4);
+                ctx.fillRect(this.width/2 - 13, -this.height/2 + 9, 4, 4);
                 
                 ctx.restore();
             }
         }
 
-        // Enhanced Car Class with realistic graphics - MUCH SMALLER FOR MOBILE
-        class Car {
-            constructor(x, y, isUser = false, isOpponent = false) {
+        // NEW: PowerUp Class
+        class PowerUp {
+            constructor(x, y, type) {
                 this.x = x;
                 this.y = y;
-                // MUCH SMALLER dimensions for mobile
-                this.width = Math.max(CONFIG.MIN_OBJECT_SIZE, 40 * game.scaleFactor); // Reduced from 60
-                this.height = Math.max(CONFIG.MIN_OBJECT_SIZE/2, 20 * game.scaleFactor); // Reduced from 30
+                this.type = type;
+                this.radius = 10 * game.scaleFactor;
+                this.speedY = 2;
+                this.collected = false;
                 
-                // Adjust speed for mobile
-                const speedMultiplier = game.isMobile ? CONFIG.MOBILE_SPEED_FACTOR : 1;
-                this.speed = (isUser ? CONFIG.CAR_SPEED : CONFIG.OPPONENT_SPEED) * speedMultiplier;
-                
-                this.isUser = isUser;
-                this.isOpponent = isOpponent;
-                this.color = isUser ? '#3498db' : '#e74c3c';
-                this.hasBall = isUser;
-                this.moveLeft = false;
-                this.moveRight = false;
-                this.moveUp = false;
-                this.moveDown = false;
-                this.wheelRotation = 0;
-                
-                // NEW: For opponent cars - track hits from lasers
-                this.hits = 0;
-                this.destroyed = false;
+                // Set color based on type
+                switch(type) {
+                    case 'life':
+                        this.color = '#e74c3c';
+                        break;
+                    case 'bigLaser':
+                        this.color = '#3498db';
+                        break;
+                    case 'doubleLaser':
+                        this.color = '#9b59b6';
+                        break;
+                    case 'aiBuddy':
+                        this.color = '#f1c40f';
+                        break;
+                }
             }
 
             update() {
-                if (this.destroyed) return;
+                if (this.collected) return;
                 
-                this.wheelRotation += 0.2;
+                // Move downward
+                this.y += this.speedY;
                 
-                if (this.isUser && game.playerInCar) {
-                    // User car controls - enhanced movement
-                    let moveX = 0, moveY = 0;
-                    
-                    if (this.moveLeft) moveX -= 1;
-                    if (this.moveRight) moveX += 1;
-                    if (this.moveUp) moveY -= 1;
-                    if (this.moveDown) moveY += 1;
-                    
-                    // Normalize diagonal movement
-                    if (moveX !== 0 && moveY !== 0) {
-                        moveX *= 0.707;
-                        moveY *= 0.707;
+                // Remove if out of bounds
+                if (this.y > game.canvas.height + this.radius) {
+                    const index = game.powerups.indexOf(this);
+                    if (index > -1) {
+                        game.powerups.splice(index, 1);
                     }
-                    
-                    this.x += moveX * this.speed;
-                    this.y += moveY * this.speed;
-                    
-                    // NEW: Track scrolling when player moves up
-                    if (moveY < 0 && game.isMobile) {
-                        game.trackScrollSpeed = Math.abs(moveY) * this.speed * 0.5;
-                    } else {
-                        game.trackScrollSpeed = 0;
-                    }
-                    
-                    // Boundary checks
-                    this.x = Math.max(this.width/2, Math.min(game.canvas.width - this.width/2, this.x));
-                    this.y = Math.max(this.height/2, Math.min(game.canvas.height - this.height/2, this.y));
-                    
-                    // Check if reached stop line
-                    if (this.y <= game.stopLineY) {
-                        // Stop at the line
-                        this.y = game.stopLineY;
-                        
-                        // Auto-exit car when at stop line
-                        if (!game.playerInCar) return;
-                        
-                        game.playerInCar = false;
-                        game.player.x = this.x;
-                        game.player.y = this.y + 50 * game.scaleFactor;
-                        game.player.hasBall = true;
-                        game.ball.possessedBy = game.player;
-                        playSound('walk');
-                        stopSound('car');
-                    }
-                } 
-                else if (this.isOpponent) {
-                    // Enhanced Opponent car AI - much more aggressive
-                    const dx = game.playerInCar ? game.playerCar.x - this.x : game.player.x - this.x;
-                    const dy = game.playerInCar ? game.playerCar.y - this.y : game.player.y - this.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    
-                    // More aggressive chasing based on distance
-                    let aggression = 1.0;
-                    if (distance < 200 * game.scaleFactor) aggression = 1.5;
-                    if (distance < 100 * game.scaleFactor) aggression = 2.0;
-                    
-                    // Move toward player with increased aggression
-                    this.x += (dx / distance) * this.speed * aggression;
-                    this.y += (dy / distance) * this.speed * aggression;
-                    
-                    // Add some randomness to make it more challenging
-                    if (Math.random() < 0.05) {
-                        this.x += (Math.random() - 0.5) * this.speed * 0.5;
-                        this.y += (Math.random() - 0.5) * this.speed * 0.5;
-                    }
-                    
-                    // Boundary checks for opponents
-                    this.x = Math.max(this.width/2, Math.min(game.canvas.width - this.width/2, this.x));
-                    this.y = Math.max(this.height/2, Math.min(game.canvas.height - this.height/2, this.y));
-                    
-                    // Check collision with player car
-                    if (game.playerInCar) {
-                        const carDx = Math.abs(this.x - game.playerCar.x);
-                        const carDy = Math.abs(this.y - game.playerCar.y);
-                        if (carDx < this.width/2 + game.playerCar.width/2 && 
-                            carDy < this.height/2 + game.playerCar.height/2) {
-                            // Crash - player loses a life
-                            game.lives--;
-                            updateLivesDisplay();
-                            playSound('hit');
-                            
-                            // Reset player position
-                            game.playerCar.x = game.canvas.width / 2;
-                            game.playerCar.y = game.canvas.height - game.startPositionOffset;
-                            
-                            if (game.lives <= 0) {
-                                showLoseOverlay();
-                            }
+                    return;
+                }
+                
+                // Check collision with player
+                const dx = this.x - game.player.x;
+                const dy = this.y - game.player.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < this.radius + game.player.radius) {
+                    this.collect();
+                }
+            }
+
+            collect() {
+                this.collected = true;
+                
+                // Apply power-up effect
+                switch(this.type) {
+                    case 'life':
+                        game.lives = Math.min(game.lives + 1, CONFIG.LIVES);
+                        updateLivesDisplay();
+                        break;
+                    case 'bigLaser':
+                        game.activePowerups.bigLaser.active = true;
+                        game.activePowerups.bigLaser.timer = 300; // 5 seconds
+                        break;
+                    case 'doubleLaser':
+                        game.activePowerups.doubleLaser.active = true;
+                        game.activePowerups.doubleLaser.timer = 300; // 5 seconds
+                        break;
+                    case 'aiBuddy':
+                        game.activePowerups.aiBuddy.active = true;
+                        game.activePowerups.aiBuddy.timer = 450; // 7.5 seconds
+                        // Create AI buddy if it doesn't exist
+                        if (!game.aiBuddy) {
+                            game.aiBuddy = {
+                                x: game.player.x,
+                                y: game.player.y,
+                                radius: 8 * game.scaleFactor,
+                                color: '#f1c40f',
+                                laserCooldown: 0,
+                                update: function() {
+                                    // Follow player but stay slightly above
+                                    this.x = game.player.x;
+                                    this.y = game.player.y - 30;
+                                    
+                                    // Update laser cooldown
+                                    if (this.laserCooldown > 0) {
+                                        this.laserCooldown--;
+                                    }
+                                    
+                                    // Shoot at opponents
+                                    if (this.laserCooldown === 0) {
+                                        // Find closest opponent
+                                        let closestOpponent = null;
+                                        let minDistance = Infinity;
+                                        
+                                        for (let opponent of game.opponents) {
+                                            if (opponent.destroyed) continue;
+                                            
+                                            const dx = opponent.x - this.x;
+                                            const dy = opponent.y - this.y;
+                                            const distance = Math.sqrt(dx * dx + dy * dy);
+                                            
+                                            if (distance < minDistance) {
+                                                minDistance = distance;
+                                                closestOpponent = opponent;
+                                            }
+                                        }
+                                        
+                                        // Shoot at closest opponent
+                                        if (closestOpponent && minDistance < 300) {
+                                            const angle = Math.atan2(closestOpponent.y - this.y, closestOpponent.x - this.x);
+                                            this.shootLaser(angle);
+                                            this.laserCooldown = 60; // 1 second cooldown
+                                        }
+                                    }
+                                },
+                                shootLaser: function(angle) {
+                                    const laser = {
+                                        x: this.x,
+                                        y: this.y,
+                                        speedX: Math.cos(angle) * CONFIG.LASER_SPEED,
+                                        speedY: Math.sin(angle) * CONFIG.LASER_SPEED,
+                                        radius: 3 * game.scaleFactor,
+                                        color: '#f1c40f',
+                                        update: function() {
+                                            this.x += this.speedX;
+                                            this.y += this.speedY;
+                                            
+                                            // Remove if out of bounds
+                                            if (this.x < -50 || this.x > game.canvas.width + 50 || 
+                                                this.y < -50 || this.y > game.canvas.height + 50) {
+                                                const index = game.lasers.indexOf(this);
+                                                if (index > -1) {
+                                                    game.lasers.splice(index, 1);
+                                                }
+                                                return;
+                                            }
+                                            
+                                            // Check collision with opponents
+                                            for (let opponent of game.opponents) {
+                                                if (opponent.destroyed) continue;
+                                                
+                                                const dx = Math.abs(this.x - opponent.x);
+                                                const dy = Math.abs(this.y - opponent.y);
+                                                const opponentRadius = Math.max(opponent.width, opponent.height) / 2;
+                                                
+                                                if (dx < opponentRadius + this.radius && dy < opponentRadius + this.radius) {
+                                                    // Hit opponent
+                                                    opponent.destroyed = true;
+                                                    playSound('explosion');
+                                                    
+                                                    // Remove laser
+                                                    const index = game.lasers.indexOf(this);
+                                                    if (index > -1) {
+                                                        game.lasers.splice(index, 1);
+                                                    }
+                                                    
+                                                    // Spawn power-up with chance
+                                                    if (Math.random() < CONFIG.POWERUP_CHANCE) {
+                                                        const powerupType = CONFIG.POWERUP_TYPES[Math.floor(Math.random() * CONFIG.POWERUP_TYPES.length)];
+                                                        const powerup = new PowerUp(opponent.x, opponent.y, powerupType);
+                                                        game.powerups.push(powerup);
+                                                    }
+                                                    
+                                                    updateOpponentsDisplay();
+                                                    return;
+                                                }
+                                            }
+                                        },
+                                        draw: function(ctx) {
+                                            ctx.fillStyle = this.color;
+                                            ctx.beginPath();
+                                            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                                            ctx.fill();
+                                            
+                                            // Add glow
+                                            ctx.fillStyle = 'rgba(241, 196, 15, 0.5)';
+                                            ctx.beginPath();
+                                            ctx.arc(this.x, this.y, this.radius * 2, 0, Math.PI * 2);
+                                            ctx.fill();
+                                        }
+                                    };
+                                    
+                                    game.lasers.push(laser);
+                                },
+                                draw: function(ctx) {
+                                    ctx.save();
+                                    ctx.translate(this.x, this.y);
+                                    
+                                    // Draw AI buddy
+                                    ctx.fillStyle = this.color;
+                                    ctx.beginPath();
+                                    ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+                                    ctx.fill();
+                                    
+                                    // Draw AI buddy details
+                                    ctx.fillStyle = '#ffffff';
+                                    ctx.beginPath();
+                                    ctx.arc(-3, -2, 2, 0, Math.PI * 2);
+                                    ctx.arc(3, -2, 2, 0, Math.PI * 2);
+                                    ctx.fill();
+                                    
+                                    ctx.fillStyle = '#000000';
+                                    ctx.beginPath();
+                                    ctx.arc(-3, -2, 1, 0, Math.PI * 2);
+                                    ctx.arc(3, -2, 1, 0, Math.PI * 2);
+                                    ctx.fill();
+                                    
+                                    ctx.restore();
+                                }
+                            };
                         }
-                    }
+                        break;
+                }
+                
+                // Remove power-up from game
+                const index = game.powerups.indexOf(this);
+                if (index > -1) {
+                    game.powerups.splice(index, 1);
                 }
             }
 
             draw(ctx) {
-                if (this.destroyed) return;
+                if (this.collected) return;
                 
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 
-                // Car body - more realistic shape
+                // Draw power-up
                 ctx.fillStyle = this.color;
                 ctx.beginPath();
-                ctx.roundRect(-this.width/2, -this.height/2, this.width, this.height, 5);
+                ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // Car roof/windows
-                ctx.fillStyle = '#2c3e50';
-                ctx.beginPath();
-                ctx.roundRect(-this.width/2 + 5, -this.height/2 + 5, this.width - 10, this.height - 15, 3);
-                ctx.fill();
+                // Draw power-up symbol based on type
+                ctx.fillStyle = '#ffffff';
+                ctx.font = `${this.radius * 1.5}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
                 
-                // Windshield
-                ctx.fillStyle = '#87CEEB';
-                ctx.beginPath();
-                ctx.roundRect(-this.width/2 + 8, -this.height/2 + 8, this.width - 16, 8, 2);
-                ctx.fill();
-                
-                // Headlights
-                ctx.fillStyle = '#FFFF99';
-                ctx.fillRect(-this.width/2 + 5, -this.height/2 + 5, 4, 3);
-                ctx.fillRect(this.width/2 - 9, -this.height/2 + 5, 4, 3);
-                
-                // Realistic wheels with rotation
-                ctx.fillStyle = '#2c3e50';
-                
-                // Front wheels
-                ctx.save();
-                ctx.translate(-this.width/2 + 8, 0);
-                ctx.rotate(this.wheelRotation);
-                ctx.fillRect(-3, -6, 6, 12);
-                ctx.restore();
-                
-                ctx.save();
-                ctx.translate(this.width/2 - 8, 0);
-                ctx.rotate(this.wheelRotation);
-                ctx.fillRect(-3, -6, 6, 12);
-                ctx.restore();
-                
-                // Back wheels
-                ctx.save();
-                ctx.translate(-this.width/2 + 8, this.height/2 - 8);
-                ctx.rotate(this.wheelRotation);
-                ctx.fillRect(-3, -4, 6, 8);
-                ctx.restore();
-                
-                ctx.save();
-                ctx.translate(this.width/2 - 8, this.height/2 - 8);
-                ctx.rotate(this.wheelRotation);
-                ctx.fillRect(-3, -4, 6, 8);
-                ctx.restore();
-                
-                // Ball on user car
-                if (this.hasBall && this.isUser) {
-                    ctx.fillStyle = '#f1c40f';
-                    ctx.beginPath();
-                    ctx.arc(0, -this.height/2 - 12, 10 * game.scaleFactor, 0, Math.PI * 2);
-                    ctx.fill();
-                    
-                    // Ball pattern
-                    ctx.strokeStyle = '#000000';
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    ctx.moveTo(0, -this.height/2 - 22);
-                    ctx.lineTo(0, -this.height/2 - 2);
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.arc(0, -this.height/2 - 12, 5 * game.scaleFactor, 0, Math.PI * 2);
-                    ctx.stroke();
+                switch(this.type) {
+                    case 'life':
+                        ctx.fillText('+', 0, 0);
+                        break;
+                    case 'bigLaser':
+                        ctx.fillText('B', 0, 0);
+                        break;
+                    case 'doubleLaser':
+                        ctx.fillText('2', 0, 0);
+                        break;
+                    case 'aiBuddy':
+                        ctx.fillText('A', 0, 0);
+                        break;
                 }
                 
                 ctx.restore();
@@ -1662,36 +1743,6 @@
                 const boundaryMargin = 5 * game.scaleFactor;
                 this.x = Math.max(this.radius + boundaryMargin, Math.min(game.canvas.width - this.radius - boundaryMargin, this.x));
                 this.y = Math.max(this.radius + boundaryMargin, Math.min(game.canvas.height - this.radius - boundaryMargin, this.y));
-                
-                // Update ball position if player has it
-                if (this.hasBall && game.ball.possessedBy === this) {
-                    game.ball.x = this.x;
-                    game.ball.y = this.y - 20 * game.scaleFactor;
-                }
-                
-                // Check collision with opponent cars - enhanced detection
-                for (let opponentCar of game.opponentCars) {
-                    if (opponentCar.destroyed) continue;
-                    
-                    const dx = Math.abs(this.x - opponentCar.x);
-                    const dy = Math.abs(this.y - opponentCar.y);
-                    const carRadius = Math.max(opponentCar.width, opponentCar.height) / 2;
-                    
-                    if (dx < carRadius + this.radius && dy < carRadius + this.radius) {
-                        // Hit by car - lose a life
-                        game.lives--;
-                        updateLivesDisplay();
-                        playSound('hit');
-                        
-                        // Reset position
-                        this.x = game.canvas.width / 2;
-                        this.y = game.stopLineY + 50 * game.scaleFactor;
-                        
-                        if (game.lives <= 0) {
-                            showLoseOverlay();
-                        }
-                    }
-                }
             }
 
             draw(ctx) {
@@ -1754,175 +1805,225 @@
                 ctx.fillRect(1, 8, 3, 10); // Reduced from 1,10,4,12
                 ctx.restore();
                 
-                // Ball indicator
-                if (this.hasBall) {
-                    ctx.fillStyle = '#f1c40f';
-                    ctx.beginPath();
-                    ctx.arc(0, -20, 4 * game.scaleFactor, 0, Math.PI * 2); // Reduced from 25,5
-                    ctx.fill();
-                }
-                
                 ctx.restore();
             }
 
-            steal() {
-                // Steal functionality when needed
-                playSound('steal');
-            }
-        }
-
-        // Ball Class - MUCH SMALLER FOR MOBILE
-        class Ball {
-            constructor() {
-                this.x = game.canvas.width / 2;
-                this.y = game.canvas.height - 50 * game.scaleFactor;
-                // MUCH SMALLER radius for mobile
-                this.radius = Math.max(CONFIG.MIN_OBJECT_SIZE/3, 5 * game.scaleFactor); // Reduced from 8
-                this.speedX = 0;
-                this.speedY = 0;
-                this.possessedBy = null;
-                this.rotation = 0;
-            }
-
-            update() {
-                if (!this.possessedBy) {
-                    this.speedX *= 0.96;
-                    this.speedY *= 0.96;
-                    
-                    this.x += this.speedX;
-                    this.y += this.speedY;
-                    
-                    this.rotation += this.speedX * 0.08;
-                    
-                    // Boundary checks
-                    if (this.x - this.radius < 0) {
-                        this.x = this.radius;
-                        this.speedX *= -0.6;
-                    }
-                    if (this.x + this.radius > game.canvas.width) {
-                        this.x = game.canvas.width - this.radius;
-                        this.speedX *= -0.6;
-                    }
-                    if (this.y - this.radius < 0) {
-                        this.y = this.radius;
-                        this.speedY *= -0.6;
-                    }
-                    if (this.y + this.radius > game.canvas.height) {
-                        this.y = game.canvas.height - this.radius;
-                        this.speedY *= -0.6;
-                    }
-                    
-                    if (Math.abs(this.speedX) < 0.08) this.speedX = 0;
-                    if (Math.abs(this.speedY) < 0.08) this.speedY = 0;
-                }
-            }
-
-            draw(ctx) {
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.rotate(this.rotation);
+            shootLaser() {
+                if (game.laserCooldown > 0) return;
                 
-                ctx.fillStyle = '#FFFFFF';
-                ctx.beginPath();
-                ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-                ctx.fill();
+                // Play laser sound
+                playSound('laser');
                 
-                ctx.strokeStyle = '#000000';
-                ctx.lineWidth = 1;
-                ctx.beginPath();
+                // Determine laser starting position and properties
+                let startX = this.x;
+                let startY = this.y - this.radius;
+                let laserRadius = 3 * game.scaleFactor;
                 
-                for (let i = 0; i < 5; i++) {
-                    const angle = (i * 2 * Math.PI) / 5;
-                    const x = Math.cos(angle) * this.radius * 0.7;
-                    const y = Math.sin(angle) * this.radius * 0.7;
-                    
-                    if (i === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
-                }
-                ctx.closePath();
-                ctx.stroke();
-                
-                ctx.restore();
-            }
-        }
-
-        // NEW: Laser Class
-        class Laser {
-            constructor(x, y, angle) {
-                this.x = x;
-                this.y = y;
-                this.speedX = Math.cos(angle) * CONFIG.LASER_SPEED;
-                this.speedY = Math.sin(angle) * CONFIG.LASER_SPEED;
-                this.radius = 3 * game.scaleFactor;
-                this.color = '#00ff00';
-                this.life = 100; // Frames until laser disappears
-            }
-
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                this.life--;
-                
-                // Remove if out of bounds or life expired
-                if (this.x < -50 || this.x > game.canvas.width + 50 || 
-                    this.y < -50 || this.y > game.canvas.height + 50 ||
-                    this.life <= 0) {
-                    const index = game.lasers.indexOf(this);
-                    if (index > -1) {
-                        game.lasers.splice(index, 1);
-                    }
-                    return;
+                // Apply big laser power-up if active
+                if (game.activePowerups.bigLaser.active) {
+                    laserRadius *= 2;
                 }
                 
-                // Check collision with opponent cars
-                for (let opponentCar of game.opponentCars) {
-                    if (opponentCar.destroyed) continue;
-                    
-                    const dx = Math.abs(this.x - opponentCar.x);
-                    const dy = Math.abs(this.y - opponentCar.y);
-                    const carRadius = Math.max(opponentCar.width, opponentCar.height) / 2;
-                    
-                    if (dx < carRadius + this.radius && dy < carRadius + this.radius) {
-                        // Hit opponent car
-                        opponentCar.hits++;
-                        
-                        // Remove laser
-                        const index = game.lasers.indexOf(this);
-                        if (index > -1) {
-                            game.lasers.splice(index, 1);
+                // Create laser(s)
+                if (game.activePowerups.doubleLaser.active) {
+                    // Create two lasers slightly apart
+                    const laser1 = {
+                        x: startX - 10,
+                        y: startY,
+                        speedY: -CONFIG.LASER_SPEED,
+                        radius: laserRadius,
+                        color: '#00ff00',
+                        update: function() {
+                            this.y += this.speedY;
+                            
+                            // Remove if out of bounds
+                            if (this.y < -50) {
+                                const index = game.lasers.indexOf(this);
+                                if (index > -1) {
+                                    game.lasers.splice(index, 1);
+                                }
+                                return;
+                            }
+                            
+                            // Check collision with opponents
+                            for (let opponent of game.opponents) {
+                                if (opponent.destroyed) continue;
+                                
+                                const dx = Math.abs(this.x - opponent.x);
+                                const dy = Math.abs(this.y - opponent.y);
+                                const opponentRadius = Math.max(opponent.width, opponent.height) / 2;
+                                
+                                if (dx < opponentRadius + this.radius && dy < opponentRadius + this.radius) {
+                                    // Hit opponent
+                                    opponent.destroyed = true;
+                                    playSound('explosion');
+                                    
+                                    // Remove laser
+                                    const index = game.lasers.indexOf(this);
+                                    if (index > -1) {
+                                        game.lasers.splice(index, 1);
+                                    }
+                                    
+                                    // Spawn power-up with chance
+                                    if (Math.random() < CONFIG.POWERUP_CHANCE) {
+                                        const powerupType = CONFIG.POWERUP_TYPES[Math.floor(Math.random() * CONFIG.POWERUP_TYPES.length)];
+                                        const powerup = new PowerUp(opponent.x, opponent.y, powerupType);
+                                        game.powerups.push(powerup);
+                                    }
+                                    
+                                    updateOpponentsDisplay();
+                                    return;
+                                }
+                            }
+                        },
+                        draw: function(ctx) {
+                            ctx.fillStyle = this.color;
+                            ctx.beginPath();
+                            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                            ctx.fill();
+                            
+                            // Add glow
+                            ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
+                            ctx.beginPath();
+                            ctx.arc(this.x, this.y, this.radius * 2, 0, Math.PI * 2);
+                            ctx.fill();
                         }
-                        
-                        // Check if opponent car is destroyed
-                        if (opponentCar.hits >= CONFIG.LASER_DAMAGE) {
-                            opponentCar.destroyed = true;
-                            playSound('explosion');
+                    };
+                    
+                    const laser2 = {
+                        x: startX + 10,
+                        y: startY,
+                        speedY: -CONFIG.LASER_SPEED,
+                        radius: laserRadius,
+                        color: '#00ff00',
+                        update: function() {
+                            this.y += this.speedY;
+                            
+                            // Remove if out of bounds
+                            if (this.y < -50) {
+                                const index = game.lasers.indexOf(this);
+                                if (index > -1) {
+                                    game.lasers.splice(index, 1);
+                                }
+                                return;
+                            }
+                            
+                            // Check collision with opponents
+                            for (let opponent of game.opponents) {
+                                if (opponent.destroyed) continue;
+                                
+                                const dx = Math.abs(this.x - opponent.x);
+                                const dy = Math.abs(this.y - opponent.y);
+                                const opponentRadius = Math.max(opponent.width, opponent.height) / 2;
+                                
+                                if (dx < opponentRadius + this.radius && dy < opponentRadius + this.radius) {
+                                    // Hit opponent
+                                    opponent.destroyed = true;
+                                    playSound('explosion');
+                                    
+                                    // Remove laser
+                                    const index = game.lasers.indexOf(this);
+                                    if (index > -1) {
+                                        game.lasers.splice(index, 1);
+                                    }
+                                    
+                                    // Spawn power-up with chance
+                                    if (Math.random() < CONFIG.POWERUP_CHANCE) {
+                                        const powerupType = CONFIG.POWERUP_TYPES[Math.floor(Math.random() * CONFIG.POWERUP_TYPES.length)];
+                                        const powerup = new PowerUp(opponent.x, opponent.y, powerupType);
+                                        game.powerups.push(powerup);
+                                    }
+                                    
+                                    updateOpponentsDisplay();
+                                    return;
+                                }
+                            }
+                        },
+                        draw: function(ctx) {
+                            ctx.fillStyle = this.color;
+                            ctx.beginPath();
+                            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                            ctx.fill();
+                            
+                            // Add glow
+                            ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
+                            ctx.beginPath();
+                            ctx.arc(this.x, this.y, this.radius * 2, 0, Math.PI * 2);
+                            ctx.fill();
                         }
-                        
-                        return;
-                    }
+                    };
+                    
+                    game.lasers.push(laser1, laser2);
+                } else {
+                    // Create single laser
+                    const laser = {
+                        x: startX,
+                        y: startY,
+                        speedY: -CONFIG.LASER_SPEED,
+                        radius: laserRadius,
+                        color: '#00ff00',
+                        update: function() {
+                            this.y += this.speedY;
+                            
+                            // Remove if out of bounds
+                            if (this.y < -50) {
+                                const index = game.lasers.indexOf(this);
+                                if (index > -1) {
+                                    game.lasers.splice(index, 1);
+                                }
+                                return;
+                            }
+                            
+                            // Check collision with opponents
+                            for (let opponent of game.opponents) {
+                                if (opponent.destroyed) continue;
+                                
+                                const dx = Math.abs(this.x - opponent.x);
+                                const dy = Math.abs(this.y - opponent.y);
+                                const opponentRadius = Math.max(opponent.width, opponent.height) / 2;
+                                
+                                if (dx < opponentRadius + this.radius && dy < opponentRadius + this.radius) {
+                                    // Hit opponent
+                                    opponent.destroyed = true;
+                                    playSound('explosion');
+                                    
+                                    // Remove laser
+                                    const index = game.lasers.indexOf(this);
+                                    if (index > -1) {
+                                        game.lasers.splice(index, 1);
+                                    }
+                                    
+                                    // Spawn power-up with chance
+                                    if (Math.random() < CONFIG.POWERUP_CHANCE) {
+                                        const powerupType = CONFIG.POWERUP_TYPES[Math.floor(Math.random() * CONFIG.POWERUP_TYPES.length)];
+                                        const powerup = new PowerUp(opponent.x, opponent.y, powerupType);
+                                        game.powerups.push(powerup);
+                                    }
+                                    
+                                    updateOpponentsDisplay();
+                                    return;
+                                }
+                            }
+                        },
+                        draw: function(ctx) {
+                            ctx.fillStyle = this.color;
+                            ctx.beginPath();
+                            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                            ctx.fill();
+                            
+                            // Add glow
+                            ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
+                            ctx.beginPath();
+                            ctx.arc(this.x, this.y, this.radius * 2, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                    };
+                    
+                    game.lasers.push(laser);
                 }
-            }
-
-            draw(ctx) {
-                ctx.save();
-                ctx.translate(this.x, this.y);
                 
-                // Laser beam
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Laser glow
-                ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
-                ctx.beginPath();
-                ctx.arc(0, 0, this.radius * 2, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.restore();
+                // Set cooldown
+                game.laserCooldown = CONFIG.LASER_COOLDOWN;
             }
         }
 
@@ -2014,7 +2115,6 @@
 
         function setupEventListeners() {
             const buttons = {
-                // REMOVED: startBtn: startGame,
                 pauseBtn: togglePause,
                 resumeBtn: togglePause,
                 replayBtn: replayChapter,
@@ -2107,102 +2207,27 @@
             document.addEventListener('keydown', (e) => {
                 if (!game.gameStarted || game.paused) return;
                 
-                if (game.playerInCar) {
-                    // Car controls
-                    switch(e.key) {
-                        case 'ArrowUp': game.playerCar.moveUp = true; break;
-                        case 'ArrowDown': game.playerCar.moveDown = true; break;
-                        case 'ArrowLeft': game.playerCar.moveLeft = true; break;
-                        case 'ArrowRight': game.playerCar.moveRight = true; break;
-                        case ' ': 
-                            // Get out of car (only works when at stop line)
-                            if (game.playerCar.y <= game.stopLineY) {
-                                game.playerInCar = false;
-                                game.player.x = game.playerCar.x;
-                                game.player.y = game.playerCar.y + 50 * game.scaleFactor;
-                                game.player.hasBall = true;
-                                game.ball.possessedBy = game.player;
-                                playSound('walk');
-                                stopSound('car');
-                            }
-                            break;
-                        case 's': 
-                            // NEW: Shoot laser if enabled
-                            if (game.chapter >= CONFIG.LASER_ENABLED_CHAPTERS.start && 
-                                game.chapter <= CONFIG.LASER_ENABLED_CHAPTERS.end) {
-                                shootLaser();
-                            } else {
-                                game.player.steal();
-                            }
-                            break;
-                        case 'p': case 'P': togglePause(); break;
-                    }
-                } else {
-                    // Player on foot controls
-                    switch(e.key) {
-                        case 'ArrowUp': game.player.moveUp = true; break;
-                        case 'ArrowDown': game.player.moveDown = true; break;
-                        case 'ArrowLeft': game.player.moveLeft = true; break;
-                        case 'ArrowRight': game.player.moveRight = true; break;
-                        case 's': 
-                            // NEW: Shoot laser if enabled
-                            if (game.chapter >= CONFIG.LASER_ENABLED_CHAPTERS.start && 
-                                game.chapter <= CONFIG.LASER_ENABLED_CHAPTERS.end) {
-                                shootLaser();
-                            } else {
-                                game.player.steal();
-                            }
-                            break;
-                        case 'p': case 'P': togglePause(); break;
-                    }
+                switch(e.key) {
+                    case 'ArrowUp': game.player.moveUp = true; break;
+                    case 'ArrowDown': game.player.moveDown = true; break;
+                    case 'ArrowLeft': game.player.moveLeft = true; break;
+                    case 'ArrowRight': game.player.moveRight = true; break;
+                    case ' ': 
+                        // Shoot laser
+                        game.player.shootLaser();
+                        break;
+                    case 'p': case 'P': togglePause(); break;
                 }
             });
             
             document.addEventListener('keyup', (e) => {
-                if (game.playerInCar) {
-                    switch(e.key) {
-                        case 'ArrowUp': game.playerCar.moveUp = false; break;
-                        case 'ArrowDown': game.playerCar.moveDown = false; break;
-                        case 'ArrowLeft': game.playerCar.moveLeft = false; break;
-                        case 'ArrowRight': game.playerCar.moveRight = false; break;
-                    }
-                } else {
-                    switch(e.key) {
-                        case 'ArrowUp': game.player.moveUp = false; break;
-                        case 'ArrowDown': game.player.moveDown = false; break;
-                        case 'ArrowLeft': game.player.moveLeft = false; break;
-                        case 'ArrowRight': game.player.moveRight = false; break;
-                    }
+                switch(e.key) {
+                    case 'ArrowUp': game.player.moveUp = false; break;
+                    case 'ArrowDown': game.player.moveDown = false; break;
+                    case 'ArrowLeft': game.player.moveLeft = false; break;
+                    case 'ArrowRight': game.player.moveRight = false; break;
                 }
             });
-        }
-
-        // NEW: Shoot laser function
-        function shootLaser() {
-            if (game.laserCooldown > 0) return;
-            
-            // Play laser sound
-            playSound('laser');
-            
-            // Determine laser starting position
-            let startX, startY, angle;
-            
-            if (game.playerInCar) {
-                startX = game.playerCar.x;
-                startY = game.playerCar.y - game.playerCar.height/2;
-                angle = -Math.PI/2; // Shoot upward
-            } else {
-                startX = game.player.x;
-                startY = game.player.y - game.player.radius;
-                angle = -Math.PI/2; // Shoot upward
-            }
-            
-            // Create laser
-            const laser = new Laser(startX, startY, angle);
-            game.lasers.push(laser);
-            
-            // Set cooldown
-            game.laserCooldown = CONFIG.LASER_COOLDOWN;
         }
 
         function setupMobileControls() {
@@ -2226,15 +2251,11 @@
             
             // NEW: Update button labels based on chapter
             function updateButtonLabels() {
-                if (game.chapter >= CONFIG.LASER_ENABLED_CHAPTERS.start && 
-                    game.chapter <= CONFIG.LASER_ENABLED_CHAPTERS.end) {
-                    laserBtn.textContent = "LASER";
-                    laserBtn.style.display = 'flex';
-                    stealBtn.textContent = "STEAL";
-                } else {
-                    laserBtn.style.display = 'none';
-                    stealBtn.textContent = "STEAL";
-                }
+                // All chapters now use lasers
+                laserBtn.textContent = "LASER";
+                laserBtn.style.display = 'flex';
+                stealBtn.style.display = 'none'; // Hide steal button
+                shootBtn.style.display = 'none'; // Hide exit button
             }
             
             joystickBase.addEventListener('touchstart', (e) => {
@@ -2254,37 +2275,18 @@
                 if (joystickActive) {
                     joystickActive = false;
                     joystickHandle.style.transform = 'translate(-50%, -50%)';
-                    if (game.playerInCar) {
-                        game.playerCar.moveUp = game.playerCar.moveDown = game.playerCar.moveLeft = game.playerCar.moveRight = false;
-                    } else {
-                        game.player.moveUp = game.player.moveDown = game.player.moveLeft = game.player.moveRight = false;
-                    }
+                    game.player.moveUp = game.player.moveDown = game.player.moveLeft = game.player.moveRight = false;
                 }
             });
             
             // Update button labels and functionality
-            shootBtn.textContent = "EXIT";
             updateButtonLabels();
             
-            [shootBtn, stealBtn, laserBtn].forEach(btn => {
+            [laserBtn].forEach(btn => {
                 btn.addEventListener('touchstart', (e) => {
                     if (!game.paused) {
-                        if (btn.classList.contains('shoot')) {
-                            // Exit car (only works when at stop line)
-                            if (game.playerInCar && game.playerCar.y <= game.stopLineY) {
-                                game.playerInCar = false;
-                                game.player.x = game.playerCar.x;
-                                game.player.y = game.playerCar.y + 50 * game.scaleFactor;
-                                game.player.hasBall = true;
-                                game.ball.possessedBy = game.player;
-                                playSound('walk');
-                                stopSound('car');
-                            }
-                        } else if (btn.classList.contains('steal')) {
-                            game.player.steal();
-                        } else if (btn.classList.contains('fight') && btn.textContent === "LASER") {
-                            shootLaser();
-                        }
+                        // Shoot laser
+                        game.player.shootLaser();
                     }
                     e.preventDefault();
                 });
@@ -2321,17 +2323,10 @@
                 
                 const sensitivity = game.screenType.includes('mobile') ? 0.4 : 0.3;
                 
-                if (game.playerInCar) {
-                    game.playerCar.moveUp = moveY < -sensitivity;
-                    game.playerCar.moveDown = moveY > sensitivity;
-                    game.playerCar.moveLeft = moveX < -sensitivity;
-                    game.playerCar.moveRight = moveX > sensitivity;
-                } else {
-                    game.player.moveUp = moveY < -sensitivity;
-                    game.player.moveDown = moveY > sensitivity;
-                    game.player.moveLeft = moveX < -sensitivity;
-                    game.player.moveRight = moveX > sensitivity;
-                }
+                game.player.moveUp = moveY < -sensitivity;
+                game.player.moveDown = moveY > sensitivity;
+                game.player.moveLeft = moveX < -sensitivity;
+                game.player.moveRight = moveX > sensitivity;
             }
             
             updateJoystickCenter();
@@ -2347,58 +2342,32 @@
             // Set up track length based on chapter
             setupCanvas();
             
-            // Create player car - start further from bottom on mobile
-            game.playerCar = new Car(game.canvas.width / 2, game.canvas.height - game.startPositionOffset, true);
+            // Create player character
+            game.player = new Player(game.canvas.width / 2, game.canvas.height - 100 * game.scaleFactor);
             
-            // Create player character (for when out of car)
-            game.player = new Player(game.canvas.width / 2, game.canvas.height / 2);
-            
-            // Create opponent cars - limit number on small screens and spread them out
-            game.opponentCars = [];
-            let opponentsCount = game.chapter;
+            // Create opponents at the top of the screen
+            game.opponents = [];
+            let opponentsCount = 5 + (game.chapter - 1) * 2; // Chapter 1: 5, Chapter 2: 7, etc.
             
             // Limit opponents on mobile to prevent overcrowding
             if (game.isMobile) {
                 opponentsCount = Math.min(opponentsCount, CONFIG.MAX_OPPONENTS);
             }
             
+            // Calculate opponent area (top portion of screen)
+            const opponentAreaHeight = 100 * game.scaleFactor;
+            const opponentAreaWidth = game.canvas.width - 100 * game.scaleFactor;
+            const opponentAreaStartX = 50 * game.scaleFactor;
+            const opponentAreaStartY = 50 * game.scaleFactor;
+            
+            // Distribute opponents evenly in the top area
             for (let i = 0; i < opponentsCount; i++) {
-                const x = Math.random() * (game.canvas.width - 80 * game.scaleFactor) + 40 * game.scaleFactor;
-                // Spread opponents over a larger area on mobile
-                const spawnArea = game.isMobile ? CONFIG.MOBILE_OPPONENT_SPAWN_AREA : 0.7;
-                const y = Math.random() * (game.canvas.height * spawnArea) + (game.canvas.height * 0.2);
-                const opponentCar = new Car(x, y, false, true);
-                // OPPONENTS ARE NOW MUCH SLOWER
-                opponentCar.speed = CONFIG.OPPONENT_SPEED + (game.chapter * 0.05); // Reduced from 0.1
-                game.opponentCars.push(opponentCar);
+                const x = opponentAreaStartX + (i * opponentAreaWidth) / opponentsCount;
+                const y = opponentAreaStartY;
+                const speed = (Math.random() * 2 + 1) * (game.chapter * 0.1 + 0.5); // Speed increases with chapter
+                const opponent = new Opponent(x, y, speed);
+                game.opponents.push(opponent);
             }
-            
-            // Set up cannons
-            game.cannons = [];
-            game.cannonBalls = [];
-            
-            if (game.chapter >= 2) {
-                // Base cannons
-                const cannon1 = new Cannon(game.canvas.width - 120 * game.scaleFactor, 80 * game.scaleFactor);
-                const cannon2 = new Cannon(game.canvas.width - 120 * game.scaleFactor, game.canvas.height - 80 * game.scaleFactor);
-                game.cannons.push(cannon1, cannon2);
-                
-                // Add one more cannon in chapter 5
-                if (game.chapter >= 5) {
-                    const cannon3 = new Cannon(game.canvas.width - 120 * game.scaleFactor, game.canvas.height / 2);
-                    game.cannons.push(cannon3);
-                }
-                
-                // Add one more cannon in chapter 10
-                if (game.chapter >= 10) {
-                    const cannon4 = new Cannon(game.canvas.width - 120 * game.scaleFactor, game.canvas.height / 4);
-                    game.cannons.push(cannon4);
-                }
-            }
-            
-            // Create ball
-            game.ball = new Ball();
-            game.ball.possessedBy = game.playerCar;
             
             // NEW: Reset track scrolling
             game.trackOffset = 0;
@@ -2411,23 +2380,30 @@
             // NEW: Reset lasers
             game.lasers = [];
             game.laserCooldown = 0;
+            game.opponentLasers = [];
+            
+            // NEW: Reset power-ups
+            game.powerups = [];
+            game.activePowerups = {
+                bigLaser: { active: false, timer: 0 },
+                doubleLaser: { active: false, timer: 0 },
+                aiBuddy: { active: false, timer: 0 }
+            };
+            game.aiBuddy = null;
             
             game.lives = CONFIG.LIVES;
             game.recoveryTimer = CONFIG.RECOVERY_TIME;
             game.ballLost = false;
             game.paused = false;
-            game.playerInCar = true;
             
             // NEW: Update button labels if on mobile
             if (game.isMobile && updateButtonLabels) {
                 updateButtonLabels();
             }
             
-            // Start car sound
-            playSound('car');
-            
             updateLivesDisplay();
             updateChapterDisplay();
+            updateOpponentsDisplay();
             updateGoalTimerDisplay();
         }
 
@@ -2449,21 +2425,12 @@
                 
                 // Pause background music and sounds
                 stopBackgroundMusic();
-                stopSound('walk');
-                stopSound('car');
             } else {
                 document.getElementById('pauseOverlay').style.display = 'none';
                 document.getElementById('pauseBtn').textContent = 'PAUSE';
                 
                 // Resume background music
                 playBackgroundMusic();
-                
-                // Resume appropriate sound based on player state
-                if (game.playerInCar) {
-                    playSound('car');
-                } else {
-                    playSound('walk');
-                }
             }
         }
 
@@ -2514,11 +2481,6 @@
         }
 
         function update(deltaTime) {
-            // NEW: Update track scrolling
-            if (game.isMobile && game.trackScrollSpeed > 0) {
-                game.trackOffset = Math.min(game.trackOffset + game.trackScrollSpeed, game.maxTrackOffset);
-            }
-            
             // NEW: Update goal timer
             if (!game.goalVisible) {
                 game.goalTimer -= deltaTime / 1000;
@@ -2535,24 +2497,11 @@
                 game.laserCooldown--;
             }
             
-            // Update game objects based on player state
-            if (game.playerInCar) {
-                game.playerCar.update();
-            } else {
-                game.player.update();
-            }
+            // Update player
+            game.player.update();
             
-            game.opponentCars.forEach(opponent => opponent.update());
-            game.ball.update();
-            
-            // Update cannons and cannon balls
-            game.cannons.forEach(cannon => cannon.update());
-            
-            for (let i = game.cannonBalls.length - 1; i >= 0; i--) {
-                if (game.cannonBalls[i] && typeof game.cannonBalls[i].update === 'function') {
-                    game.cannonBalls[i].update();
-                }
-            }
+            // Update opponents
+            game.opponents.forEach(opponent => opponent.update());
             
             // NEW: Update lasers
             for (let i = game.lasers.length - 1; i >= 0; i--) {
@@ -2561,66 +2510,71 @@
                 }
             }
             
-            checkGoals();
+            // NEW: Update opponent lasers
+            for (let i = game.opponentLasers.length - 1; i >= 0; i--) {
+                if (game.opponentLasers[i] && typeof game.opponentLasers[i].update === 'function') {
+                    game.opponentLasers[i].update();
+                }
+            }
+            
+            // NEW: Update power-ups
+            for (let i = game.powerups.length - 1; i >= 0; i--) {
+                if (game.powerups[i] && typeof game.powerups[i].update === 'function') {
+                    game.powerups[i].update();
+                }
+            }
+            
+            // NEW: Update active power-ups
+            if (game.activePowerups.bigLaser.active) {
+                game.activePowerups.bigLaser.timer--;
+                if (game.activePowerups.bigLaser.timer <= 0) {
+                    game.activePowerups.bigLaser.active = false;
+                }
+            }
+            
+            if (game.activePowerups.doubleLaser.active) {
+                game.activePowerups.doubleLaser.timer--;
+                if (game.activePowerups.doubleLaser.timer <= 0) {
+                    game.activePowerups.doubleLaser.active = false;
+                }
+            }
+            
+            if (game.activePowerups.aiBuddy.active) {
+                game.activePowerups.aiBuddy.timer--;
+                if (game.activePowerups.aiBuddy.timer <= 0) {
+                    game.activePowerups.aiBuddy.active = false;
+                    game.aiBuddy = null;
+                }
+            }
+            
+            // NEW: Update AI buddy
+            if (game.aiBuddy && typeof game.aiBuddy.update === 'function') {
+                game.aiBuddy.update();
+            }
+            
+            checkWinCondition();
         }
 
-        function checkGoals() {
-            // Check if player scored (ball in goal area at top of screen)
-            if (!game.playerInCar && game.ball.possessedBy === game.player && game.goalVisible) {
-                const goalAreaHeight = 50 * game.scaleFactor;
-                const goalAreaWidth = 100 * game.scaleFactor;
+        function checkWinCondition() {
+            // Check if all opponents are destroyed
+            const activeOpponents = game.opponents.filter(opponent => !opponent.destroyed).length;
+            
+            if (activeOpponents === 0 && game.goalVisible) {
+                // Play win sound
+                playSound('win');
                 
-                if (game.ball.y < goalAreaHeight && 
-                    game.ball.x > game.canvas.width/2 - goalAreaWidth/2 && 
-                    game.ball.x < game.canvas.width/2 + goalAreaWidth/2) {
-                    // Play goal sound
-                    playSound('goal');
-                    
-                    // NEW: Mark chapter as completed when player wins
-                    markChapterCompleted(game.chapter);
-                    
-                    showGoalMessage();
-                    setTimeout(showWinOverlay, 1000);
-                    return;
-                }
+                // Stop background music
+                stopBackgroundMusic();
+                
+                // NEW: Mark chapter as completed when player wins
+                markChapterCompleted(game.chapter);
+                
+                showWinOverlay();
             }
-        }
-
-        function loseLife() {
-            game.lives--;
-            updateLivesDisplay();
-            
-            if (game.lives <= 0) {
-                showLoseOverlay();
-            } else {
-                game.recoveryTimer = CONFIG.RECOVERY_TIME;
-                game.ballLost = false;
-            }
-        }
-
-        function showGoalMessage() {
-            const goalMsg = document.createElement('div');
-            goalMsg.className = 'goal-message';
-            goalMsg.textContent = 'GOALLLL!!!!!';
-            document.getElementById('gameContainer').appendChild(goalMsg);
-            
-            setTimeout(() => {
-                if (goalMsg.parentNode) {
-                    goalMsg.remove();
-                }
-            }, 2000);
         }
 
         function showWinOverlay() {
-            // Play win sound
-            playSound('win');
-            
-            // Stop background music and sounds
-            stopBackgroundMusic();
-            stopSound('walk');
-            stopSound('car');
-            
-            document.getElementById('winOpponents').textContent = game.chapter;
+            document.getElementById('winOpponents').textContent = game.opponents.length;
             document.getElementById('winOverlay').style.display = 'flex';
             game.gameStarted = false;
             document.getElementById('pauseBtn').style.display = 'none';
@@ -2630,13 +2584,11 @@
             // Play lose sound
             playSound('lose');
             
-            // Stop background music and sounds
+            // Stop background music
             stopBackgroundMusic();
-            stopSound('walk');
-            stopSound('car');
             
             document.getElementById('loseChapter').textContent = game.chapter;
-            document.getElementById('loseOpponents').textContent = game.chapter;
+            document.getElementById('loseOpponents').textContent = game.opponents.length;
             document.getElementById('loseOverlay').style.display = 'flex';
             game.gameStarted = false;
             document.getElementById('pauseBtn').style.display = 'none';
@@ -2655,7 +2607,12 @@
 
         function updateChapterDisplay() {
             document.getElementById('chapterDisplay').textContent = game.chapter;
-            document.getElementById('opponentsDisplay').textContent = game.chapter;
+        }
+
+        // NEW: Update opponents display
+        function updateOpponentsDisplay() {
+            const activeOpponents = game.opponents.filter(opponent => !opponent.destroyed).length;
+            document.getElementById('opponentsDisplay').textContent = activeOpponents;
         }
 
         // NEW: Update goal timer display
@@ -2667,37 +2624,18 @@
             const ctx = game.ctx;
             ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
             
-            drawRaceTrack(ctx);
+            drawBackground(ctx);
             
             // NEW: Only draw goal area if visible
             if (game.goalVisible) {
                 drawGoalArea(ctx);
             }
             
-            drawStopLine(ctx);
+            // Draw opponents
+            game.opponents.forEach(opponent => opponent.draw(ctx));
             
-            // Draw opponent cars
-            game.opponentCars.forEach(opponent => opponent.draw(ctx));
-            
-            // Draw player based on state
-            if (game.playerInCar) {
-                game.playerCar.draw(ctx);
-            } else {
-                game.player.draw(ctx);
-            }
-            
-            // Draw ball if not possessed
-            if (!game.ball.possessedBy) {
-                game.ball.draw(ctx);
-            }
-            
-            // Draw cannons and cannon balls
-            game.cannons.forEach(cannon => cannon.draw(ctx));
-            game.cannonBalls.forEach(ball => {
-                if (ball && typeof ball.draw === 'function') {
-                    ball.draw(ctx);
-                }
-            });
+            // Draw player
+            game.player.draw(ctx);
             
             // NEW: Draw lasers
             game.lasers.forEach(laser => {
@@ -2705,51 +2643,52 @@
                     laser.draw(ctx);
                 }
             });
+            
+            // NEW: Draw opponent lasers
+            game.opponentLasers.forEach(laser => {
+                if (laser && typeof laser.draw === 'function') {
+                    laser.draw(ctx);
+                }
+            });
+            
+            // NEW: Draw power-ups
+            game.powerups.forEach(powerup => {
+                if (powerup && typeof powerup.draw === 'function') {
+                    powerup.draw(ctx);
+                }
+            });
+            
+            // NEW: Draw AI buddy
+            if (game.aiBuddy && typeof game.aiBuddy.draw === 'function') {
+                game.aiBuddy.draw(ctx);
+            }
+            
+            // NEW: Draw active power-up indicators
+            drawPowerUpIndicators(ctx);
         }
 
-        function drawRaceTrack(ctx) {
-            // Draw road with longer perspective on mobile
-            ctx.fillStyle = '#34495e';
+        function drawBackground(ctx) {
+            // Draw space background
+            ctx.fillStyle = '#0f1a2a';
             ctx.fillRect(0, 0, game.canvas.width, game.canvas.height);
             
-            // Draw lane markings - more dashes for longer track feel
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 2;
-            const dashCount = game.isMobile ? 30 : 20;
-            ctx.setLineDash([20, 20]);
-            
-            const laneWidth = game.canvas.width / 3;
-            for (let i = 1; i < 3; i++) {
-                ctx.beginPath();
-                ctx.moveTo(i * laneWidth, 0);
-                ctx.lineTo(i * laneWidth, game.canvas.height);
-                ctx.stroke();
+            // Draw stars
+            ctx.fillStyle = '#ffffff';
+            for (let i = 0; i < 100; i++) {
+                const x = Math.random() * game.canvas.width;
+                const y = Math.random() * game.canvas.height;
+                const size = Math.random() * 2;
+                ctx.fillRect(x, y, size, size);
             }
-            ctx.setLineDash([]);
             
-            // Draw road boundaries
+            // Draw opponent area at top
+            ctx.fillStyle = 'rgba(231, 76, 60, 0.2)';
+            ctx.fillRect(0, 0, game.canvas.width, 100 * game.scaleFactor);
+            
+            // Draw border around opponent area
             ctx.strokeStyle = '#e74c3c';
             ctx.lineWidth = 3;
-            ctx.strokeRect(5, 5, game.canvas.width - 10, game.canvas.height - 10);
-            
-            // Draw finish line at top - make it more prominent on mobile
-            ctx.fillStyle = '#f1c40f';
-            const finishLineWidth = game.isMobile ? 15 : 10;
-            for (let i = 0; i < game.canvas.width; i += 20) {
-                ctx.fillRect(i, 0, finishLineWidth, 30);
-            }
-            
-            // Add distance markers for longer track feel on mobile
-            if (game.isMobile) {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-                ctx.font = '10px Arial';
-                ctx.textAlign = 'center';
-                for (let i = 1; i <= 5; i++) {
-                    const markerY = game.canvas.height * (i * 0.2);
-                    ctx.fillText(`${i * 50}m`, 30, markerY);
-                    ctx.fillText(`${i * 50}m`, game.canvas.width - 30, markerY);
-                }
-            }
+            ctx.strokeRect(0, 0, game.canvas.width, 100 * game.scaleFactor);
         }
 
         function drawGoalArea(ctx) {
@@ -2770,22 +2709,37 @@
             ctx.fillText('GOAL', game.canvas.width/2, goalAreaHeight + 20 * game.scaleFactor);
         }
 
-        function drawStopLine(ctx) {
-            // Draw stop line where player must exit car
-            ctx.strokeStyle = '#e74c3c';
-            ctx.lineWidth = 4;
-            ctx.setLineDash([10, 10]);
-            ctx.beginPath();
-            ctx.moveTo(0, game.stopLineY);
-            ctx.lineTo(game.canvas.width, game.stopLineY);
-            ctx.stroke();
-            ctx.setLineDash([]);
+        // NEW: Draw power-up indicators
+        function drawPowerUpIndicators(ctx) {
+            const indicatorSize = 15;
+            const indicatorX = 10;
+            let indicatorY = game.canvas.height - 100;
             
-            // Add stop line text
-            ctx.fillStyle = '#e74c3c';
-            ctx.font = `bold ${Math.max(10, 14 * game.scaleFactor)}px Arial`;
-            ctx.textAlign = 'center';
-            ctx.fillText('STOP AND EXIT CAR', game.canvas.width/2, game.stopLineY - 10 * game.scaleFactor);
+            ctx.font = '10px Arial';
+            ctx.textAlign = 'left';
+            
+            if (game.activePowerups.bigLaser.active) {
+                ctx.fillStyle = '#3498db';
+                ctx.fillRect(indicatorX, indicatorY, indicatorSize, indicatorSize);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText('Big Laser: ' + Math.ceil(game.activePowerups.bigLaser.timer / 60), indicatorX + indicatorSize + 5, indicatorY + 10);
+                indicatorY -= 20;
+            }
+            
+            if (game.activePowerups.doubleLaser.active) {
+                ctx.fillStyle = '#9b59b6';
+                ctx.fillRect(indicatorX, indicatorY, indicatorSize, indicatorSize);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText('Double Laser: ' + Math.ceil(game.activePowerups.doubleLaser.timer / 60), indicatorX + indicatorSize + 5, indicatorY + 10);
+                indicatorY -= 20;
+            }
+            
+            if (game.activePowerups.aiBuddy.active) {
+                ctx.fillStyle = '#f1c40f';
+                ctx.fillRect(indicatorX, indicatorY, indicatorSize, indicatorSize);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText('AI Buddy: ' + Math.ceil(game.activePowerups.aiBuddy.timer / 60), indicatorX + indicatorSize + 5, indicatorY + 10);
+            }
         }
 
         // Initialize the game
