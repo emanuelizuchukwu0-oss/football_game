@@ -837,7 +837,7 @@
     </audio>
 
     <script>
-        // Game Constants and Configuration - ADJUSTED FOR MOBILE
+        // Game Constants and Configuration - ADJUSTED FOR MOBILE WITH LONGER TRACK
         const CONFIG = {
             LIVES: 7,
             RECOVERY_TIME: 5,
@@ -862,7 +862,12 @@
             MOBILE_SCALE_FACTOR: 0.7, // Reduce object sizes on mobile
             MOBILE_SPEED_FACTOR: 1.2, // Slightly increase speed on mobile for better feel
             MIN_OBJECT_SIZE: 20, // Minimum size for any game object
-            MAX_OPPONENTS: 8 // Limit opponents on small screens
+            MAX_OPPONENTS: 8, // Limit opponents on small screens
+            
+            // MOBILE TRACK SETTINGS - LONGER TRACK
+            MOBILE_TRACK_LENGTH_MULTIPLIER: 1.5, // Make track longer on mobile
+            MOBILE_START_POSITION_OFFSET: 0.15, // Start further from bottom on mobile
+            MOBILE_OPPONENT_SPAWN_AREA: 0.6 // Spread opponents over larger area
         };
 
         // Game State
@@ -888,7 +893,8 @@
             trackLength: 0,
             playerInCar: true,
             scaleFactor: 1, // Dynamic scaling factor
-            mobileAdjusted: false
+            mobileAdjusted: false,
+            trackOffset: 0 // For scrolling track on mobile
         };
 
         // Sound elements
@@ -1012,6 +1018,22 @@
                 return 0.8; // Medium-small screens
             } else {
                 return 0.9; // Larger mobile screens
+            }
+        }
+
+        // Calculate mobile track length multiplier
+        function calculateMobileTrackLength() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const aspectRatio = width / height;
+            
+            // Longer tracks for wider screens (landscape)
+            if (aspectRatio > 1.8) {
+                return 1.8; // Very wide screens
+            } else if (aspectRatio > 1.5) {
+                return 1.6; // Wide screens
+            } else {
+                return 1.4; // Standard mobile
             }
         }
 
@@ -1179,9 +1201,9 @@
                     this.y = Math.max(this.height/2, Math.min(game.canvas.height - this.height/2, this.y));
                     
                     // Check if reached stop line
-                    if (this.y <= CONFIG.STOP_LINE_Y * game.scaleFactor) {
+                    if (this.y <= game.stopLineY) {
                         // Stop at the line
-                        this.y = CONFIG.STOP_LINE_Y * game.scaleFactor;
+                        this.y = game.stopLineY;
                         
                         // Auto-exit car when at stop line
                         if (!game.playerInCar) return;
@@ -1233,7 +1255,7 @@
                             
                             // Reset player position
                             game.playerCar.x = game.canvas.width / 2;
-                            game.playerCar.y = game.canvas.height - 100 * game.scaleFactor;
+                            game.playerCar.y = game.canvas.height - game.startPositionOffset;
                             
                             if (game.lives <= 0) {
                                 showLoseOverlay();
@@ -1387,7 +1409,7 @@
                         
                         // Reset position
                         this.x = game.canvas.width / 2;
-                        this.y = CONFIG.STOP_LINE_Y * game.scaleFactor + 50 * game.scaleFactor;
+                        this.y = game.stopLineY + 50 * game.scaleFactor;
                         
                         if (game.lives <= 0) {
                             showLoseOverlay();
@@ -1569,6 +1591,9 @@
             if (game.isMobile) {
                 game.scaleFactor = calculateMobileScale();
                 game.mobileAdjusted = true;
+                game.trackLengthMultiplier = calculateMobileTrackLength();
+            } else {
+                game.trackLengthMultiplier = 1.0;
             }
             
             if (game.isMobile) {
@@ -1589,8 +1614,17 @@
             game.canvas.width = window.innerWidth;
             game.canvas.height = window.innerHeight;
             
-            // Calculate track length based on chapter
-            game.trackLength = game.canvas.height * (1 + (game.chapter - 1) * 0.2);
+            // Calculate track length based on chapter and device type
+            const baseTrackLength = game.canvas.height * (1 + (game.chapter - 1) * 0.2);
+            game.trackLength = baseTrackLength * (game.isMobile ? game.trackLengthMultiplier : 1);
+            
+            // Calculate start position offset for mobile
+            game.startPositionOffset = game.isMobile ? 
+                game.canvas.height * CONFIG.MOBILE_START_POSITION_OFFSET : 
+                100 * game.scaleFactor;
+                
+            // Calculate stop line position
+            game.stopLineY = CONFIG.STOP_LINE_Y * game.scaleFactor * (game.isMobile ? 0.7 : 1);
         }
 
         function optimizeMobileControls() {
@@ -1669,6 +1703,7 @@
             // Recalculate scaling factor on resize
             if (game.isMobile) {
                 game.scaleFactor = calculateMobileScale();
+                game.trackLengthMultiplier = calculateMobileTrackLength();
             }
             
             if (game.isMobile) {
@@ -1709,7 +1744,7 @@
                         case 'ArrowRight': game.playerCar.moveRight = true; break;
                         case ' ': 
                             // Get out of car (only works when at stop line)
-                            if (game.playerCar.y <= CONFIG.STOP_LINE_Y * game.scaleFactor) {
+                            if (game.playerCar.y <= game.stopLineY) {
                                 game.playerInCar = false;
                                 game.player.x = game.playerCar.x;
                                 game.player.y = game.playerCar.y + 50 * game.scaleFactor;
@@ -1806,7 +1841,7 @@
                     if (!game.paused) {
                         if (btn.classList.contains('shoot')) {
                             // Exit car (only works when at stop line)
-                            if (game.playerInCar && game.playerCar.y <= CONFIG.STOP_LINE_Y * game.scaleFactor) {
+                            if (game.playerInCar && game.playerCar.y <= game.stopLineY) {
                                 game.playerInCar = false;
                                 game.player.x = game.playerCar.x;
                                 game.player.y = game.playerCar.y + 50 * game.scaleFactor;
@@ -1875,13 +1910,13 @@
             // Set up track length based on chapter
             setupCanvas();
             
-            // Create player car
-            game.playerCar = new Car(game.canvas.width / 2, game.canvas.height - 100 * game.scaleFactor, true);
+            // Create player car - start further from bottom on mobile
+            game.playerCar = new Car(game.canvas.width / 2, game.canvas.height - game.startPositionOffset, true);
             
             // Create player character (for when out of car)
             game.player = new Player(game.canvas.width / 2, game.canvas.height / 2);
             
-            // Create opponent cars - limit number on small screens
+            // Create opponent cars - limit number on small screens and spread them out
             game.opponentCars = [];
             let opponentsCount = game.chapter;
             
@@ -1892,7 +1927,9 @@
             
             for (let i = 0; i < opponentsCount; i++) {
                 const x = Math.random() * (game.canvas.width - 80 * game.scaleFactor) + 40 * game.scaleFactor;
-                const y = Math.random() * game.canvas.height * 0.7;
+                // Spread opponents over a larger area on mobile
+                const spawnArea = game.isMobile ? CONFIG.MOBILE_OPPONENT_SPAWN_AREA : 0.7;
+                const y = Math.random() * (game.canvas.height * spawnArea) + (game.canvas.height * 0.2);
                 const opponentCar = new Car(x, y, false, true);
                 opponentCar.speed = CONFIG.OPPONENT_SPEED + (game.chapter * 0.1);
                 game.opponentCars.push(opponentCar);
@@ -2162,13 +2199,14 @@
         }
 
         function drawRaceTrack(ctx) {
-            // Draw road
+            // Draw road with longer perspective on mobile
             ctx.fillStyle = '#34495e';
             ctx.fillRect(0, 0, game.canvas.width, game.canvas.height);
             
-            // Draw lane markings
+            // Draw lane markings - more dashes for longer track feel
             ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 2;
+            const dashCount = game.isMobile ? 30 : 20;
             ctx.setLineDash([20, 20]);
             
             const laneWidth = game.canvas.width / 3;
@@ -2185,10 +2223,23 @@
             ctx.lineWidth = 3;
             ctx.strokeRect(5, 5, game.canvas.width - 10, game.canvas.height - 10);
             
-            // Draw finish line at top
+            // Draw finish line at top - make it more prominent on mobile
             ctx.fillStyle = '#f1c40f';
+            const finishLineWidth = game.isMobile ? 15 : 10;
             for (let i = 0; i < game.canvas.width; i += 20) {
-                ctx.fillRect(i, 0, 10, 30);
+                ctx.fillRect(i, 0, finishLineWidth, 30);
+            }
+            
+            // Add distance markers for longer track feel on mobile
+            if (game.isMobile) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.font = '10px Arial';
+                ctx.textAlign = 'center';
+                for (let i = 1; i <= 3; i++) {
+                    const markerY = game.canvas.height * (i * 0.25);
+                    ctx.fillText(`${i * 25}m`, 30, markerY);
+                    ctx.fillText(`${i * 25}m`, game.canvas.width - 30, markerY);
+                }
             }
         }
 
@@ -2212,14 +2263,12 @@
 
         function drawStopLine(ctx) {
             // Draw stop line where player must exit car
-            const stopLineY = CONFIG.STOP_LINE_Y * game.scaleFactor;
-            
             ctx.strokeStyle = '#e74c3c';
             ctx.lineWidth = 4;
             ctx.setLineDash([10, 10]);
             ctx.beginPath();
-            ctx.moveTo(0, stopLineY);
-            ctx.lineTo(game.canvas.width, stopLineY);
+            ctx.moveTo(0, game.stopLineY);
+            ctx.lineTo(game.canvas.width, game.stopLineY);
             ctx.stroke();
             ctx.setLineDash([]);
             
@@ -2227,7 +2276,7 @@
             ctx.fillStyle = '#e74c3c';
             ctx.font = `bold ${Math.max(10, 14 * game.scaleFactor)}px Arial`;
             ctx.textAlign = 'center';
-            ctx.fillText('STOP AND EXIT CAR', game.canvas.width/2, stopLineY - 10 * game.scaleFactor);
+            ctx.fillText('STOP AND EXIT CAR', game.canvas.width/2, game.stopLineY - 10 * game.scaleFactor);
         }
 
         window.addEventListener('load', init);
