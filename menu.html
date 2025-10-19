@@ -11,21 +11,54 @@
             box-sizing: border-box;
         }
 
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+        }
+
         body {
             font-family: 'Arial', sans-serif;
             background: linear-gradient(135deg, #667eea, #764ba2);
-            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        /* Game Canvas Container */
+        #gameContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: none; /* Hidden initially, shown after celebration */
+            z-index: 10;
+        }
+
+        #gameCanvas {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+            background: #2c3e50;
         }
 
         .main-menu {
-            width: 100%;
-            max-width: 800px;
-            padding: 20px;
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
             display: none; /* Hidden initially */
+            z-index: 20;
         }
 
         .menu-container {
@@ -36,10 +69,17 @@
             text-align: center;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 90vw;
+            max-height: 90vh;
+            margin: auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
         .game-title {
-            font-size: 3rem;
+            font-size: clamp(2rem, 5vw, 3rem);
             color: white;
             margin-bottom: 30px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
@@ -57,11 +97,14 @@
             color: white;
             border: none;
             padding: 15px 30px;
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 3vw, 1.2rem);
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
         }
 
         .menu-btn:hover {
@@ -73,7 +116,7 @@
         .game-info {
             color: white;
             opacity: 0.8;
-            font-size: 1rem;
+            font-size: clamp(0.8rem, 2vw, 1rem);
         }
 
         /* Celebration Overlay Styles */
@@ -81,8 +124,8 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             background: rgba(0, 0, 0, 0.8);
             display: flex;
             justify-content: center;
@@ -94,15 +137,17 @@
 
         .celebration-content {
             background: linear-gradient(135deg, #ffd700, #ffec8b);
-            padding: 50px;
+            padding: clamp(20px, 5vw, 50px);
             border-radius: 20px;
             text-align: center;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            max-width: 600px;
+            max-width: 90vw;
+            max-height: 90vh;
             animation: pulse 2s infinite;
             position: relative;
             overflow: hidden;
             border: 4px solid #ffd700;
+            margin: 20px;
         }
 
         .celebration-content::before {
@@ -119,7 +164,7 @@
         }
 
         .celebration-title {
-            font-size: 4rem;
+            font-size: clamp(2rem, 8vw, 4rem);
             color: #fff;
             margin-bottom: 20px;
             text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 30px #ffd700, 0 0 40px #ffd700;
@@ -128,7 +173,7 @@
         }
 
         .celebration-message {
-            font-size: 1.8rem;
+            font-size: clamp(1rem, 4vw, 1.8rem);
             color: #8b6914;
             margin-bottom: 30px;
             text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.7);
@@ -140,7 +185,7 @@
             color: white;
             border: none;
             padding: 15px 30px;
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 3vw, 1.2rem);
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -256,14 +301,45 @@
                 box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
             }
         }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            .menu-container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .celebration-content {
+                padding: 20px;
+                margin: 10px;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .menu-container {
+                padding: 15px;
+            }
+            
+            .celebration-content {
+                padding: 15px;
+            }
+            
+            .game-title {
+                margin-bottom: 15px;
+            }
+            
+            .menu-options {
+                margin-bottom: 15px;
+                gap: 10px;
+            }
+        }
     </style>
 </head>
 <body>
     <!-- Celebration Overlay -->
     <div class="celebration-overlay" id="celebrationOverlay">
         <div class="celebration-content">
-            <h1 class="celebration-title">🎉 HAPPY 
-                BIRTHDAY 🎉</h1>
+            <h1 class="celebration-title">🎉 HAPPY BIRTHDAY 🎉</h1>
             <p class="celebration-message">Welcome to 2D Football Manager! Get ready for an amazing experience!</p>
             <button class="celebration-btn" id="startBtn">Let's Play!</button>
         </div>
@@ -285,17 +361,126 @@
             </div>
         </div>
     </div>
+
+    <!-- Game Container -->
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+    </div>
     
     <!-- Sound effects -->
     <audio id="backgroundMusic" loop>
         <source src="mixkit-hazy-after-hours-132.mp3" type="audio/mpeg">
     </audio>
 
+    <script>
+        // Game initialization
+        let game = {
+            canvas: null,
+            ctx: null,
+            width: 0,
+            height: 0
+        };
 
-        <script>
+        // Initialize game canvas
+        function initGameCanvas() {
+            game.canvas = document.getElementById('gameCanvas');
+            game.ctx = game.canvas.getContext('2d');
+            resizeCanvas();
+            
+            // Start game loop
+            gameLoop();
+        }
+
+        // Resize canvas to always match screen size
+        function resizeCanvas() {
+            game.width = window.innerWidth;
+            game.height = window.innerHeight;
+            
+            game.canvas.width = game.width;
+            game.canvas.height = game.height;
+            
+            // Redraw game content
+            drawGame();
+        }
+
+        // Main game loop
+        function gameLoop() {
+            updateGame();
+            drawGame();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Update game logic
+        function updateGame() {
+            // Add your game update logic here
+        }
+
+        // Draw game content
+        function drawGame() {
+            const ctx = game.ctx;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, game.width, game.height);
+            
+            // Draw background
+            ctx.fillStyle = '#2c3e50';
+            ctx.fillRect(0, 0, game.width, game.height);
+            
+            // Draw football field
+            drawFootballField();
+            
+            // Add your game drawing logic here
+        }
+
+        // Draw football field
+        function drawFootballField() {
+            const ctx = game.ctx;
+            const width = game.width;
+            const height = game.height;
+            
+            // Field color
+            ctx.fillStyle = '#27ae60';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Field outline
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(10, 10, width - 20, height - 20);
+            
+            // Center line
+            ctx.beginPath();
+            ctx.moveTo(width / 2, 10);
+            ctx.lineTo(width / 2, height - 10);
+            ctx.stroke();
+            
+            // Center circle
+            ctx.beginPath();
+            ctx.arc(width / 2, height / 2, 50, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // Goals
+            const goalWidth = 80;
+            const goalDepth = 20;
+            
+            // Left goal
+            ctx.strokeRect(10, height / 2 - goalWidth / 2, goalDepth, goalWidth);
+            // Right goal
+            ctx.strokeRect(width - 10 - goalDepth, height / 2 - goalWidth / 2, goalDepth, goalWidth);
+            
+            // Penalty areas
+            const penaltyWidth = 120;
+            const penaltyDepth = 40;
+            
+            // Left penalty area
+            ctx.strokeRect(10, height / 2 - penaltyWidth / 2, penaltyDepth, penaltyWidth);
+            // Right penalty area
+            ctx.strokeRect(width - 10 - penaltyDepth, height / 2 - penaltyWidth / 2, penaltyDepth, penaltyWidth);
+        }
+
         // Celebration overlay functionality
         const celebrationOverlay = document.getElementById('celebrationOverlay');
         const mainMenu = document.getElementById('mainMenu');
+        const gameContainer = document.getElementById('gameContainer');
         const startBtn = document.getElementById('startBtn');
 
         // Create birthday hats
@@ -363,15 +548,14 @@
         // Start celebration when page loads
         window.addEventListener('load', startCelebration);
 
+        // Handle window resize
+        window.addEventListener('resize', resizeCanvas);
+
         // Original game functions
         function startGame() {
-            // Redirect to your game page
-            window.location.href = 'game.html';
-        }
-        
-        function selectTeams() {
-            // Redirect to teams page or show team selection
-            alert('Team Selection - Choose your favorite club!');
+            mainMenu.style.display = 'none';
+            gameContainer.style.display = 'block';
+            initGameCanvas();
         }
         
         function showTournament() {
@@ -381,6 +565,27 @@
         function showSettings() {
             alert('Settings menu coming soon!');
         }
+
+        // Prevent zoom on mobile
+        document.addEventListener('touchstart', function(e) {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        });
+
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(e) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        // Prevent context menu
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
     </script>
 </body>
 </html>
