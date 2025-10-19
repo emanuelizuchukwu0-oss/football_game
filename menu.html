@@ -256,28 +256,15 @@
                 box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
             }
         }
-        canvas {
-    width: 100vw;
-    height: 100vh;
-    max-width: 100vw;
-    max-height: 100vh;
-    position: fixed;
-    top: 0;
-    left: 0;
-    background: #000;
-    z-index: 0;
-}
-
     </style>
 </head>
 <body>
     <!-- Celebration Overlay -->
     <div class="celebration-overlay" id="celebrationOverlay">
         <div class="celebration-content">
-            <h1 class="celebration-title">🎉 HAPPY BIRTHDAY 🎉</h1>
-            <p class="celebration-message">
-                Welcome to 2D Football Manager! Get ready for an amazing experience!
-            </p>
+            <h1 class="celebration-title">🎉 HAPPY 
+                BIRTHDAY 🎉</h1>
+            <p class="celebration-message">Welcome to 2D Football Manager! Get ready for an amazing experience!</p>
             <button class="celebration-btn" id="startBtn">Let's Play!</button>
         </div>
     </div>
@@ -286,108 +273,114 @@
     <div class="main-menu" id="mainMenu">
         <div class="menu-container">
             <h1 class="game-title">⚽ 2D Football Manager</h1>
-
+            
             <div class="menu-options">
                 <button class="menu-btn" onclick="startGame()">🎮 Quick Match</button>
                 <button class="menu-btn" onclick="showTournament()">🏅 Tournament</button>
                 <button class="menu-btn" onclick="showSettings()">⚙️ Settings</button>
             </div>
-
+            
             <div class="game-info">
                 <p>SWEET LIFE</p>
             </div>
         </div>
     </div>
-
-    <!-- 🎮 Game Canvas -->
-    <canvas id="gameCanvas"></canvas>
-
+    
     <!-- Sound effects -->
     <audio id="backgroundMusic" loop>
         <source src="mixkit-hazy-after-hours-132.mp3" type="audio/mpeg">
     </audio>
 
-    <script>
+
+        <script>
+        // Celebration overlay functionality
         const celebrationOverlay = document.getElementById('celebrationOverlay');
         const mainMenu = document.getElementById('mainMenu');
         const startBtn = document.getElementById('startBtn');
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
 
-        // 🎯 Resize canvas to always match screen
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas(); // run at start
-
-        // 🎨 Example background for now
-        function drawBackground() {
-            ctx.fillStyle = '#222';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
-
-        // Celebration animation functions
+        // Create birthday hats
         function createBirthdayHats() {
             const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+            
             for (let i = 0; i < 25; i++) {
                 const hat = document.createElement('div');
                 hat.className = 'birthday-hat';
                 hat.style.left = Math.random() * 100 + 'vw';
                 hat.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
                 hat.style.animationDelay = (Math.random() * 5) + 's';
+                
                 document.body.appendChild(hat);
-                setTimeout(() => hat.remove(), 8000);
+                
+                // Remove hat after animation completes
+                setTimeout(() => {
+                    hat.remove();
+                }, 8000);
             }
         }
 
+        // Create blowhorns
         function createBlowhorns() {
             const colors = ['#ff6b6b', '#4ecdc4', '#ffd166', '#06d6a0', '#118ab2', '#ef476f'];
+            
             for (let i = 0; i < 20; i++) {
                 const horn = document.createElement('div');
                 horn.className = 'blowhorn';
                 horn.style.left = Math.random() * 100 + 'vw';
                 horn.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
                 horn.style.animationDelay = (Math.random() * 3) + 's';
+                
                 document.body.appendChild(horn);
-                setTimeout(() => horn.remove(), 5000);
+                
+                // Remove horn after animation completes
+                setTimeout(() => {
+                    horn.remove();
+                }, 5000);
             }
         }
 
+        // Start the celebration
         function startCelebration() {
             createBirthdayHats();
             createBlowhorns();
+            
+            // Continue creating elements periodically
             setInterval(createBirthdayHats, 4000);
             setInterval(createBlowhorns, 3000);
         }
 
+        // Hide celebration and show main menu
         function hideCelebration() {
             celebrationOverlay.style.opacity = '0';
             setTimeout(() => {
                 celebrationOverlay.style.display = 'none';
                 mainMenu.style.display = 'block';
-                drawBackground(); // show game canvas
             }, 1000);
         }
 
+        // Event listener for the start button
         startBtn.addEventListener('click', hideCelebration);
+
+        // Start celebration when page loads
         window.addEventListener('load', startCelebration);
 
-        // Menu button functions
+        // Original game functions
         function startGame() {
-            mainMenu.style.display = 'none';
-            drawBackground();
-            alert('Game started! (Canvas active)');
+            // Redirect to your game page
+            window.location.href = 'game.html';
         }
-
+        
+        function selectTeams() {
+            // Redirect to teams page or show team selection
+            alert('Team Selection - Choose your favorite club!');
+        }
+        
         function showTournament() {
             alert('Tournament mode coming soon!');
         }
-
+        
         function showSettings() {
             alert('Settings menu coming soon!');
         }
     </script>
 </body>
+</html>
