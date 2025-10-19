@@ -2036,7 +2036,10 @@
             
             setupEventListeners();
             
-            // Don't start game immediately - wait for user to click from celebration
+            // Set up mobile controls and get the updateButtonLabels function
+            if (game.isMobile) {
+                updateButtonLabels = setupMobileControls();
+            }
         }
 
         function setupCanvas() {
@@ -2291,7 +2294,7 @@
             return updateButtonLabels;
         }
 
-        let updateButtonLabels; // Will be set in resetGame
+        let updateButtonLabels; // Will be set in init
 
         function resetGame() {
             // Set up track length based on chapter
@@ -2763,23 +2766,25 @@
                 celebrationOverlay.style.display = 'none';
                 document.getElementById('gameContainer').style.display = 'block';
                 document.getElementById('startOverlay').style.display = 'flex';
-                init(); // Initialize the game after celebration
             }, 1000);
         }
 
-        // Event listener for the start button
-        startBtn.addEventListener('click', hideCelebration);
+        // Event listener for the start button - FIXED VERSION
+        startBtn.addEventListener('click', function() {
+            hideCelebration();
+            // Initialize the game after celebration is hidden
+            setTimeout(init, 100);
+        });
+
+        startBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            hideCelebration();
+            // Initialize the game after celebration is hidden
+            setTimeout(init, 100);
+        }, { passive: false });
 
         // Start celebration when page loads
         window.addEventListener('load', startCelebration);
-
-        // Initialize the game when page loads (but don't start it until celebration is done)
-        window.addEventListener('load', function() {
-            // Set up mobile controls and get the updateButtonLabels function
-            if (game.isMobile) {
-                updateButtonLabels = setupMobileControls();
-            }
-        });
 
         // Prevent zoom on mobile
         document.addEventListener('touchstart', function(e) {
