@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Laser Shooting Challenge - Start</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Laser Shooting Challenge</title>
     <style>
         * {
             margin: 0;
@@ -21,442 +21,477 @@
             height: 100%;
             overflow: hidden;
             background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            position: fixed;
         }
 
         body {
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            touch-action: manipulation;
             padding: 10px;
-            position: fixed;
-            width: 100vw;
-            height: 100vh;
         }
 
         .container {
             text-align: center;
             color: white;
-            padding: 20px;
             width: 100%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
+            max-width: 95%;
+            padding: 15px;
         }
 
-        h1 {
-            font-size: clamp(2rem, 8vw, 3.5rem);
-            margin-bottom: 15px;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        .game-title {
+            font-size: min(10vw, 3.5rem);
+            margin-bottom: 4vh;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
             color: #f1c40f;
             line-height: 1.2;
+            font-weight: bold;
         }
 
         .subtitle {
-            font-size: clamp(1rem, 4vw, 1.3rem);
-            margin-bottom: 25px;
+            font-size: min(4.5vw, 1.3rem);
+            margin-bottom: 5vh;
             line-height: 1.4;
             opacity: 0.9;
+            padding: 0 10px;
         }
 
         .start-btn {
-            background: #e74c3c;
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
             color: white;
             border: none;
-            padding: clamp(15px, 4vw, 20px) clamp(30px, 8vw, 50px);
-            font-size: clamp(1.2rem, 5vw, 1.8rem);
+            padding: 4vw 8vw;
+            font-size: min(6vw, 1.8rem);
             border-radius: 50px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            margin: 20px 0;
-            min-height: 60px;
-            width: 100%;
-            max-width: 280px;
-            display: inline-block;
+            transition: all 0.2s ease;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+            margin: 3vh 0;
+            min-height: 12vw;
+            min-width: 60vw;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             touch-action: manipulation;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
 
         .start-btn:active {
-            background: #c0392b;
-            transform: scale(0.95);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            background: linear-gradient(145deg, #c0392b, #a53225);
+            transform: scale(0.92);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
 
         .features {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 2vh;
+            margin-top: 4vh;
+            width: 100%;
         }
 
         .feature {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.15);
+            padding: 3vh 4vw;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            transition: transform 0.2s ease;
+        }
+
+        .feature:active {
+            transform: scale(0.98);
         }
 
         .feature h3 {
-            font-size: clamp(0.9rem, 4vw, 1.1rem);
-            margin-bottom: 8px;
+            font-size: min(4.5vw, 1.2rem);
+            margin-bottom: 1vh;
             color: #f1c40f;
+            font-weight: bold;
         }
 
         .feature p {
-            font-size: clamp(0.8rem, 3.5vw, 0.95rem);
+            font-size: min(3.8vw, 1rem);
             opacity: 0.9;
             line-height: 1.4;
         }
 
-        /* iPhone Notch & Safe Area Support */
+        /* Safe areas for notches */
         @supports(padding: max(0px)) {
             .container {
-                padding-left: max(20px, env(safe-area-inset-left));
-                padding-right: max(20px, env(safe-area-inset-right));
-                padding-top: max(20px, env(safe-area-inset-top));
-                padding-bottom: max(20px, env(safe-area-inset-bottom));
+                padding-left: max(15px, env(safe-area-inset-left));
+                padding-right: max(15px, env(safe-area-inset-right));
+                padding-top: max(15px, env(safe-area-inset-top));
+                padding-bottom: max(15px, env(safe-area-inset-bottom));
             }
         }
 
-        /* Very small phones (Android small devices) */
-        @media (max-width: 360px) and (max-height: 640px) {
-            .container {
-                padding: 15px;
-                max-height: 95vh;
+        /* Small phones */
+        @media (max-height: 600px) {
+            .game-title {
+                margin-bottom: 2vh;
+                font-size: min(9vw, 2.8rem);
             }
             
-            .start-btn {
-                min-height: 55px;
-                margin: 15px 0;
+            .subtitle {
+                margin-bottom: 3vh;
+                font-size: min(4vw, 1.1rem);
+            }
+            
+            .features {
+                margin-top: 2vh;
+                gap: 1.5vh;
             }
             
             .feature {
-                padding: 15px;
+                padding: 2vh 4vw;
             }
         }
 
-        /* iPhone SE and similar small screens */
-        @media (max-width: 375px) and (max-height: 667px) {
+        /* Very small screens */
+        @media (max-width: 320px) {
             .container {
-                padding: 18px;
-            }
-        }
-
-        /* Tall phones (Android tall screens) */
-        @media (max-width: 412px) and (min-height: 800px) {
-            .container {
-                max-width: 380px;
+                max-width: 100%;
+                padding: 10px;
             }
             
-            h1 {
-                margin-bottom: 20px;
+            .start-btn {
+                min-width: 70vw;
+                min-height: 14vw;
+            }
+        }
+
+        /* Tall phones */
+        @media (min-height: 800px) and (max-width: 500px) {
+            .game-title {
+                margin-bottom: 6vh;
+                font-size: min(11vw, 4rem);
+            }
+            
+            .subtitle {
+                margin-bottom: 7vh;
+                font-size: min(5vw, 1.5rem);
+            }
+            
+            .start-btn {
+                margin: 5vh 0;
+                min-height: 10vw;
             }
         }
 
         /* iPad Portrait */
         @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
             .container {
-                max-width: 600px;
-                padding: 30px;
+                max-width: 80%;
             }
             
             .features {
+                display: grid;
                 grid-template-columns: repeat(2, 1fr);
-                gap: 20px;
+                gap: 3vh;
             }
             
             .start-btn {
-                max-width: 350px;
-                min-height: 70px;
-                font-size: 2rem;
+                min-width: 50vw;
+                min-height: 8vw;
+                font-size: min(5vw, 2.2rem);
             }
         }
 
         /* iPad Landscape */
         @media (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
             .container {
-                max-width: 900px;
+                max-width: 90%;
             }
             
             .features {
+                display: grid;
                 grid-template-columns: repeat(4, 1fr);
-                gap: 20px;
+                gap: 3vh;
             }
             
-            h1 {
-                font-size: 3.5rem;
-                margin-bottom: 25px;
-            }
-            
-            .subtitle {
-                font-size: 1.5rem;
-                margin-bottom: 35px;
+            .game-title {
+                font-size: 4rem;
+                margin-bottom: 5vh;
             }
         }
 
-        /* Desktop screens */
+        /* Desktop */
         @media (min-width: 1025px) {
             .container {
                 max-width: 800px;
             }
             
             .features {
+                display: grid;
                 grid-template-columns: repeat(2, 1fr);
-                gap: 25px;
+                gap: 3vh;
             }
             
             .start-btn:hover {
-                background: #c0392b;
                 transform: scale(1.05);
-                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            }
+            
+            .feature:hover {
+                transform: translateY(-5px);
+                background: rgba(255, 255, 255, 0.2);
             }
         }
 
-        /* Very large screens */
-        @media (min-width: 1400px) {
-            .container {
-                max-width: 1000px;
-            }
-            
-            h1 {
-                font-size: 4rem;
-            }
-            
-            .subtitle {
-                font-size: 1.8rem;
-            }
-        }
-
-        /* Orientation warning for mobile portrait */
-        @media (max-width: 768px) and (orientation: portrait) {
-            .orientation-warning {
-                display: block;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.9);
-                color: white;
-                z-index: 1000;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                text-align: center;
-                padding: 20px;
-            }
-            
-            .orientation-warning h2 {
-                font-size: 1.5rem;
-                margin-bottom: 15px;
-                color: #f1c40f;
-            }
-            
-            .orientation-warning p {
-                font-size: 1rem;
-                margin-bottom: 20px;
-            }
-            
-            .rotate-icon {
-                font-size: 3rem;
-                margin: 20px 0;
-                animation: rotate 2s infinite;
-            }
-            
-            @keyframes rotate {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(90deg); }
-            }
-        }
-
-        @media (max-width: 768px) and (orientation: landscape) {
-            .orientation-warning {
-                display: none !important;
-            }
-        }
-
-        /* Hide scrollbar but keep functionality */
-        .container::-webkit-scrollbar {
-            display: none;
-        }
-
-        .container {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-        /* Loading animation */
-        .loading {
-            display: none;
+        /* Loading overlay */
+        .loading-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 2000;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
             justify-content: center;
             align-items: center;
             flex-direction: column;
+            z-index: 1000;
             color: white;
         }
 
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 255, 255, 0.3);
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
             border-top-color: #f1c40f;
-            animation: spin 1s ease-in-out infinite;
+            animation: spin 1s linear infinite;
             margin-bottom: 20px;
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            color: #f1c40f;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* Orientation warning */
+        .orientation-warning {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            z-index: 2000;
+        }
+
+        .orientation-warning h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #f1c40f;
+        }
+
+        .rotate-icon {
+            font-size: 4rem;
+            margin: 20px 0;
+            animation: bounce 1.5s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(90deg) scale(1.1); }
+        }
+
+        /* Hide scrollbars */
+        .container {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        .container::-webkit-scrollbar {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <!-- Orientation warning for mobile portrait -->
-    <div class="orientation-warning" style="display: none;">
+    <!-- Orientation Warning -->
+    <div class="orientation-warning" id="orientationWarning">
         <h2>Please Rotate Your Device</h2>
-        <p>For the best experience, please rotate your device to landscape mode.</p>
+        <p>This game works best in landscape mode</p>
         <div class="rotate-icon">📱</div>
-        <p>Turn your phone sideways to continue</p>
+        <p>Turn your phone sideways to play</p>
     </div>
 
-    <!-- Loading screen -->
-    <div class="loading" id="loadingScreen">
-        <div class="spinner"></div>
-        <p>Loading Game...</p>
+    <!-- Loading Screen -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading Game...</div>
     </div>
 
+    <!-- Main Content -->
     <div class="container">
-        <h1>🚀 LASER SHOOTING CHALLENGE</h1>
-        <p class="subtitle">Eliminate all opponents with your laser! Complete all 22 challenging chapters and become the ultimate laser master!</p>
+        <h1 class="game-title">🚀 LASER SHOOTING CHALLENGE</h1>
+        <p class="subtitle">Eliminate all opponents with your laser! Complete 22 challenging chapters and become the ultimate laser master!</p>
         
-        <button class="start-btn" onclick="startGame()">START GAME</button>
+        <button class="start-btn" id="startButton">START GAME</button>
         
         <div class="features">
             <div class="feature">
                 <h3>🎯 22 Challenging Chapters</h3>
-                <p>Progress through increasingly difficult levels</p>
+                <p>Progress through increasingly difficult levels with unique challenges</p>
             </div>
             <div class="feature">
-                <h3>⚡ Power-ups & Special Abilities</h3>
-                <p>Collect power-ups to enhance your laser</p>
+                <h3>⚡ Power-ups & Abilities</h3>
+                <p>Collect power-ups to enhance your laser and gain special abilities</p>
             </div>
             <div class="feature">
-                <h3>🎮 Mobile & Desktop Support</h3>
-                <p>Play on any device with optimized controls</p>
+                <h3>🎮 Optimized Controls</h3>
+                <p>Perfectly tuned controls for both mobile and desktop play</p>
             </div>
             <div class="feature">
                 <h3>🏆 Progress Saving</h3>
-                <p>Your progress is automatically saved</p>
+                <p>Your progress is automatically saved as you complete levels</p>
             </div>
         </div>
     </div>
 
     <script>
-        function startGame() {
-            // Show loading screen
-            document.getElementById('loadingScreen').style.display = 'flex';
-            
-            // Add button press effect
-            const btn = document.querySelector('.start-btn');
-            btn.style.transform = 'scale(0.95)';
-            
-            // Redirect to the game page after a short delay
-            setTimeout(() => {
-                window.location.href = 'game.html';
-            }, 500);
-        }
-
-        // Handle orientation and resize
+        // Check orientation on load and resize
         function checkOrientation() {
-            const warning = document.querySelector('.orientation-warning');
-            if (window.innerWidth <= 768 && window.innerHeight > window.innerWidth) {
-                // Portrait mode on mobile
+            const warning = document.getElementById('orientationWarning');
+            const isPortrait = window.innerHeight > window.innerWidth;
+            const isMobile = window.innerWidth <= 768;
+            
+            if (isMobile && isPortrait) {
                 warning.style.display = 'flex';
             } else {
                 warning.style.display = 'none';
             }
         }
 
-        // Add interactive effects
+        // Start game function
+        function startGame() {
+            console.log('Start game clicked'); // Debug log
+            
+            // Show loading screen
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const startButton = document.getElementById('startButton');
+            
+            loadingOverlay.style.display = 'flex';
+            startButton.style.transform = 'scale(0.92)';
+            startButton.disabled = true;
+            
+            // Add a small delay for visual feedback
+            setTimeout(() => {
+                try {
+                    // Try to redirect to game page
+                    window.location.href = 'game.html';
+                } catch (error) {
+                    console.error('Redirect failed:', error);
+                    // Fallback: show error and reset button
+                    loadingOverlay.style.display = 'none';
+                    startButton.style.transform = 'scale(1)';
+                    startButton.disabled = false;
+                    alert('Game loading failed. Please make sure game.html exists in the same folder.');
+                }
+            }, 800);
+        }
+
+        // Initialize when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            const btn = document.querySelector('.start-btn');
+            console.log('Page loaded'); // Debug log
+            
+            const startButton = document.getElementById('startButton');
             
             // Check initial orientation
             checkOrientation();
             
-            // Add orientation change listener
+            // Set up event listeners
+            startButton.addEventListener('click', startGame);
+            
+            // Touch events for mobile
+            startButton.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                this.style.opacity = '0.8';
+                this.style.transform = 'scale(0.95)';
+            });
+            
+            startButton.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                this.style.opacity = '1';
+                this.style.transform = 'scale(1)';
+                // The click event will handle the actual start
+            });
+            
+            // Handle orientation changes
             window.addEventListener('orientationchange', checkOrientation);
             window.addEventListener('resize', checkOrientation);
             
-            // Button hover effects for desktop
-            if (window.innerWidth > 1024) {
-                btn.addEventListener('mouseenter', function() {
-                    this.style.transform = 'scale(1.05)';
-                });
-                
-                btn.addEventListener('mouseleave', function() {
-                    this.style.transform = 'scale(1)';
-                });
-            }
-            
-            // Button touch effects for mobile
-            btn.addEventListener('touchstart', function(e) {
-                e.preventDefault();
-                this.style.transform = 'scale(0.95)';
-                this.style.opacity = '0.9';
-            });
-            
-            btn.addEventListener('touchend', function() {
-                this.style.transform = 'scale(1)';
-                this.style.opacity = '1';
-            });
+            // Prevent default touch behaviors
+            document.addEventListener('touchmove', function(e) {
+                if (e.touches.length > 1) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
             
             // Prevent zoom on double tap
             let lastTouchEnd = 0;
-            document.addEventListener('touchend', function(event) {
-                const now = (new Date()).getTime();
+            document.addEventListener('touchend', function(e) {
+                const now = Date.now();
                 if (now - lastTouchEnd <= 300) {
-                    event.preventDefault();
+                    e.preventDefault();
                 }
                 lastTouchEnd = now;
             }, false);
-        });
-
-        // Handle page visibility (for when user returns to tab)
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden) {
-                checkOrientation();
+            
+            // Handle page visibility
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    checkOrientation();
+                }
+            });
+            
+            // Force landscape on mobile if possible
+            function requestLandscape() {
+                if (screen.orientation && screen.orientation.lock) {
+                    screen.orientation.lock('landscape').catch(function(error) {
+                        console.log('Orientation lock failed: ', error);
+                    });
+                }
+            }
+            
+            // Try to lock orientation on mobile devices
+            if (window.innerWidth <= 768) {
+                setTimeout(requestLandscape, 1000);
             }
         });
 
-        // Prevent pull-to-refresh on mobile
-        document.addEventListener('touchmove', function(e) {
-            if (e.touches.length > 1) {
-                e.preventDefault();
-            }
-        }, { passive: false });
+        // Fallback: if DOMContentLoaded doesn't fire, set up when window loads
+        window.addEventListener('load', function() {
+            console.log('Window loaded');
+            // Re-check orientation
+            checkOrientation();
+        });
 
-        let startY;
-        document.addEventListener('touchstart', function(e) {
-            startY = e.touches[0].clientY;
-        }, { passive: true });
-
-        document.addEventListener('touchmove', function(e) {
-            const currentY = e.touches[0].clientY;
-            // If scrolling up, don't prevent
-            if (currentY > startY) {
-                e.preventDefault();
+        // Emergency fallback: if button still doesn't work, add this
+        setTimeout(function() {
+            const startButton = document.getElementById('startButton');
+            if (startButton && !startButton.hasAttribute('data-listener-added')) {
+                console.log('Adding emergency event listener');
+                startButton.setAttribute('data-listener-added', 'true');
+                startButton.addEventListener('click', startGame);
             }
-        }, { passive: false });
+        }, 1000);
     </script>
 </body>
 </html>
