@@ -462,6 +462,43 @@
             transform: translateX(-50%);
         }
 
+        /* NEW: Arrow Controls Styles */
+        .arrow-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .arrow-row {
+            display: flex;
+            gap: 5px;
+        }
+
+        .arrow-btn {
+            width: clamp(40px, 12vw, 50px);
+            height: clamp(40px, 12vw, 50px);
+            background: rgba(52, 152, 219, 0.9);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: clamp(0.8rem, 3vw, 1rem);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            user-select: none;
+            touch-action: manipulation;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .arrow-btn:active {
+            transform: scale(0.92);
+            opacity: 0.8;
+            background: rgba(41, 128, 185, 0.9);
+        }
+
         /* Force landscape mode on mobile */
         @media (max-width: 768px) and (orientation: portrait) {
             #orientationMessage {
@@ -710,9 +747,14 @@
         </div>
         
         <div id="mobileControls">
-            <div class="joystick-container" id="joystickContainer">
-                <div class="joystick-base">
-                    <div class="joystick-handle"></div>
+            <div class="arrow-controls">
+                <div class="arrow-row">
+                    <div class="arrow-btn" id="upArrow">↑</div>
+                </div>
+                <div class="arrow-row">
+                    <div class="arrow-btn" id="leftArrow">←</div>
+                    <div class="arrow-btn" id="downArrow">↓</div>
+                    <div class="arrow-btn" id="rightArrow">→</div>
                 </div>
             </div>
             <div class="action-buttons">
@@ -941,8 +983,8 @@
                 currentStep: 0,
                 steps: [
                     {
-                        message: "Use the joystick to move your character left and right",
-                        target: "joystickContainer",
+                        message: "Use the arrow buttons to move your character in all directions",
+                        target: "arrowControls",
                         completed: false
                     },
                     {
@@ -2292,41 +2334,60 @@
         }
 
         function setupMobileControls() {
-            const joystickBase = document.querySelector('.joystick-base');
-            const joystickHandle = document.querySelector('.joystick-handle');
             const laserBtn = document.getElementById('laserBtn');
             
-            let joystickActive = false;
-            let joystickCenter = { x: 0, y: 0 };
-            const maxDistance = 30;
+            // NEW: Arrow button controls
+            const upArrow = document.getElementById('upArrow');
+            const downArrow = document.getElementById('downArrow');
+            const leftArrow = document.getElementById('leftArrow');
+            const rightArrow = document.getElementById('rightArrow');
             
-            function updateJoystickCenter() {
-                const joystickRect = joystickBase.getBoundingClientRect();
-                joystickCenter = {
-                    x: joystickRect.left + joystickRect.width / 2,
-                    y: joystickRect.top + joystickRect.height / 2
-                };
-            }
-            
-            joystickBase.addEventListener('touchstart', (e) => {
+            // Up arrow
+            upArrow.addEventListener('touchstart', (e) => {
                 if (game.paused) return;
-                joystickActive = true;
-                updateJoystickCenter();
-                handleJoystickMove(e);
+                game.player.moveUp = true;
                 e.preventDefault();
             });
             
-            document.addEventListener('touchmove', (e) => {
-                if (!joystickActive || !game.gameStarted || game.paused) return;
-                handleJoystickMove(e);
+            upArrow.addEventListener('touchend', (e) => {
+                game.player.moveUp = false;
+                e.preventDefault();
             });
             
-            document.addEventListener('touchend', (e) => {
-                if (joystickActive) {
-                    joystickActive = false;
-                    joystickHandle.style.transform = 'translate(-50%, -50%)';
-                    game.player.moveUp = game.player.moveDown = game.player.moveLeft = game.player.moveRight = false;
-                }
+            // Down arrow
+            downArrow.addEventListener('touchstart', (e) => {
+                if (game.paused) return;
+                game.player.moveDown = true;
+                e.preventDefault();
+            });
+            
+            downArrow.addEventListener('touchend', (e) => {
+                game.player.moveDown = false;
+                e.preventDefault();
+            });
+            
+            // Left arrow
+            leftArrow.addEventListener('touchstart', (e) => {
+                if (game.paused) return;
+                game.player.moveLeft = true;
+                e.preventDefault();
+            });
+            
+            leftArrow.addEventListener('touchend', (e) => {
+                game.player.moveLeft = false;
+                e.preventDefault();
+            });
+            
+            // Right arrow
+            rightArrow.addEventListener('touchstart', (e) => {
+                if (game.paused) return;
+                game.player.moveRight = true;
+                e.preventDefault();
+            });
+            
+            rightArrow.addEventListener('touchend', (e) => {
+                game.player.moveRight = false;
+                e.preventDefault();
             });
             
             laserBtn.addEventListener('touchstart', (e) => {
@@ -2346,36 +2407,6 @@
                 laserBtn.style.transform = 'scale(1)';
                 laserBtn.style.opacity = '1';
             });
-            
-            function handleJoystickMove(e) {
-                if (!joystickActive || !game.gameStarted || game.paused) return;
-                
-                const touch = e.touches[0];
-                const touchX = touch.clientX;
-                const touchY = touch.clientY;
-                
-                const deltaX = touchX - joystickCenter.x;
-                const deltaY = touchY - joystickCenter.y;
-                const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-                
-                const angle = Math.atan2(deltaY, deltaX);
-                const limitedDistance = Math.min(distance, maxDistance);
-                
-                joystickHandle.style.transform = `translate(calc(-50% + ${Math.cos(angle) * limitedDistance}px), calc(-50% + ${Math.sin(angle) * limitedDistance}px))`;
-                
-                const moveX = Math.cos(angle) * (limitedDistance / maxDistance);
-                const moveY = Math.sin(angle) * (limitedDistance / maxDistance);
-                
-                const sensitivity = game.screenType.includes('mobile') ? 0.4 : 0.3;
-                
-                game.player.moveUp = moveY < -sensitivity;
-                game.player.moveDown = moveY > sensitivity;
-                game.player.moveLeft = moveX < -sensitivity;
-                game.player.moveRight = moveX > sensitivity;
-            }
-            
-            updateJoystickCenter();
-            window.addEventListener('resize', updateJoystickCenter);
         }
 
         function resetGame() {
