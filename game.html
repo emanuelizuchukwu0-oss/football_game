@@ -1828,6 +1828,32 @@
                                 return;
                             }
                             
+                            // NEW: Check collision with player (friendly fire)
+                            const dxToPlayer = this.x - game.player.x;
+                            const dyToPlayer = this.y - game.player.y;
+                            const distanceToPlayer = Math.sqrt(dxToPlayer * dxToPlayer + dyToPlayer * dyToPlayer);
+                            
+                            if (distanceToPlayer < this.radius + game.player.radius) {
+                                // Hit player - lose a life
+                                game.lives--;
+                                updateLivesDisplay();
+                                
+                                // Play hit sound
+                                playSound('hit');
+                                
+                                // Remove laser
+                                const index = game.lasers.indexOf(this);
+                                if (index > -1) {
+                                    game.lasers.splice(index, 1);
+                                }
+                                
+                                // Check for game over
+                                if (game.lives <= 0) {
+                                    showLoseOverlay();
+                                }
+                                return;
+                            }
+                            
                             // Check collision with opponents
                             for (let opponent of game.opponents) {
                                 if (opponent.destroyed) continue;
@@ -1887,6 +1913,32 @@
                                 const index = game.lasers.indexOf(this);
                                 if (index > -1) {
                                     game.lasers.splice(index, 1);
+                                }
+                                return;
+                            }
+                            
+                            // NEW: Check collision with player (friendly fire)
+                            const dxToPlayer = this.x - game.player.x;
+                            const dyToPlayer = this.y - game.player.y;
+                            const distanceToPlayer = Math.sqrt(dxToPlayer * dxToPlayer + dyToPlayer * dyToPlayer);
+                            
+                            if (distanceToPlayer < this.radius + game.player.radius) {
+                                // Hit player - lose a life
+                                game.lives--;
+                                updateLivesDisplay();
+                                
+                                // Play hit sound
+                                playSound('hit');
+                                
+                                // Remove laser
+                                const index = game.lasers.indexOf(this);
+                                if (index > -1) {
+                                    game.lasers.splice(index, 1);
+                                }
+                                
+                                // Check for game over
+                                if (game.lives <= 0) {
+                                    showLoseOverlay();
                                 }
                                 return;
                             }
@@ -1953,6 +2005,32 @@
                                 const index = game.lasers.indexOf(this);
                                 if (index > -1) {
                                     game.lasers.splice(index, 1);
+                                }
+                                return;
+                            }
+                            
+                            // NEW: Check collision with player (friendly fire)
+                            const dxToPlayer = this.x - game.player.x;
+                            const dyToPlayer = this.y - game.player.y;
+                            const distanceToPlayer = Math.sqrt(dxToPlayer * dxToPlayer + dyToPlayer * dyToPlayer);
+                            
+                            if (distanceToPlayer < this.radius + game.player.radius) {
+                                // Hit player - lose a life
+                                game.lives--;
+                                updateLivesDisplay();
+                                
+                                // Play hit sound
+                                playSound('hit');
+                                
+                                // Remove laser
+                                const index = game.lasers.indexOf(this);
+                                if (index > -1) {
+                                    game.lasers.splice(index, 1);
+                                }
+                                
+                                // Check for game over
+                                if (game.lives <= 0) {
+                                    showLoseOverlay();
                                 }
                                 return;
                             }
