@@ -247,6 +247,20 @@
             pointer-events: auto;
         }
 
+        /* NEW: Control Type Styles */
+        .control-type-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .control-type-label {
+            font-size: 0.7rem;
+            color: white;
+            margin-bottom: 5px;
+        }
+
         .joystick-container {
             position: relative;
             width: clamp(70px, 18vw, 85px);
@@ -311,6 +325,43 @@
         .control-btn:active {
             transform: scale(0.92);
             opacity: 0.8;
+        }
+
+        /* NEW: Arrow Controls Styles */
+        .arrow-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .arrow-row {
+            display: flex;
+            gap: 5px;
+        }
+
+        .arrow-btn {
+            width: clamp(40px, 12vw, 50px);
+            height: clamp(40px, 12vw, 50px);
+            background: rgba(52, 152, 219, 0.9);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: clamp(0.8rem, 3vw, 1rem);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            user-select: none;
+            touch-action: manipulation;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .arrow-btn:active {
+            transform: scale(0.92);
+            opacity: 0.8;
+            background: rgba(41, 128, 185, 0.9);
         }
 
         .goal-message {
@@ -421,6 +472,59 @@
             font-size: 1.2rem;
         }
 
+        /* NEW: Settings Styles */
+        .settings-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 300px;
+            width: 100%;
+            margin: 15px 0;
+        }
+
+        .setting-group {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 10px;
+            text-align: left;
+        }
+
+        .setting-title {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: #f1c40f;
+        }
+
+        .setting-options {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .setting-option {
+            flex: 1;
+            padding: 8px 12px;
+            background: rgba(52, 152, 219, 0.3);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            color: white;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .setting-option.active {
+            background: rgba(52, 152, 219, 0.8);
+            border-color: #f1c40f;
+            box-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
+        }
+
+        .setting-option:active {
+            transform: scale(0.95);
+        }
+
         /* NEW: Tutorial Hand Guide Styles */
         .tutorial-hand {
             position: absolute;
@@ -460,43 +564,6 @@
             bottom: -10px;
             left: 50%;
             transform: translateX(-50%);
-        }
-
-        /* NEW: Arrow Controls Styles */
-        .arrow-controls {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .arrow-row {
-            display: flex;
-            gap: 5px;
-        }
-
-        .arrow-btn {
-            width: clamp(40px, 12vw, 50px);
-            height: clamp(40px, 12vw, 50px);
-            background: rgba(52, 152, 219, 0.9);
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-weight: bold;
-            font-size: clamp(0.8rem, 3vw, 1rem);
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
-            user-select: none;
-            touch-action: manipulation;
-            border: 2px solid rgba(255, 255, 255, 0.4);
-            transition: all 0.2s ease;
-        }
-
-        .arrow-btn:active {
-            transform: scale(0.92);
-            opacity: 0.8;
-            background: rgba(41, 128, 185, 0.9);
         }
 
         /* Force landscape mode on mobile */
@@ -746,17 +813,33 @@
             </div>
         </div>
         
+        <!-- NEW: Updated Mobile Controls with both options -->
         <div id="mobileControls">
-            <div class="arrow-controls">
-                <div class="arrow-row">
-                    <div class="arrow-btn" id="upArrow">↑</div>
-                </div>
-                <div class="arrow-row">
-                    <div class="arrow-btn" id="leftArrow">←</div>
-                    <div class="arrow-btn" id="downArrow">↓</div>
-                    <div class="arrow-btn" id="rightArrow">→</div>
+            <!-- Arrow Controls (Default) -->
+            <div id="arrowControls" class="control-type-container">
+                <div class="control-type-label">ARROW CONTROLS</div>
+                <div class="arrow-controls">
+                    <div class="arrow-row">
+                        <div class="arrow-btn" id="upArrow">↑</div>
+                    </div>
+                    <div class="arrow-row">
+                        <div class="arrow-btn" id="leftArrow">←</div>
+                        <div class="arrow-btn" id="downArrow">↓</div>
+                        <div class="arrow-btn" id="rightArrow">→</div>
+                    </div>
                 </div>
             </div>
+            
+            <!-- Joystick Controls (Hidden by default) -->
+            <div id="joystickControls" class="control-type-container" style="display: none;">
+                <div class="control-type-label">JOYSTICK CONTROLS</div>
+                <div class="joystick-container">
+                    <div class="joystick-base">
+                        <div class="joystick-handle"></div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="action-buttons">
                 <div class="control-btn fight" id="laserBtn">LASER</div>
             </div>
@@ -772,6 +855,33 @@
             <p>Use arrow keys to move, SPACE to shoot lasers. Press 'P' to pause.</p>
             <div class="btn-container">
                 <button id="selectStageBtn" class="btn">START GAME</button>
+                <button id="settingsBtn" class="btn btn-secondary">SETTINGS</button>
+            </div>
+        </div>
+        
+        <!-- NEW: Settings Overlay -->
+        <div id="settingsOverlay" class="overlay" style="display: none;">
+            <h1>GAME SETTINGS</h1>
+            <div class="settings-container">
+                <div class="setting-group">
+                    <div class="setting-title">Control Type</div>
+                    <div class="setting-options">
+                        <div class="setting-option active" data-control="arrows">Arrow Controls</div>
+                        <div class="setting-option" data-control="joystick">Joystick</div>
+                    </div>
+                </div>
+                <div class="setting-group">
+                    <div class="setting-title">Difficulty</div>
+                    <div class="setting-options">
+                        <div class="setting-option active" data-difficulty="normal">Normal</div>
+                        <div class="setting-option" data-difficulty="hard">Hard</div>
+                        <div class="setting-option" data-difficulty="extreme">Extreme</div>
+                    </div>
+                </div>
+            </div>
+            <div class="btn-container">
+                <button id="saveSettingsBtn" class="btn">SAVE SETTINGS</button>
+                <button id="backToMenuBtn" class="btn btn-secondary">BACK TO MENU</button>
             </div>
         </div>
         
@@ -781,7 +891,7 @@
             <p>Choose a chapter to play. Completed chapters show thumbs up.</p>
             <div id="stageGrid" class="stage-grid"></div>
             <div class="btn-container">
-                <button id="backToMenuBtn" class="btn">BACK TO MENU</button>
+                <button id="backToMenuFromStageBtn" class="btn">BACK TO MENU</button>
             </div>
         </div>
         
@@ -791,6 +901,7 @@
             <div class="btn-container">
                 <button id="resumeBtn" class="btn">RESUME GAME</button>
                 <button id="stageSelectFromPauseBtn" class="btn btn-secondary">STAGE SELECT</button>
+                <button id="settingsFromPauseBtn" class="btn">SETTINGS</button>
             </div>
         </div>
         
@@ -913,13 +1024,37 @@
             
             // NEW: Power-up settings
             POWERUP_CHANCE: 0.3, // 30% chance to spawn power-up when opponent is destroyed
-            POWERUP_TYPES: ['life', 'bigLaser', 'doubleLaser', 'aiBuddy']
+            POWERUP_TYPES: ['life', 'bigLaser', 'doubleLaser', 'aiBuddy'],
+            
+            // NEW: Opponent laser settings by difficulty
+            OPPONENT_LASER_SETTINGS: {
+                normal: {
+                    cooldown: 120,
+                    speed: 0.7,
+                    accuracy: 0.3,
+                    frequency: 0.01
+                },
+                hard: {
+                    cooldown: 80,
+                    speed: 0.9,
+                    accuracy: 0.6,
+                    frequency: 0.02
+                },
+                extreme: {
+                    cooldown: 50,
+                    speed: 1.2,
+                    accuracy: 0.9,
+                    frequency: 0.04
+                }
+            }
         };
 
         // NEW: Game Progress Storage
         const STORAGE_KEYS = {
             CURRENT_CHAPTER: 'laserChallenge_currentChapter',
-            COMPLETED_CHAPTERS: 'laserChallenge_completedChapters'
+            COMPLETED_CHAPTERS: 'laserChallenge_completedChapters',
+            CONTROL_TYPE: 'laserChallenge_controlType',
+            DIFFICULTY: 'laserChallenge_difficulty'
         };
 
         // Game State
@@ -949,6 +1084,10 @@
             scaleFactor: 1, // Dynamic scaling factor
             mobileAdjusted: false,
             trackOffset: 0, // For scrolling track on mobile
+            
+            // NEW: Control type and difficulty
+            controlType: 'arrows', // 'arrows' or 'joystick'
+            difficulty: 'normal', // 'normal', 'hard', 'extreme'
             
             // NEW: Scrolling track variables
             trackScrollSpeed: 0,
@@ -1003,7 +1142,15 @@
                         completed: false
                     }
                 ]
-            }
+            },
+            
+            // NEW: Joystick variables
+            joystickActive: false,
+            joystickStartX: 0,
+            joystickStartY: 0,
+            joystickHandleX: 0,
+            joystickHandleY: 0,
+            joystickRadius: 0
         };
 
         // Sound elements
@@ -1024,10 +1171,12 @@
             powerup: null
         };
 
-        // NEW: Initialize game progress from localStorage
+        // NEW: Initialize game progress and settings from localStorage
         function initGameProgress() {
             const savedCurrentChapter = localStorage.getItem(STORAGE_KEYS.CURRENT_CHAPTER);
             const savedCompletedChapters = localStorage.getItem(STORAGE_KEYS.COMPLETED_CHAPTERS);
+            const savedControlType = localStorage.getItem(STORAGE_KEYS.CONTROL_TYPE);
+            const savedDifficulty = localStorage.getItem(STORAGE_KEYS.DIFFICULTY);
             
             if (savedCurrentChapter) {
                 game.currentChapter = parseInt(savedCurrentChapter);
@@ -1037,12 +1186,22 @@
             if (savedCompletedChapters) {
                 game.completedChapters = JSON.parse(savedCompletedChapters);
             }
+            
+            if (savedControlType) {
+                game.controlType = savedControlType;
+            }
+            
+            if (savedDifficulty) {
+                game.difficulty = savedDifficulty;
+            }
         }
 
-        // NEW: Save game progress to localStorage
+        // NEW: Save game progress and settings to localStorage
         function saveGameProgress() {
             localStorage.setItem(STORAGE_KEYS.CURRENT_CHAPTER, game.currentChapter.toString());
             localStorage.setItem(STORAGE_KEYS.COMPLETED_CHAPTERS, JSON.stringify(game.completedChapters));
+            localStorage.setItem(STORAGE_KEYS.CONTROL_TYPE, game.controlType);
+            localStorage.setItem(STORAGE_KEYS.DIFFICULTY, game.difficulty);
         }
 
         // NEW: Mark chapter as completed
@@ -1057,6 +1216,41 @@
             }
             
             saveGameProgress();
+        }
+
+        // NEW: Show settings screen
+        function showSettings() {
+            document.getElementById('settingsOverlay').style.display = 'flex';
+            
+            // Set active settings based on current values
+            document.querySelectorAll('.setting-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            
+            // Set active control type
+            document.querySelector(`.setting-option[data-control="${game.controlType}"]`).classList.add('active');
+            
+            // Set active difficulty
+            document.querySelector(`.setting-option[data-difficulty="${game.difficulty}"]`).classList.add('active');
+        }
+
+        // NEW: Apply control type settings
+        function applyControlType() {
+            const arrowControls = document.getElementById('arrowControls');
+            const joystickControls = document.getElementById('joystickControls');
+            
+            if (game.controlType === 'arrows') {
+                arrowControls.style.display = 'flex';
+                joystickControls.style.display = 'none';
+            } else {
+                arrowControls.style.display = 'none';
+                joystickControls.style.display = 'flex';
+            }
+            
+            // Reinitialize mobile controls
+            if (game.isMobile) {
+                setupMobileControls();
+            }
         }
 
         // NEW: Show stage selection screen
@@ -1318,6 +1512,9 @@
                 this.color = '#e74c3c';
                 this.laserCooldown = 0;
                 this.health = 1; // NEW: Health for opponents
+                
+                // NEW: Enhanced opponent laser settings based on difficulty
+                this.laserSettings = CONFIG.OPPONENT_LASER_SETTINGS[game.difficulty];
             }
 
             update() {
@@ -1336,37 +1533,65 @@
                     this.laserCooldown--;
                 }
                 
+                // NEW: Enhanced shooting based on difficulty
+                const shouldShoot = Math.random() < this.laserSettings.frequency;
+                
                 // Shoot laser if enabled and cooldown is ready
                 if (game.chapter >= CONFIG.OPPONENT_LASER_ENABLED_CHAPTERS.start && 
                     game.chapter <= CONFIG.OPPONENT_LASER_ENABLED_CHAPTERS.end &&
-                    this.laserCooldown === 0 && Math.random() < 0.01) {
+                    this.laserCooldown === 0 && shouldShoot) {
                     this.shootLaser();
-                    this.laserCooldown = 120; // 2 seconds cooldown
+                    this.laserCooldown = this.laserSettings.cooldown;
                 }
             }
 
             shootLaser() {
-                // NEW: Enhanced laser for chapter 5 and above
-                let laserRadius, laserColor, laserSpeed;
+                // NEW: Enhanced laser based on difficulty and chapter
+                let laserRadius, laserColor, laserSpeed, accuracy;
+                
+                // Base settings on difficulty
+                laserSpeed = CONFIG.LASER_SPEED * this.laserSettings.speed;
+                accuracy = this.laserSettings.accuracy;
+                
                 if (game.chapter >= 5) {
                     laserRadius = 6 * game.scaleFactor; // Bigger laser
                     laserColor = '#ff4444'; // Brighter red
-                    laserSpeed = CONFIG.LASER_SPEED * 0.8; // Slightly faster
                 } else {
                     laserRadius = 3 * game.scaleFactor;
                     laserColor = '#ff0000';
-                    laserSpeed = CONFIG.LASER_SPEED * 0.7;
+                }
+
+                // NEW: Calculate target position with accuracy
+                let targetX = game.player.x;
+                let targetY = game.player.y;
+                
+                // Add inaccuracy based on difficulty (lower accuracy = more random)
+                if (Math.random() > accuracy) {
+                    targetX += (Math.random() - 0.5) * 100;
+                    targetY += (Math.random() - 0.5) * 50;
                 }
 
                 // Create opponent laser
                 const laser = {
                     x: this.x,
                     y: this.y + this.height/2,
+                    targetX: targetX,
+                    targetY: targetY,
                     speedY: laserSpeed,
                     radius: laserRadius,
                     color: laserColor,
                     update: function() {
-                        this.y += this.speedY;
+                        // NEW: Move toward target with some homing capability
+                        const dx = this.targetX - this.x;
+                        const dy = this.targetY - this.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance > 0) {
+                            this.x += (dx / distance) * this.speedY * 0.3; // Some horizontal movement
+                            this.y += this.speedY;
+                        } else {
+                            this.y += this.speedY;
+                        }
                         
                         // Remove if out of bounds
                         if (this.y > game.canvas.height + 50) {
@@ -1378,11 +1603,11 @@
                         }
                         
                         // Check collision with player
-                        const dx = this.x - game.player.x;
-                        const dy = this.y - game.player.y;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        const dxPlayer = this.x - game.player.x;
+                        const dyPlayer = this.y - game.player.y;
+                        const distancePlayer = Math.sqrt(dxPlayer * dxPlayer + dyPlayer * dyPlayer);
                         
-                        if (distance < this.radius + game.player.radius) {
+                        if (distancePlayer < this.radius + game.player.radius) {
                             // Hit player - lose a life
                             game.lives--;
                             updateLivesDisplay();
@@ -2135,7 +2360,7 @@
             game.canvas = document.getElementById('gameCanvas');
             game.ctx = game.canvas.getContext('2d');
             
-            // NEW: Initialize game progress
+            // NEW: Initialize game progress and settings
             initGameProgress();
             
             // Initialize audio system
@@ -2159,6 +2384,8 @@
             
             if (game.isMobile) {
                 document.getElementById('mobileControls').style.display = 'flex';
+                // NEW: Apply control type settings
+                applyControlType();
                 setupMobileControls();
                 optimizeMobileControls();
             } else {
@@ -2223,9 +2450,13 @@
                 replayBtn: replayChapter,
                 nextChapterBtn: nextChapter,
                 restartBtn: restartGame,
-                // NEW: Stage selection buttons
+                // NEW: Settings and stage selection buttons
                 selectStageBtn: showStageSelection,
+                settingsBtn: showSettings,
+                settingsFromPauseBtn: showSettings,
+                saveSettingsBtn: saveSettings,
                 backToMenuBtn: backToMenu,
+                backToMenuFromStageBtn: backToMenu,
                 stageSelectFromPauseBtn: showStageSelection,
                 stageSelectFromWinBtn: showStageSelection,
                 stageSelectFromLoseBtn: showStageSelection
@@ -2261,12 +2492,52 @@
                 }
             });
 
+            // NEW: Settings option event listeners
+            document.querySelectorAll('.setting-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const group = this.parentElement;
+                    const options = group.querySelectorAll('.setting-option');
+                    options.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
             window.addEventListener('resize', handleResize);
             window.addEventListener('orientationchange', handleResize);
         }
 
+        // NEW: Save settings function
+        function saveSettings() {
+            // Get selected control type
+            const selectedControl = document.querySelector('.setting-option[data-control].active');
+            if (selectedControl) {
+                game.controlType = selectedControl.getAttribute('data-control');
+            }
+            
+            // Get selected difficulty
+            const selectedDifficulty = document.querySelector('.setting-option[data-difficulty].active');
+            if (selectedDifficulty) {
+                game.difficulty = selectedDifficulty.getAttribute('data-difficulty');
+            }
+            
+            // Save to localStorage
+            saveGameProgress();
+            
+            // Apply control type
+            applyControlType();
+            
+            // Close settings overlay
+            document.getElementById('settingsOverlay').style.display = 'none';
+            
+            // Reset game to apply difficulty changes
+            if (game.gameStarted) {
+                resetGame();
+            }
+        }
+
         // NEW: Back to menu function
         function backToMenu() {
+            document.getElementById('settingsOverlay').style.display = 'none';
             document.getElementById('stageSelectionOverlay').style.display = 'none';
             document.getElementById('startOverlay').style.display = 'flex';
         }
@@ -2336,7 +2607,35 @@
         function setupMobileControls() {
             const laserBtn = document.getElementById('laserBtn');
             
-            // NEW: Arrow button controls
+            // NEW: Setup based on control type
+            if (game.controlType === 'arrows') {
+                setupArrowControls();
+            } else {
+                setupJoystickControls();
+            }
+            
+            // Laser button
+            laserBtn.addEventListener('touchstart', (e) => {
+                if (!game.paused) {
+                    // Shoot laser
+                    game.player.shootLaser();
+                }
+                e.preventDefault();
+            });
+            
+            laserBtn.addEventListener('touchstart', () => {
+                laserBtn.style.transform = 'scale(0.95)';
+                laserBtn.style.opacity = '0.8';
+            });
+            
+            laserBtn.addEventListener('touchend', () => {
+                laserBtn.style.transform = 'scale(1)';
+                laserBtn.style.opacity = '1';
+            });
+        }
+
+        // NEW: Setup arrow controls
+        function setupArrowControls() {
             const upArrow = document.getElementById('upArrow');
             const downArrow = document.getElementById('downArrow');
             const leftArrow = document.getElementById('leftArrow');
@@ -2389,24 +2688,114 @@
                 game.player.moveRight = false;
                 e.preventDefault();
             });
+        }
+
+        // NEW: Setup joystick controls
+        function setupJoystickControls() {
+            const joystickBase = document.querySelector('.joystick-base');
+            const joystickHandle = document.querySelector('.joystick-handle');
             
-            laserBtn.addEventListener('touchstart', (e) => {
-                if (!game.paused) {
-                    // Shoot laser
-                    game.player.shootLaser();
-                }
+            if (!joystickBase || !joystickHandle) return;
+            
+            // Get joystick container position and size
+            const joystickContainer = document.getElementById('joystickControls');
+            const rect = joystickContainer.getBoundingClientRect();
+            
+            game.joystickStartX = rect.left + rect.width / 2;
+            game.joystickStartY = rect.top + rect.height / 2;
+            game.joystickRadius = rect.width / 2;
+            game.joystickHandleX = game.joystickStartX;
+            game.joystickHandleY = game.joystickStartY;
+            
+            // Touch start event
+            joystickBase.addEventListener('touchstart', (e) => {
+                if (game.paused) return;
+                game.joystickActive = true;
+                updateJoystickPosition(e.touches[0]);
                 e.preventDefault();
             });
             
-            laserBtn.addEventListener('touchstart', () => {
-                laserBtn.style.transform = 'scale(0.95)';
-                laserBtn.style.opacity = '0.8';
+            // Touch move event
+            joystickBase.addEventListener('touchmove', (e) => {
+                if (game.joystickActive) {
+                    updateJoystickPosition(e.touches[0]);
+                    e.preventDefault();
+                }
             });
             
-            laserBtn.addEventListener('touchend', () => {
-                laserBtn.style.transform = 'scale(1)';
-                laserBtn.style.opacity = '1';
+            // Touch end event
+            joystickBase.addEventListener('touchend', (e) => {
+                game.joystickActive = false;
+                resetJoystick();
+                e.preventDefault();
             });
+            
+            joystickBase.addEventListener('touchcancel', (e) => {
+                game.joystickActive = false;
+                resetJoystick();
+                e.preventDefault();
+            });
+        }
+
+        // NEW: Update joystick position
+        function updateJoystickPosition(touch) {
+            const touchX = touch.clientX;
+            const touchY = touch.clientY;
+            
+            // Calculate distance from center
+            const dx = touchX - game.joystickStartX;
+            const dy = touchY - game.joystickStartY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Limit to joystick radius
+            const limitedDistance = Math.min(distance, game.joystickRadius);
+            const angle = Math.atan2(dy, dx);
+            
+            // Calculate limited position
+            game.joystickHandleX = game.joystickStartX + Math.cos(angle) * limitedDistance;
+            game.joystickHandleY = game.joystickStartY + Math.sin(angle) * limitedDistance;
+            
+            // Update joystick handle position
+            const joystickHandle = document.querySelector('.joystick-handle');
+            if (joystickHandle) {
+                const handleX = game.joystickHandleX - (game.joystickStartX - game.joystickRadius);
+                const handleY = game.joystickHandleY - (game.joystickStartY - game.joystickRadius);
+                
+                joystickHandle.style.transform = `translate(${handleX}px, ${handleY}px)`;
+            }
+            
+            // Calculate movement direction based on joystick position
+            const normalizedX = dx / game.joystickRadius;
+            const normalizedY = dy / game.joystickRadius;
+            
+            // Set player movement based on joystick position
+            game.player.moveUp = normalizedY < -0.3;
+            game.player.moveDown = normalizedY > 0.3;
+            game.player.moveLeft = normalizedX < -0.3;
+            game.player.moveRight = normalizedX > 0.3;
+            
+            // Track movement for tutorial
+            if ((normalizedX !== 0 || normalizedY !== 0) && Date.now() - game.player.lastMoveTime > 500) {
+                game.player.lastMoveTime = Date.now();
+                completeTutorialStep('move');
+            }
+        }
+
+        // NEW: Reset joystick to center
+        function resetJoystick() {
+            game.joystickHandleX = game.joystickStartX;
+            game.joystickHandleY = game.joystickStartY;
+            
+            const joystickHandle = document.querySelector('.joystick-handle');
+            if (joystickHandle) {
+                joystickHandle.style.transform = 'translate(-50%, -50%)';
+            }
+            
+            // Reset player movement
+            game.player.moveUp = false;
+            game.player.moveDown = false;
+            game.player.moveLeft = false;
+            game.player.moveRight = false;
         }
 
         function resetGame() {
