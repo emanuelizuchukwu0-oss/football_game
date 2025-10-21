@@ -247,87 +247,7 @@
             pointer-events: auto;
         }
 
-        /* NEW: Control Type Styles */
-        .control-type-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .control-type-label {
-            font-size: 0.7rem;
-            color: white;
-            margin-bottom: 5px;
-        }
-
-        .joystick-container {
-            position: relative;
-            width: clamp(70px, 18vw, 85px);
-            height: clamp(70px, 18vw, 85px);
-        }
-
-        .joystick-base {
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
-        }
-
-        .joystick-handle {
-            width: clamp(25px, 8vw, 35px);
-            height: clamp(25px, 8vw, 35px);
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 50%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            transition: transform 0.1s;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-        }
-
-        .control-btn {
-            width: clamp(50px, 15vw, 60px);
-            height: clamp(50px, 15vw, 60px);
-            border-radius: 50%;
-            background: rgba(52, 152, 219, 0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-weight: bold;
-            font-size: clamp(0.7rem, 2vw, 0.85rem);
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
-            user-select: none;
-            touch-action: manipulation;
-            border: 2px solid rgba(255, 255, 255, 0.4);
-            transition: all 0.2s ease;
-        }
-
-        .control-btn.steal {
-            background: rgba(231, 76, 60, 0.9);
-        }
-        
-        .control-btn.fight {
-            background: rgba(155, 89, 182, 0.9);
-        }
-
-        .control-btn:active {
-            transform: scale(0.92);
-            opacity: 0.8;
-        }
-
-        /* NEW: Arrow Controls Styles */
+        /* Arrow Controls Styles */
         .arrow-controls {
             display: flex;
             flex-direction: column;
@@ -362,6 +282,38 @@
             transform: scale(0.92);
             opacity: 0.8;
             background: rgba(41, 128, 185, 0.9);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .control-btn {
+            width: clamp(50px, 15vw, 60px);
+            height: clamp(50px, 15vw, 60px);
+            border-radius: 50%;
+            background: rgba(52, 152, 219, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: clamp(0.7rem, 2vw, 0.85rem);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            user-select: none;
+            touch-action: manipulation;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .control-btn.fight {
+            background: rgba(155, 89, 182, 0.9);
+        }
+
+        .control-btn:active {
+            transform: scale(0.92);
+            opacity: 0.8;
         }
 
         .goal-message {
@@ -403,7 +355,7 @@
             animation-delay: 0.4s;
         }
 
-        /* NEW: Stage Selection Styles */
+        /* Stage Selection Styles */
         .stage-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -472,60 +424,7 @@
             font-size: 1.2rem;
         }
 
-        /* NEW: Settings Styles */
-        .settings-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            max-width: 300px;
-            width: 100%;
-            margin: 15px 0;
-        }
-
-        .setting-group {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 12px;
-            border-radius: 10px;
-            text-align: left;
-        }
-
-        .setting-title {
-            font-size: 1rem;
-            margin-bottom: 8px;
-            color: #f1c40f;
-        }
-
-        .setting-options {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .setting-option {
-            flex: 1;
-            padding: 8px 12px;
-            background: rgba(52, 152, 219, 0.3);
-            border: 2px solid transparent;
-            border-radius: 8px;
-            color: white;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            min-width: 80px;
-        }
-
-        .setting-option.active {
-            background: rgba(52, 152, 219, 0.8);
-            border-color: #f1c40f;
-            box-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
-        }
-
-        .setting-option:active {
-            transform: scale(0.95);
-        }
-
-        /* NEW: Tutorial Hand Guide Styles */
+        /* Tutorial Hand Guide Styles */
         .tutorial-hand {
             position: absolute;
             font-size: 2rem;
@@ -601,7 +500,7 @@
                 min-width: 90px;
             }
 
-            /* NEW: Adjust stage grid for mobile landscape */
+            /* Adjust stage grid for mobile landscape */
             .stage-grid {
                 grid-template-columns: repeat(5, 1fr);
                 gap: 8px;
@@ -644,7 +543,7 @@
                 transform: scale(0.8);
             }
 
-            /* NEW: Adjust stage grid for desktop */
+            /* Adjust stage grid for desktop */
             .stage-grid {
                 grid-template-columns: repeat(5, 1fr);
                 gap: 15px;
@@ -685,18 +584,13 @@
                 bottom: 25px;
             }
             
-            .joystick-container {
-                width: 65px;
-                height: 65px;
-            }
-            
             .control-btn {
                 width: 50px;
                 height: 50px;
                 font-size: 0.7rem;
             }
 
-            /* NEW: Adjust stage grid for small screens */
+            /* Adjust stage grid for small screens */
             .stage-grid {
                 grid-template-columns: repeat(6, 1fr);
                 gap: 6px;
@@ -729,11 +623,6 @@
             #mobileControls {
                 bottom: 28px;
                 padding: 0 10px;
-            }
-            
-            .joystick-container {
-                width: 65px !important;
-                height: 65px !important;
             }
             
             .control-btn {
@@ -813,30 +702,16 @@
             </div>
         </div>
         
-        <!-- NEW: Updated Mobile Controls with both options -->
+        <!-- Mobile Controls - Arrow Only -->
         <div id="mobileControls">
-            <!-- Arrow Controls (Default) -->
-            <div id="arrowControls" class="control-type-container">
-                <div class="control-type-label">ARROW CONTROLS</div>
-                <div class="arrow-controls">
-                    <div class="arrow-row">
-                        <div class="arrow-btn" id="upArrow">↑</div>
-                    </div>
-                    <div class="arrow-row">
-                        <div class="arrow-btn" id="leftArrow">←</div>
-                        <div class="arrow-btn" id="downArrow">↓</div>
-                        <div class="arrow-btn" id="rightArrow">→</div>
-                    </div>
+            <div class="arrow-controls">
+                <div class="arrow-row">
+                    <div class="arrow-btn" id="upArrow">↑</div>
                 </div>
-            </div>
-            
-            <!-- Joystick Controls (Hidden by default) -->
-            <div id="joystickControls" class="control-type-container" style="display: none;">
-                <div class="control-type-label">JOYSTICK CONTROLS</div>
-                <div class="joystick-container">
-                    <div class="joystick-base">
-                        <div class="joystick-handle"></div>
-                    </div>
+                <div class="arrow-row">
+                    <div class="arrow-btn" id="leftArrow">←</div>
+                    <div class="arrow-btn" id="downArrow">↓</div>
+                    <div class="arrow-btn" id="rightArrow">→</div>
                 </div>
             </div>
             
@@ -845,7 +720,7 @@
             </div>
         </div>
         
-        <!-- NEW: Tutorial Elements -->
+        <!-- Tutorial Elements -->
         <div class="tutorial-hand" id="tutorialHand" style="display: none;">👉</div>
         <div class="tutorial-text" id="tutorialText" style="display: none;"></div>
         
@@ -855,43 +730,16 @@
             <p>Use arrow keys to move, SPACE to shoot lasers. Press 'P' to pause.</p>
             <div class="btn-container">
                 <button id="selectStageBtn" class="btn">START GAME</button>
-                <button id="settingsBtn" class="btn btn-secondary">SETTINGS</button>
             </div>
         </div>
         
-        <!-- NEW: Settings Overlay -->
-        <div id="settingsOverlay" class="overlay" style="display: none;">
-            <h1>GAME SETTINGS</h1>
-            <div class="settings-container">
-                <div class="setting-group">
-                    <div class="setting-title">Control Type</div>
-                    <div class="setting-options">
-                        <div class="setting-option active" data-control="arrows">Arrow Controls</div>
-                        <div class="setting-option" data-control="joystick">Joystick</div>
-                    </div>
-                </div>
-                <div class="setting-group">
-                    <div class="setting-title">Difficulty</div>
-                    <div class="setting-options">
-                        <div class="setting-option active" data-difficulty="normal">Normal</div>
-                        <div class="setting-option" data-difficulty="hard">Hard</div>
-                        <div class="setting-option" data-difficulty="extreme">Extreme</div>
-                    </div>
-                </div>
-            </div>
-            <div class="btn-container">
-                <button id="saveSettingsBtn" class="btn">SAVE SETTINGS</button>
-                <button id="backToMenuBtn" class="btn btn-secondary">BACK TO MENU</button>
-            </div>
-        </div>
-        
-        <!-- NEW: Stage Selection Overlay -->
+        <!-- Stage Selection Overlay -->
         <div id="stageSelectionOverlay" class="overlay" style="display: none;">
             <h1>SELECT STAGE</h1>
             <p>Choose a chapter to play. Completed chapters show thumbs up.</p>
             <div id="stageGrid" class="stage-grid"></div>
             <div class="btn-container">
-                <button id="backToMenuFromStageBtn" class="btn">BACK TO MENU</button>
+                <button id="backToMenuBtn" class="btn">BACK TO MENU</button>
             </div>
         </div>
         
@@ -900,8 +748,8 @@
             <p>Take a break and get ready for the next challenge!</p>
             <div class="btn-container">
                 <button id="resumeBtn" class="btn">RESUME GAME</button>
-                <button id="stageSelectFromPauseBtn" class="btn btn-secondary">STAGE SELECT</button>
-                <button id="settingsFromPauseBtn" class="btn">SETTINGS</button>
+                <button id="homeFromPauseBtn" class="btn btn-secondary">HOME</button>
+                <button id="stageSelectFromPauseBtn" class="btn">STAGE SELECT</button>
             </div>
         </div>
         
@@ -962,7 +810,7 @@
     <audio id="carSound" loop>
         <source src="car.wav" type="audio/mpeg">
     </audio>
-    <!-- NEW: Laser and explosion sounds -->
+    <!-- Laser and explosion sounds -->
     <audio id="laserSound">
         <source src="kick.wav" type="audio/mpeg">
     </audio>
@@ -971,40 +819,39 @@
     </audio>
 
     <script>
-        // Game Constants and Configuration - ENHANCED FOR MOBILE
+        // Game Constants and Configuration
         const CONFIG = {
             LIVES: 7,
             RECOVERY_TIME: 5,
             CHAPTERS: 22,
-            // SLOWER SPEEDS FOR PLAYER AND OPPONENTS
-            PLAYER_SPEED: 2.5, // Reduced from 4
-            OPPONENT_SPEED: 0.8, // MUCH SLOWER - Reduced from 1.4
+            PLAYER_SPEED: 2.5,
+            OPPONENT_SPEED: 0.8,
             BALL_SPEED: 8,
             GOALKEEPER_SPEED: 3,
             GOAL_HEIGHT: 180,
             FIELD_RATIO: 2.0,
             UI_SAFE_ZONE: 120,
-            CANNON_SPEED: 4, // Reduced from 6
+            CANNON_SPEED: 4,
             CANNON_COOLDOWN: 120,
             FIGHT_COOLDOWN: 30,
             FIGHT_RANGE: 40,
             FIGHT_KNOCKBACK: 8,
-            CAR_SPEED: 5, // Reduced from 8
+            CAR_SPEED: 5,
             TRACK_LENGTH_MULTIPLIER: 1.2,
-            STOP_LINE_Y: 150, // Y position where player must stop and exit car
+            STOP_LINE_Y: 150,
             
-            // ENHANCED MOBILE-SPECIFIC SCALING - MUCH SMALLER OBJECTS
-            MOBILE_SCALE_FACTOR: 0.4, // Reduced from 0.7 to make objects much smaller
-            MOBILE_SPEED_FACTOR: 1.0, // Reduced from 1.2 to make opponents slower on mobile
-            MIN_OBJECT_SIZE: 15, // Reduced minimum size
+            // MOBILE-SPECIFIC SCALING
+            MOBILE_SCALE_FACTOR: 0.4,
+            MOBILE_SPEED_FACTOR: 1.0,
+            MIN_OBJECT_SIZE: 15,
             MAX_OPPONENTS: 8,
             
-            // ENHANCED MOBILE TRACK SETTINGS - LONGER TRACK
-            MOBILE_TRACK_LENGTH_MULTIPLIER: 2.0, // Increased from 1.5 to make track even longer
-            MOBILE_START_POSITION_OFFSET: 0.1, // Start further from bottom
-            MOBILE_OPPONENT_SPAWN_AREA: 0.7, // Spread opponents over larger area
+            // MOBILE TRACK SETTINGS
+            MOBILE_TRACK_LENGTH_MULTIPLIER: 2.0,
+            MOBILE_START_POSITION_OFFSET: 0.1,
+            MOBILE_OPPONENT_SPAWN_AREA: 0.7,
             
-            // NEW: Goal appearance timing by chapter (in seconds)
+            // Goal appearance timing by chapter (in seconds)
             GOAL_APPEARANCE_TIMES: {
                 1: 2, 2: 2, 3: 2,
                 4: 3, 5: 3, 6: 3,
@@ -1015,18 +862,18 @@
                 19: 15, 20: 15, 21: 15, 22: 15
             },
             
-            // NEW: Laser settings
-            LASER_SPEED: 6, // Reduced from 10
+            // Laser settings
+            LASER_SPEED: 6,
             LASER_COOLDOWN: 30,
-            LASER_DAMAGE: 1, // Hits needed to destroy opponent car
-            LASER_ENABLED_CHAPTERS: { start: 1, end: 22 }, // All chapters now use lasers
-            OPPONENT_LASER_ENABLED_CHAPTERS: { start: 5, end: 22 }, // Opponents shoot back from chapter 5
+            LASER_DAMAGE: 1,
+            LASER_ENABLED_CHAPTERS: { start: 1, end: 22 },
+            OPPONENT_LASER_ENABLED_CHAPTERS: { start: 5, end: 22 },
             
-            // NEW: Power-up settings
-            POWERUP_CHANCE: 0.3, // 30% chance to spawn power-up when opponent is destroyed
+            // Power-up settings
+            POWERUP_CHANCE: 0.3,
             POWERUP_TYPES: ['life', 'bigLaser', 'doubleLaser', 'aiBuddy'],
             
-            // NEW: Opponent laser settings by difficulty
+            // Opponent laser settings by difficulty
             OPPONENT_LASER_SETTINGS: {
                 normal: {
                     cooldown: 120,
@@ -1049,11 +896,10 @@
             }
         };
 
-        // NEW: Game Progress Storage
+        // Game Progress Storage
         const STORAGE_KEYS = {
             CURRENT_CHAPTER: 'laserChallenge_currentChapter',
             COMPLETED_CHAPTERS: 'laserChallenge_completedChapters',
-            CONTROL_TYPE: 'laserChallenge_controlType',
             DIFFICULTY: 'laserChallenge_difficulty'
         };
 
@@ -1069,8 +915,8 @@
             cannonBalls: [],
             lives: CONFIG.LIVES,
             chapter: 1,
-            currentChapter: 1, // NEW: Current progress
-            completedChapters: [], // NEW: Track completed chapters
+            currentChapter: 1,
+            completedChapters: [],
             recoveryTimer: CONFIG.RECOVERY_TIME,
             ballLost: false,
             gameStarted: false,
@@ -1081,31 +927,35 @@
             screenType: 'mobile',
             trackLength: 0,
             playerInCar: true,
-            scaleFactor: 1, // Dynamic scaling factor
+            scaleFactor: 1,
             mobileAdjusted: false,
-            trackOffset: 0, // For scrolling track on mobile
+            trackOffset: 0,
             
-            // NEW: Control type and difficulty
-            controlType: 'arrows', // 'arrows' or 'joystick'
-            difficulty: 'normal', // 'normal', 'hard', 'extreme'
+            // NEW: Player auto-move state
+            autoMoving: true,
+            autoMoveTargetY: 0,
+            autoMoveSpeed: 2,
             
-            // NEW: Scrolling track variables
+            // Difficulty
+            difficulty: 'normal',
+            
+            // Scrolling track variables
             trackScrollSpeed: 0,
             maxTrackOffset: 0,
             
-            // NEW: Goal appearance timer
+            // Goal appearance timer
             goalTimer: 0,
             goalVisible: false,
             
-            // NEW: Laser variables
+            // Laser variables
             lasers: [],
             laserCooldown: 0,
             
-            // NEW: Opponent laser variables
+            // Opponent laser variables
             opponentLasers: [],
             opponentLaserCooldown: 0,
             
-            // NEW: Power-up variables
+            // Power-up variables
             powerups: [],
             activePowerups: {
                 bigLaser: { active: false, timer: 0 },
@@ -1113,44 +963,52 @@
                 aiBuddy: { active: false, timer: 0 }
             },
             
-            // NEW: AI buddy variables
+            // AI buddy variables
             aiBuddy: null,
             
-            // NEW: Tutorial variables
+            // Enhanced Tutorial variables
             tutorial: {
                 active: false,
                 currentStep: 0,
                 steps: [
                     {
-                        message: "Use the arrow buttons to move your character in all directions",
-                        target: "arrowControls",
-                        completed: false
+                        message: "Welcome! Use these ARROW BUTTONS to move your character in all directions",
+                        target: "mobileControls",
+                        completed: false,
+                        highlight: "arrows"
                     },
                     {
-                        message: "Press the LASER button to shoot at enemies above",
+                        message: "Press the LASER button to shoot at enemies above you",
                         target: "laserBtn",
-                        completed: false
+                        completed: false,
+                        highlight: "laser"
                     },
                     {
-                        message: "Monitor your lives here - be careful!",
+                        message: "Watch your LIVES here - if they reach zero, game over!",
                         target: "uiContainer",
-                        completed: false
+                        completed: false,
+                        highlight: "lives"
                     },
                     {
-                        message: "Collect power-ups that drop from enemies to boost your skills!",
+                        message: "The GOAL TIMER shows when you can win. Eliminate all enemies after timer reaches zero!",
+                        target: "timerContainer",
+                        completed: false,
+                        highlight: "timer"
+                    },
+                    {
+                        message: "Collect POWER-UPS that drop from enemies for special abilities!",
                         target: null,
-                        completed: false
+                        completed: false,
+                        highlight: "powerups"
+                    },
+                    {
+                        message: "You're ready! Good luck and have fun!",
+                        target: null,
+                        completed: false,
+                        highlight: "complete"
                     }
                 ]
-            },
-            
-            // NEW: Joystick variables
-            joystickActive: false,
-            joystickStartX: 0,
-            joystickStartY: 0,
-            joystickHandleX: 0,
-            joystickHandleY: 0,
-            joystickRadius: 0
+            }
         };
 
         // Sound elements
@@ -1165,17 +1023,15 @@
             steal: null,
             walk: null,
             car: null,
-            // NEW: Laser and explosion sounds
             laser: null,
             explosion: null,
             powerup: null
         };
 
-        // NEW: Initialize game progress and settings from localStorage
+        // Initialize game progress from localStorage
         function initGameProgress() {
             const savedCurrentChapter = localStorage.getItem(STORAGE_KEYS.CURRENT_CHAPTER);
             const savedCompletedChapters = localStorage.getItem(STORAGE_KEYS.COMPLETED_CHAPTERS);
-            const savedControlType = localStorage.getItem(STORAGE_KEYS.CONTROL_TYPE);
             const savedDifficulty = localStorage.getItem(STORAGE_KEYS.DIFFICULTY);
             
             if (savedCurrentChapter) {
@@ -1187,30 +1043,24 @@
                 game.completedChapters = JSON.parse(savedCompletedChapters);
             }
             
-            if (savedControlType) {
-                game.controlType = savedControlType;
-            }
-            
             if (savedDifficulty) {
                 game.difficulty = savedDifficulty;
             }
         }
 
-        // NEW: Save game progress and settings to localStorage
+        // Save game progress to localStorage
         function saveGameProgress() {
             localStorage.setItem(STORAGE_KEYS.CURRENT_CHAPTER, game.currentChapter.toString());
             localStorage.setItem(STORAGE_KEYS.COMPLETED_CHAPTERS, JSON.stringify(game.completedChapters));
-            localStorage.setItem(STORAGE_KEYS.CONTROL_TYPE, game.controlType);
             localStorage.setItem(STORAGE_KEYS.DIFFICULTY, game.difficulty);
         }
 
-        // NEW: Mark chapter as completed
+        // Mark chapter as completed
         function markChapterCompleted(chapter) {
             if (!game.completedChapters.includes(chapter)) {
                 game.completedChapters.push(chapter);
             }
             
-            // Update current chapter to the next one if it's higher
             if (chapter >= game.currentChapter && chapter < CONFIG.CHAPTERS) {
                 game.currentChapter = chapter + 1;
             }
@@ -1218,42 +1068,7 @@
             saveGameProgress();
         }
 
-        // NEW: Show settings screen
-        function showSettings() {
-            document.getElementById('settingsOverlay').style.display = 'flex';
-            
-            // Set active settings based on current values
-            document.querySelectorAll('.setting-option').forEach(option => {
-                option.classList.remove('active');
-            });
-            
-            // Set active control type
-            document.querySelector(`.setting-option[data-control="${game.controlType}"]`).classList.add('active');
-            
-            // Set active difficulty
-            document.querySelector(`.setting-option[data-difficulty="${game.difficulty}"]`).classList.add('active');
-        }
-
-        // NEW: Apply control type settings
-        function applyControlType() {
-            const arrowControls = document.getElementById('arrowControls');
-            const joystickControls = document.getElementById('joystickControls');
-            
-            if (game.controlType === 'arrows') {
-                arrowControls.style.display = 'flex';
-                joystickControls.style.display = 'none';
-            } else {
-                arrowControls.style.display = 'none';
-                joystickControls.style.display = 'flex';
-            }
-            
-            // Reinitialize mobile controls
-            if (game.isMobile) {
-                setupMobileControls();
-            }
-        }
-
-        // NEW: Show stage selection screen
+        // Show stage selection screen
         function showStageSelection() {
             document.getElementById('stageSelectionOverlay').style.display = 'flex';
             const stageGrid = document.getElementById('stageGrid');
@@ -1264,7 +1079,6 @@
                 stageBtn.className = 'stage-btn';
                 stageBtn.textContent = i;
                 
-                // Check if chapter is completed
                 if (game.completedChapters.includes(i)) {
                     stageBtn.classList.add('completed');
                     stageBtn.innerHTML = `${i}<div class="thumbs-container">
@@ -1273,17 +1087,14 @@
                         <div class="thumbs-up-small">👍</div>
                     </div>`;
                 } 
-                // Check if chapter is the current one
                 else if (i === game.currentChapter) {
                     stageBtn.classList.add('current');
                 }
-                // Check if chapter is locked
                 else if (i > game.currentChapter) {
                     stageBtn.classList.add('stage-locked');
                     stageBtn.disabled = true;
                 }
                 
-                // Add click event
                 if (!stageBtn.disabled) {
                     stageBtn.addEventListener('click', () => {
                         game.chapter = i;
@@ -1297,7 +1108,7 @@
             }
         }
 
-        // NEW: Tutorial functions
+        // NEW: Enhanced Tutorial functions
         function startTutorial() {
             game.tutorial.active = true;
             game.tutorial.currentStep = 0;
@@ -1320,6 +1131,9 @@
             text.textContent = step.message;
             text.style.display = 'block';
             
+            // Highlight relevant UI elements
+            highlightTutorialElement(step.highlight);
+            
             if (step.target) {
                 const targetElement = document.getElementById(step.target);
                 if (targetElement) {
@@ -1332,20 +1146,43 @@
                     text.style.top = (rect.top - 120) + 'px';
                 }
             } else {
-                // Center the text for the final step
+                // Center the text for non-target steps
                 hand.style.display = 'none';
                 text.style.left = '50%';
                 text.style.top = '50%';
                 text.style.transform = 'translate(-50%, -50%)';
             }
             
-            // Auto-advance tutorial after 5 seconds for non-interactive steps
-            if (stepIndex >= 2) {
-                setTimeout(() => {
-                    if (game.tutorial.active && game.tutorial.currentStep === stepIndex) {
-                        nextTutorialStep();
-                    }
-                }, 5000);
+            // Auto-advance tutorial after appropriate time
+            const autoAdvanceTime = stepIndex >= 4 ? 4000 : 5000;
+            setTimeout(() => {
+                if (game.tutorial.active && game.tutorial.currentStep === stepIndex) {
+                    nextTutorialStep();
+                }
+            }, autoAdvanceTime);
+        }
+
+        function highlightTutorialElement(elementType) {
+            // Remove any existing highlights
+            document.querySelectorAll('.tutorial-highlight').forEach(el => {
+                el.classList.remove('tutorial-highlight');
+            });
+            
+            switch(elementType) {
+                case 'arrows':
+                    document.querySelectorAll('.arrow-btn').forEach(btn => {
+                        btn.classList.add('tutorial-highlight');
+                    });
+                    break;
+                case 'laser':
+                    document.getElementById('laserBtn').classList.add('tutorial-highlight');
+                    break;
+                case 'lives':
+                    document.querySelector('.lives').classList.add('tutorial-highlight');
+                    break;
+                case 'timer':
+                    document.getElementById('timerContainer').classList.add('tutorial-highlight');
+                    break;
             }
         }
 
@@ -1380,7 +1217,6 @@
             sounds.steal = document.getElementById('stealSound');
             sounds.walk = document.getElementById('walkSound');
             sounds.car = document.getElementById('carSound');
-            // NEW: Laser and explosion sounds
             sounds.laser = document.getElementById('laserSound');
             sounds.explosion = document.getElementById('explosionSound');
             
@@ -1395,7 +1231,6 @@
             sounds.steal.volume = 0.5;
             sounds.walk.volume = 0.3;
             sounds.car.volume = 0.4;
-            // NEW: Set volumes for laser and explosion
             sounds.laser.volume = 0.7;
             sounds.explosion.volume = 0.8;
             
@@ -1411,7 +1246,6 @@
         function playSound(soundName) {
             const sound = sounds[soundName];
             if (sound) {
-                // Reset sound to beginning if it's already playing
                 sound.currentTime = 0;
                 sound.play().catch(e => {
                     console.log('Audio play failed:', e);
@@ -1467,20 +1301,19 @@
             }
         }
 
-        // Calculate mobile scaling factor - MUCH SMALLER FOR MOBILE
+        // Calculate mobile scaling factor
         function calculateMobileScale() {
             const width = window.innerWidth;
             const height = window.innerHeight;
             
-            // Base scale on screen size - smaller screens get smaller objects
             if (width < 400 || height < 250) {
-                return 0.3; // Very small screens - reduced from 0.6
+                return 0.3;
             } else if (width < 500 || height < 300) {
-                return 0.35; // Small screens - reduced from 0.7
+                return 0.35;
             } else if (width < 600 || height < 350) {
-                return 0.4; // Medium-small screens - reduced from 0.8
+                return 0.4;
             } else {
-                return 0.45; // Larger mobile screens - reduced from 0.9
+                return 0.45;
             }
         }
 
@@ -1490,17 +1323,16 @@
             const height = window.innerHeight;
             const aspectRatio = width / height;
             
-            // Longer tracks for wider screens (landscape)
             if (aspectRatio > 1.8) {
-                return 2.2; // Very wide screens
+                return 2.2;
             } else if (aspectRatio > 1.5) {
-                return 2.0; // Wide screens
+                return 2.0;
             } else {
-                return 1.8; // Standard mobile
+                return 1.8;
             }
         }
 
-        // NEW: Enhanced Opponent Class (moves side to side at the top)
+        // Enhanced Opponent Class
         class Opponent {
             constructor(x, y, speed) {
                 this.x = x;
@@ -1511,32 +1343,26 @@
                 this.destroyed = false;
                 this.color = '#e74c3c';
                 this.laserCooldown = 0;
-                this.health = 1; // NEW: Health for opponents
+                this.health = 1;
                 
-                // NEW: Enhanced opponent laser settings based on difficulty
                 this.laserSettings = CONFIG.OPPONENT_LASER_SETTINGS[game.difficulty];
             }
 
             update() {
                 if (this.destroyed) return;
                 
-                // Move side to side
                 this.x += this.speedX;
                 
-                // Bounce off walls
                 if (this.x < this.width/2 || this.x > game.canvas.width - this.width/2) {
                     this.speedX *= -1;
                 }
                 
-                // Update laser cooldown
                 if (this.laserCooldown > 0) {
                     this.laserCooldown--;
                 }
                 
-                // NEW: Enhanced shooting based on difficulty
                 const shouldShoot = Math.random() < this.laserSettings.frequency;
                 
-                // Shoot laser if enabled and cooldown is ready
                 if (game.chapter >= CONFIG.OPPONENT_LASER_ENABLED_CHAPTERS.start && 
                     game.chapter <= CONFIG.OPPONENT_LASER_ENABLED_CHAPTERS.end &&
                     this.laserCooldown === 0 && shouldShoot) {
@@ -1546,32 +1372,27 @@
             }
 
             shootLaser() {
-                // NEW: Enhanced laser based on difficulty and chapter
                 let laserRadius, laserColor, laserSpeed, accuracy;
                 
-                // Base settings on difficulty
                 laserSpeed = CONFIG.LASER_SPEED * this.laserSettings.speed;
                 accuracy = this.laserSettings.accuracy;
                 
                 if (game.chapter >= 5) {
-                    laserRadius = 6 * game.scaleFactor; // Bigger laser
-                    laserColor = '#ff4444'; // Brighter red
+                    laserRadius = 6 * game.scaleFactor;
+                    laserColor = '#ff4444';
                 } else {
                     laserRadius = 3 * game.scaleFactor;
                     laserColor = '#ff0000';
                 }
 
-                // NEW: Calculate target position with accuracy
                 let targetX = game.player.x;
                 let targetY = game.player.y;
                 
-                // Add inaccuracy based on difficulty (lower accuracy = more random)
                 if (Math.random() > accuracy) {
                     targetX += (Math.random() - 0.5) * 100;
                     targetY += (Math.random() - 0.5) * 50;
                 }
 
-                // Create opponent laser
                 const laser = {
                     x: this.x,
                     y: this.y + this.height/2,
@@ -1581,19 +1402,17 @@
                     radius: laserRadius,
                     color: laserColor,
                     update: function() {
-                        // NEW: Move toward target with some homing capability
                         const dx = this.targetX - this.x;
                         const dy = this.targetY - this.y;
                         const distance = Math.sqrt(dx * dx + dy * dy);
                         
                         if (distance > 0) {
-                            this.x += (dx / distance) * this.speedY * 0.3; // Some horizontal movement
+                            this.x += (dx / distance) * this.speedY * 0.3;
                             this.y += this.speedY;
                         } else {
                             this.y += this.speedY;
                         }
                         
-                        // Remove if out of bounds
                         if (this.y > game.canvas.height + 50) {
                             const index = game.opponentLasers.indexOf(this);
                             if (index > -1) {
@@ -1602,26 +1421,21 @@
                             return;
                         }
                         
-                        // Check collision with player
                         const dxPlayer = this.x - game.player.x;
                         const dyPlayer = this.y - game.player.y;
                         const distancePlayer = Math.sqrt(dxPlayer * dxPlayer + dyPlayer * dyPlayer);
                         
                         if (distancePlayer < this.radius + game.player.radius) {
-                            // Hit player - lose a life
                             game.lives--;
                             updateLivesDisplay();
                             
-                            // Play hit sound
                             playSound('hit');
                             
-                            // Remove laser
                             const index = game.opponentLasers.indexOf(this);
                             if (index > -1) {
                                 game.opponentLasers.splice(index, 1);
                             }
                             
-                            // Check for game over
                             if (game.lives <= 0) {
                                 showLoseOverlay();
                             }
@@ -1633,7 +1447,6 @@
                         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                         ctx.fill();
                         
-                        // Add glow - enhanced for chapter 5+
                         if (game.chapter >= 5) {
                             ctx.fillStyle = 'rgba(255, 100, 100, 0.7)';
                             ctx.beginPath();
@@ -1657,15 +1470,12 @@
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 
-                // Draw opponent body
                 ctx.fillStyle = this.color;
                 ctx.fillRect(-this.width/2, -this.height/2, this.width, this.height);
                 
-                // Draw opponent details
                 ctx.fillStyle = '#2c3e50';
                 ctx.fillRect(-this.width/2 + 5, -this.height/2 + 5, this.width - 10, this.height - 10);
                 
-                // Draw eyes
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(-this.width/2 + 8, -this.height/2 + 8, 6, 6);
                 ctx.fillRect(this.width/2 - 14, -this.height/2 + 8, 6, 6);
@@ -1678,7 +1488,7 @@
             }
         }
 
-        // NEW: PowerUp Class
+        // PowerUp Class
         class PowerUp {
             constructor(x, y, type) {
                 this.x = x;
@@ -1688,7 +1498,6 @@
                 this.speedY = 2;
                 this.collected = false;
                 
-                // Set color based on type
                 switch(type) {
                     case 'life':
                         this.color = '#e74c3c';
@@ -1708,10 +1517,8 @@
             update() {
                 if (this.collected) return;
                 
-                // Move downward
                 this.y += this.speedY;
                 
-                // Remove if out of bounds
                 if (this.y > game.canvas.height + this.radius) {
                     const index = game.powerups.indexOf(this);
                     if (index > -1) {
@@ -1720,7 +1527,6 @@
                     return;
                 }
                 
-                // Check collision with player
                 const dx = this.x - game.player.x;
                 const dy = this.y - game.player.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
@@ -1733,7 +1539,6 @@
             collect() {
                 this.collected = true;
                 
-                // Apply power-up effect
                 switch(this.type) {
                     case 'life':
                         game.lives = Math.min(game.lives + 1, CONFIG.LIVES);
@@ -1741,16 +1546,15 @@
                         break;
                     case 'bigLaser':
                         game.activePowerups.bigLaser.active = true;
-                        game.activePowerups.bigLaser.timer = 300; // 5 seconds
+                        game.activePowerups.bigLaser.timer = 300;
                         break;
                     case 'doubleLaser':
                         game.activePowerups.doubleLaser.active = true;
-                        game.activePowerups.doubleLaser.timer = 300; // 5 seconds
+                        game.activePowerups.doubleLaser.timer = 300;
                         break;
                     case 'aiBuddy':
                         game.activePowerups.aiBuddy.active = true;
-                        game.activePowerups.aiBuddy.timer = 450; // 7.5 seconds
-                        // Create AI buddy if it doesn't exist
+                        game.activePowerups.aiBuddy.timer = 450;
                         if (!game.aiBuddy) {
                             game.aiBuddy = {
                                 x: game.player.x,
@@ -1759,18 +1563,14 @@
                                 color: '#f1c40f',
                                 laserCooldown: 0,
                                 update: function() {
-                                    // Follow player but stay slightly above
                                     this.x = game.player.x;
                                     this.y = game.player.y - 30;
                                     
-                                    // Update laser cooldown
                                     if (this.laserCooldown > 0) {
                                         this.laserCooldown--;
                                     }
                                     
-                                    // Shoot at opponents
                                     if (this.laserCooldown === 0) {
-                                        // Find closest opponent
                                         let closestOpponent = null;
                                         let minDistance = Infinity;
                                         
@@ -1787,11 +1587,10 @@
                                             }
                                         }
                                         
-                                        // Shoot at closest opponent
                                         if (closestOpponent && minDistance < 300) {
                                             const angle = Math.atan2(closestOpponent.y - this.y, closestOpponent.x - this.x);
                                             this.shootLaser(angle);
-                                            this.laserCooldown = 60; // 1 second cooldown
+                                            this.laserCooldown = 60;
                                         }
                                     }
                                 },
@@ -1807,7 +1606,6 @@
                                             this.x += this.speedX;
                                             this.y += this.speedY;
                                             
-                                            // Remove if out of bounds
                                             if (this.x < -50 || this.x > game.canvas.width + 50 || 
                                                 this.y < -50 || this.y > game.canvas.height + 50) {
                                                 const index = game.lasers.indexOf(this);
@@ -1817,7 +1615,6 @@
                                                 return;
                                             }
                                             
-                                            // Check collision with opponents
                                             for (let opponent of game.opponents) {
                                                 if (opponent.destroyed) continue;
                                                 
@@ -1826,17 +1623,14 @@
                                                 const opponentRadius = Math.max(opponent.width, opponent.height) / 2;
                                                 
                                                 if (dx < opponentRadius + this.radius && dy < opponentRadius + this.radius) {
-                                                    // Hit opponent
                                                     opponent.destroyed = true;
                                                     playSound('explosion');
                                                     
-                                                    // Remove laser
                                                     const index = game.lasers.indexOf(this);
                                                     if (index > -1) {
                                                         game.lasers.splice(index, 1);
                                                     }
                                                     
-                                                    // Spawn power-up with chance
                                                     if (Math.random() < CONFIG.POWERUP_CHANCE) {
                                                         const powerupType = CONFIG.POWERUP_TYPES[Math.floor(Math.random() * CONFIG.POWERUP_TYPES.length)];
                                                         const powerup = new PowerUp(opponent.x, opponent.y, powerupType);
@@ -1854,7 +1648,6 @@
                                             ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                                             ctx.fill();
                                             
-                                            // Add glow
                                             ctx.fillStyle = 'rgba(241, 196, 15, 0.5)';
                                             ctx.beginPath();
                                             ctx.arc(this.x, this.y, this.radius * 2, 0, Math.PI * 2);
@@ -1868,13 +1661,11 @@
                                     ctx.save();
                                     ctx.translate(this.x, this.y);
                                     
-                                    // Draw AI buddy
                                     ctx.fillStyle = this.color;
                                     ctx.beginPath();
                                     ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
                                     ctx.fill();
                                     
-                                    // Draw AI buddy details
                                     ctx.fillStyle = '#ffffff';
                                     ctx.beginPath();
                                     ctx.arc(-3, -2, 2, 0, Math.PI * 2);
@@ -1894,7 +1685,6 @@
                         break;
                 }
                 
-                // Remove power-up from game
                 const index = game.powerups.indexOf(this);
                 if (index > -1) {
                     game.powerups.splice(index, 1);
@@ -1907,13 +1697,11 @@
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 
-                // Draw power-up
                 ctx.fillStyle = this.color;
                 ctx.beginPath();
                 ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // Draw power-up symbol based on type
                 ctx.fillStyle = '#ffffff';
                 ctx.font = `${this.radius * 1.5}px Arial`;
                 ctx.textAlign = 'center';
@@ -1938,15 +1726,13 @@
             }
         }
 
-        // Player Class (for when out of car) - MUCH SMALLER FOR MOBILE
+        // Player Class with auto-move capability
         class Player {
             constructor(x, y) {
                 this.x = x;
                 this.y = y;
-                // MUCH SMALLER radius for mobile - player is now smaller when out of car
-                this.radius = Math.max(CONFIG.MIN_OBJECT_SIZE/3, 7 * game.scaleFactor); // Reduced from 10
+                this.radius = Math.max(CONFIG.MIN_OBJECT_SIZE/3, 7 * game.scaleFactor);
                 
-                // Adjust speed for mobile
                 const speedMultiplier = game.isMobile ? CONFIG.MOBILE_SPEED_FACTOR : 1;
                 this.speed = CONFIG.PLAYER_SPEED * speedMultiplier;
                 
@@ -1959,11 +1745,23 @@
                 this.moveRight = false;
                 
                 this.animationFrame = 0;
-                this.lastMoveTime = 0; // NEW: Track when player last moved
+                this.lastMoveTime = 0;
             }
 
             update() {
                 this.animationFrame++;
+                
+                // NEW: Handle auto-move at start of level
+                if (game.autoMoving) {
+                    this.y -= game.autoMoveSpeed;
+                    
+                    // Check if reached target position
+                    if (this.y <= game.autoMoveTargetY) {
+                        this.y = game.autoMoveTargetY;
+                        game.autoMoving = false;
+                    }
+                    return; // Skip player input during auto-move
+                }
                 
                 let moveX = 0, moveY = 0;
                 
@@ -1977,7 +1775,6 @@
                     moveY *= 0.707;
                 }
                 
-                // NEW: Track movement for tutorial
                 if ((moveX !== 0 || moveY !== 0) && Date.now() - this.lastMoveTime > 500) {
                     this.lastMoveTime = Date.now();
                     completeTutorialStep('move');
@@ -1986,7 +1783,6 @@
                 this.x += moveX * this.speed;
                 this.y += moveY * this.speed;
                 
-                // Boundary checks
                 const boundaryMargin = 5 * game.scaleFactor;
                 this.x = Math.max(this.radius + boundaryMargin, Math.min(game.canvas.width - this.radius - boundaryMargin, this.x));
                 this.y = Math.max(this.radius + boundaryMargin, Math.min(game.canvas.height - this.radius - boundaryMargin, this.y));
@@ -1996,47 +1792,43 @@
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 
-                // Player body - now smaller
                 ctx.fillStyle = this.color;
                 ctx.beginPath();
                 ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // Player outline
                 ctx.strokeStyle = '#f1c40f';
                 ctx.lineWidth = 2;
                 ctx.stroke();
                 
-                // Face - smaller to match new body size
                 ctx.fillStyle = '#FFDBAC';
                 ctx.beginPath();
-                ctx.arc(0, -3, 6 * game.scaleFactor, 0, Math.PI * 2); // Reduced from 8
+                ctx.arc(0, -3, 6 * game.scaleFactor, 0, Math.PI * 2);
                 ctx.fill();
                 
                 ctx.fillStyle = '#2C3E50';
                 ctx.beginPath();
-                ctx.arc(-2.4, -4, 1.2 * game.scaleFactor, 0, Math.PI * 2); // Reduced from 3,5,1.5
+                ctx.arc(-2.4, -4, 1.2 * game.scaleFactor, 0, Math.PI * 2);
                 ctx.arc(2.4, -4, 1.2 * game.scaleFactor, 0, Math.PI * 2);
                 ctx.fill();
                 
                 ctx.strokeStyle = '#2C3E50';
                 ctx.lineWidth = 1;
                 ctx.beginPath();
-                ctx.arc(0, -1, 2.4 * game.scaleFactor, 0.1, Math.PI - 0.1); // Reduced from 3
+                ctx.arc(0, -1, 2.4 * game.scaleFactor, 0.1, Math.PI - 0.1);
                 ctx.stroke();
                 
-                // Arms and legs (animation) - smaller to match new body size
                 const armSwing = Math.sin(this.animationFrame * 0.2) * 8;
                 ctx.fillStyle = this.color;
                 
                 ctx.save();
                 ctx.rotate((armSwing * Math.PI) / 180);
-                ctx.fillRect(-12.8, -4, 8, 3); // Reduced from 16,5,10,4
+                ctx.fillRect(-12.8, -4, 8, 3);
                 ctx.restore();
                 
                 ctx.save();
                 ctx.rotate((-armSwing * Math.PI) / 180);
-                ctx.fillRect(4.8, -4, 8, 3); // Reduced from 6,5,10,4
+                ctx.fillRect(4.8, -4, 8, 3);
                 ctx.restore();
                 
                 const legSwing = Math.sin(this.animationFrame * 0.2) * 10;
@@ -2044,39 +1836,33 @@
                 
                 ctx.save();
                 ctx.rotate((legSwing * Math.PI) / 180);
-                ctx.fillRect(-4, 8, 3, 10); // Reduced from 5,10,4,12
+                ctx.fillRect(-4, 8, 3, 10);
                 ctx.restore();
                 
                 ctx.save();
                 ctx.rotate((-legSwing * Math.PI) / 180);
-                ctx.fillRect(1, 8, 3, 10); // Reduced from 1,10,4,12
+                ctx.fillRect(1, 8, 3, 10);
                 ctx.restore();
                 
                 ctx.restore();
             }
 
             shootLaser() {
-                if (game.laserCooldown > 0) return;
+                if (game.laserCooldown > 0 || game.autoMoving) return;
                 
-                // NEW: Complete shooting tutorial step
                 completeTutorialStep('shoot');
                 
-                // Play laser sound
                 playSound('laser');
                 
-                // Determine laser starting position and properties
                 let startX = this.x;
                 let startY = this.y - this.radius;
                 let laserRadius = 3 * game.scaleFactor;
                 
-                // Apply big laser power-up if active
                 if (game.activePowerups.bigLaser.active) {
                     laserRadius *= 2;
                 }
                 
-                // Create laser(s)
                 if (game.activePowerups.doubleLaser.active) {
-                    // Create two lasers slightly apart
                     const laser1 = {
                         x: startX - 10,
                         y: startY,
@@ -2086,7 +1872,6 @@
                         update: function() {
                             this.y += this.speedY;
                             
-                            // Remove if out of bounds
                             if (this.y < -50) {
                                 const index = game.lasers.indexOf(this);
                                 if (index > -1) {
@@ -2095,33 +1880,27 @@
                                 return;
                             }
                             
-                            // NEW: Check collision with player (friendly fire)
                             const dxToPlayer = this.x - game.player.x;
                             const dyToPlayer = this.y - game.player.y;
                             const distanceToPlayer = Math.sqrt(dxToPlayer * dxToPlayer + dyToPlayer * dyToPlayer);
                             
                             if (distanceToPlayer < this.radius + game.player.radius) {
-                                // Hit player - lose a life
                                 game.lives--;
                                 updateLivesDisplay();
                                 
-                                // Play hit sound
                                 playSound('hit');
                                 
-                                // Remove laser
                                 const index = game.lasers.indexOf(this);
                                 if (index > -1) {
                                     game.lasers.splice(index, 1);
                                 }
                                 
-                                // Check for game over
                                 if (game.lives <= 0) {
                                     showLoseOverlay();
                                 }
                                 return;
                             }
                             
-                            // Check collision with opponents
                             for (let opponent of game.opponents) {
                                 if (opponent.destroyed) continue;
                                 
@@ -2130,17 +1909,14 @@
                                 const opponentRadius = Math.max(opponent.width, opponent.height) / 2;
                                 
                                 if (dx < opponentRadius + this.radius && dy < opponentRadius + this.radius) {
-                                    // Hit opponent
                                     opponent.destroyed = true;
                                     playSound('explosion');
                                     
-                                    // Remove laser
                                     const index = game.lasers.indexOf(this);
                                     if (index > -1) {
                                         game.lasers.splice(index, 1);
                                     }
                                     
-                                    // Spawn power-up with chance
                                     if (Math.random() < CONFIG.POWERUP_CHANCE) {
                                         const powerupType = CONFIG.POWERUP_TYPES[Math.floor(Math.random() * CONFIG.POWERUP_TYPES.length)];
                                         const powerup = new PowerUp(opponent.x, opponent.y, powerupType);
@@ -2158,7 +1934,6 @@
                             ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                             ctx.fill();
                             
-                            // Add glow
                             ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
                             ctx.beginPath();
                             ctx.arc(this.x, this.y, this.radius * 2, 0, Math.PI * 2);
@@ -2175,7 +1950,6 @@
                         update: function() {
                             this.y += this.speedY;
                             
-                            // Remove if out of bounds
                             if (this.y < -50) {
                                 const index = game.lasers.indexOf(this);
                                 if (index > -1) {
@@ -2184,33 +1958,27 @@
                                 return;
                             }
                             
-                            // NEW: Check collision with player (friendly fire)
                             const dxToPlayer = this.x - game.player.x;
                             const dyToPlayer = this.y - game.player.y;
                             const distanceToPlayer = Math.sqrt(dxToPlayer * dxToPlayer + dyToPlayer * dyToPlayer);
                             
                             if (distanceToPlayer < this.radius + game.player.radius) {
-                                // Hit player - lose a life
                                 game.lives--;
                                 updateLivesDisplay();
                                 
-                                // Play hit sound
                                 playSound('hit');
                                 
-                                // Remove laser
                                 const index = game.lasers.indexOf(this);
                                 if (index > -1) {
                                     game.lasers.splice(index, 1);
                                 }
                                 
-                                // Check for game over
                                 if (game.lives <= 0) {
                                     showLoseOverlay();
                                 }
                                 return;
                             }
                             
-                            // Check collision with opponents
                             for (let opponent of game.opponents) {
                                 if (opponent.destroyed) continue;
                                 
@@ -2219,17 +1987,14 @@
                                 const opponentRadius = Math.max(opponent.width, opponent.height) / 2;
                                 
                                 if (dx < opponentRadius + this.radius && dy < opponentRadius + this.radius) {
-                                    // Hit opponent
                                     opponent.destroyed = true;
                                     playSound('explosion');
                                     
-                                    // Remove laser
                                     const index = game.lasers.indexOf(this);
                                     if (index > -1) {
                                         game.lasers.splice(index, 1);
                                     }
                                     
-                                    // Spawn power-up with chance
                                     if (Math.random() < CONFIG.POWERUP_CHANCE) {
                                         const powerupType = CONFIG.POWERUP_TYPES[Math.floor(Math.random() * CONFIG.POWERUP_TYPES.length)];
                                         const powerup = new PowerUp(opponent.x, opponent.y, powerupType);
@@ -2247,7 +2012,6 @@
                             ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                             ctx.fill();
                             
-                            // Add glow
                             ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
                             ctx.beginPath();
                             ctx.arc(this.x, this.y, this.radius * 2, 0, Math.PI * 2);
@@ -2257,7 +2021,6 @@
                     
                     game.lasers.push(laser1, laser2);
                 } else {
-                    // Create single laser
                     const laser = {
                         x: startX,
                         y: startY,
@@ -2267,7 +2030,6 @@
                         update: function() {
                             this.y += this.speedY;
                             
-                            // Remove if out of bounds
                             if (this.y < -50) {
                                 const index = game.lasers.indexOf(this);
                                 if (index > -1) {
@@ -2276,33 +2038,27 @@
                                 return;
                             }
                             
-                            // NEW: Check collision with player (friendly fire)
                             const dxToPlayer = this.x - game.player.x;
                             const dyToPlayer = this.y - game.player.y;
                             const distanceToPlayer = Math.sqrt(dxToPlayer * dxToPlayer + dyToPlayer * dyToPlayer);
                             
                             if (distanceToPlayer < this.radius + game.player.radius) {
-                                // Hit player - lose a life
                                 game.lives--;
                                 updateLivesDisplay();
                                 
-                                // Play hit sound
                                 playSound('hit');
                                 
-                                // Remove laser
                                 const index = game.lasers.indexOf(this);
                                 if (index > -1) {
                                     game.lasers.splice(index, 1);
                                 }
                                 
-                                // Check for game over
                                 if (game.lives <= 0) {
                                     showLoseOverlay();
                                 }
                                 return;
                             }
                             
-                            // Check collision with opponents
                             for (let opponent of game.opponents) {
                                 if (opponent.destroyed) continue;
                                 
@@ -2311,17 +2067,14 @@
                                 const opponentRadius = Math.max(opponent.width, opponent.height) / 2;
                                 
                                 if (dx < opponentRadius + this.radius && dy < opponentRadius + this.radius) {
-                                    // Hit opponent
                                     opponent.destroyed = true;
                                     playSound('explosion');
                                     
-                                    // Remove laser
                                     const index = game.lasers.indexOf(this);
                                     if (index > -1) {
                                         game.lasers.splice(index, 1);
                                     }
                                     
-                                    // Spawn power-up with chance
                                     if (Math.random() < CONFIG.POWERUP_CHANCE) {
                                         const powerupType = CONFIG.POWERUP_TYPES[Math.floor(Math.random() * CONFIG.POWERUP_TYPES.length)];
                                         const powerup = new PowerUp(opponent.x, opponent.y, powerupType);
@@ -2339,7 +2092,6 @@
                             ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                             ctx.fill();
                             
-                            // Add glow
                             ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
                             ctx.beginPath();
                             ctx.arc(this.x, this.y, this.radius * 2, 0, Math.PI * 2);
@@ -2350,7 +2102,6 @@
                     game.lasers.push(laser);
                 }
                 
-                // Set cooldown
                 game.laserCooldown = CONFIG.LASER_COOLDOWN;
             }
         }
@@ -2360,10 +2111,7 @@
             game.canvas = document.getElementById('gameCanvas');
             game.ctx = game.canvas.getContext('2d');
             
-            // NEW: Initialize game progress and settings
             initGameProgress();
-            
-            // Initialize audio system
             initAudio();
             
             game.screenType = detectScreenType();
@@ -2373,7 +2121,6 @@
                            ('ontouchstart' in window) || 
                            (navigator.maxTouchPoints > 0);
             
-            // Calculate scaling factor for mobile
             if (game.isMobile) {
                 game.scaleFactor = calculateMobileScale();
                 game.mobileAdjusted = true;
@@ -2384,8 +2131,6 @@
             
             if (game.isMobile) {
                 document.getElementById('mobileControls').style.display = 'flex';
-                // NEW: Apply control type settings
-                applyControlType();
                 setupMobileControls();
                 optimizeMobileControls();
             } else {
@@ -2402,19 +2147,15 @@
             game.canvas.width = window.innerWidth;
             game.canvas.height = window.innerHeight;
             
-            // Calculate track length based on chapter and device type
             const baseTrackLength = game.canvas.height * (1 + (game.chapter - 1) * 0.2);
             game.trackLength = baseTrackLength * (game.isMobile ? game.trackLengthMultiplier : 1);
             
-            // Calculate start position offset for mobile
             game.startPositionOffset = game.isMobile ? 
                 game.canvas.height * CONFIG.MOBILE_START_POSITION_OFFSET : 
                 100 * game.scaleFactor;
                 
-            // Calculate stop line position
             game.stopLineY = CONFIG.STOP_LINE_Y * game.scaleFactor * (game.isMobile ? 0.7 : 1);
             
-            // NEW: Calculate maximum track offset for scrolling
             game.maxTrackOffset = game.trackLength - game.canvas.height;
         }
 
@@ -2450,16 +2191,13 @@
                 replayBtn: replayChapter,
                 nextChapterBtn: nextChapter,
                 restartBtn: restartGame,
-                // NEW: Settings and stage selection buttons
                 selectStageBtn: showStageSelection,
-                settingsBtn: showSettings,
-                settingsFromPauseBtn: showSettings,
-                saveSettingsBtn: saveSettings,
                 backToMenuBtn: backToMenu,
-                backToMenuFromStageBtn: backToMenu,
                 stageSelectFromPauseBtn: showStageSelection,
                 stageSelectFromWinBtn: showStageSelection,
-                stageSelectFromLoseBtn: showStageSelection
+                stageSelectFromLoseBtn: showStageSelection,
+                // NEW: Home button from pause menu
+                homeFromPauseBtn: goHomeFromPause
             };
 
             Object.keys(buttons).forEach(buttonId => {
@@ -2492,52 +2230,20 @@
                 }
             });
 
-            // NEW: Settings option event listeners
-            document.querySelectorAll('.setting-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    const group = this.parentElement;
-                    const options = group.querySelectorAll('.setting-option');
-                    options.forEach(opt => opt.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
-
             window.addEventListener('resize', handleResize);
             window.addEventListener('orientationchange', handleResize);
         }
 
-        // NEW: Save settings function
-        function saveSettings() {
-            // Get selected control type
-            const selectedControl = document.querySelector('.setting-option[data-control].active');
-            if (selectedControl) {
-                game.controlType = selectedControl.getAttribute('data-control');
-            }
-            
-            // Get selected difficulty
-            const selectedDifficulty = document.querySelector('.setting-option[data-difficulty].active');
-            if (selectedDifficulty) {
-                game.difficulty = selectedDifficulty.getAttribute('data-difficulty');
-            }
-            
-            // Save to localStorage
-            saveGameProgress();
-            
-            // Apply control type
-            applyControlType();
-            
-            // Close settings overlay
-            document.getElementById('settingsOverlay').style.display = 'none';
-            
-            // Reset game to apply difficulty changes
-            if (game.gameStarted) {
-                resetGame();
-            }
+        // NEW: Go home from pause menu
+        function goHomeFromPause() {
+            document.getElementById('pauseOverlay').style.display = 'none';
+            document.getElementById('startOverlay').style.display = 'flex';
+            game.gameStarted = false;
+            document.getElementById('pauseBtn').style.display = 'none';
+            stopBackgroundMusic();
         }
 
-        // NEW: Back to menu function
         function backToMenu() {
-            document.getElementById('settingsOverlay').style.display = 'none';
             document.getElementById('stageSelectionOverlay').style.display = 'none';
             document.getElementById('startOverlay').style.display = 'flex';
         }
@@ -2546,7 +2252,6 @@
             game.screenType = detectScreenType();
             setupCanvas();
             
-            // Recalculate scaling factor on resize
             if (game.isMobile) {
                 game.scaleFactor = calculateMobileScale();
                 game.trackLengthMultiplier = calculateMobileTrackLength();
@@ -2579,7 +2284,7 @@
 
         function setupKeyboardControls() {
             document.addEventListener('keydown', (e) => {
-                if (!game.gameStarted || game.paused) return;
+                if (!game.gameStarted || game.paused || game.autoMoving) return;
                 
                 switch(e.key) {
                     case 'ArrowUp': game.player.moveUp = true; break;
@@ -2587,7 +2292,6 @@
                     case 'ArrowLeft': game.player.moveLeft = true; break;
                     case 'ArrowRight': game.player.moveRight = true; break;
                     case ' ': 
-                        // Shoot laser
                         game.player.shootLaser();
                         break;
                     case 'p': case 'P': togglePause(); break;
@@ -2607,17 +2311,62 @@
         function setupMobileControls() {
             const laserBtn = document.getElementById('laserBtn');
             
-            // NEW: Setup based on control type
-            if (game.controlType === 'arrows') {
-                setupArrowControls();
-            } else {
-                setupJoystickControls();
-            }
+            // Arrow button controls
+            const upArrow = document.getElementById('upArrow');
+            const downArrow = document.getElementById('downArrow');
+            const leftArrow = document.getElementById('leftArrow');
+            const rightArrow = document.getElementById('rightArrow');
             
-            // Laser button
+            // Up arrow
+            upArrow.addEventListener('touchstart', (e) => {
+                if (game.paused || game.autoMoving) return;
+                game.player.moveUp = true;
+                e.preventDefault();
+            });
+            
+            upArrow.addEventListener('touchend', (e) => {
+                game.player.moveUp = false;
+                e.preventDefault();
+            });
+            
+            // Down arrow
+            downArrow.addEventListener('touchstart', (e) => {
+                if (game.paused || game.autoMoving) return;
+                game.player.moveDown = true;
+                e.preventDefault();
+            });
+            
+            downArrow.addEventListener('touchend', (e) => {
+                game.player.moveDown = false;
+                e.preventDefault();
+            });
+            
+            // Left arrow
+            leftArrow.addEventListener('touchstart', (e) => {
+                if (game.paused || game.autoMoving) return;
+                game.player.moveLeft = true;
+                e.preventDefault();
+            });
+            
+            leftArrow.addEventListener('touchend', (e) => {
+                game.player.moveLeft = false;
+                e.preventDefault();
+            });
+            
+            // Right arrow
+            rightArrow.addEventListener('touchstart', (e) => {
+                if (game.paused || game.autoMoving) return;
+                game.player.moveRight = true;
+                e.preventDefault();
+            });
+            
+            rightArrow.addEventListener('touchend', (e) => {
+                game.player.moveRight = false;
+                e.preventDefault();
+            });
+            
             laserBtn.addEventListener('touchstart', (e) => {
-                if (!game.paused) {
-                    // Shoot laser
+                if (!game.paused && !game.autoMoving) {
                     game.player.shootLaser();
                 }
                 e.preventDefault();
@@ -2634,215 +2383,49 @@
             });
         }
 
-        // NEW: Setup arrow controls
-        function setupArrowControls() {
-            const upArrow = document.getElementById('upArrow');
-            const downArrow = document.getElementById('downArrow');
-            const leftArrow = document.getElementById('leftArrow');
-            const rightArrow = document.getElementById('rightArrow');
-            
-            // Up arrow
-            upArrow.addEventListener('touchstart', (e) => {
-                if (game.paused) return;
-                game.player.moveUp = true;
-                e.preventDefault();
-            });
-            
-            upArrow.addEventListener('touchend', (e) => {
-                game.player.moveUp = false;
-                e.preventDefault();
-            });
-            
-            // Down arrow
-            downArrow.addEventListener('touchstart', (e) => {
-                if (game.paused) return;
-                game.player.moveDown = true;
-                e.preventDefault();
-            });
-            
-            downArrow.addEventListener('touchend', (e) => {
-                game.player.moveDown = false;
-                e.preventDefault();
-            });
-            
-            // Left arrow
-            leftArrow.addEventListener('touchstart', (e) => {
-                if (game.paused) return;
-                game.player.moveLeft = true;
-                e.preventDefault();
-            });
-            
-            leftArrow.addEventListener('touchend', (e) => {
-                game.player.moveLeft = false;
-                e.preventDefault();
-            });
-            
-            // Right arrow
-            rightArrow.addEventListener('touchstart', (e) => {
-                if (game.paused) return;
-                game.player.moveRight = true;
-                e.preventDefault();
-            });
-            
-            rightArrow.addEventListener('touchend', (e) => {
-                game.player.moveRight = false;
-                e.preventDefault();
-            });
-        }
-
-        // NEW: Setup joystick controls
-        function setupJoystickControls() {
-            const joystickBase = document.querySelector('.joystick-base');
-            const joystickHandle = document.querySelector('.joystick-handle');
-            
-            if (!joystickBase || !joystickHandle) return;
-            
-            // Get joystick container position and size
-            const joystickContainer = document.getElementById('joystickControls');
-            const rect = joystickContainer.getBoundingClientRect();
-            
-            game.joystickStartX = rect.left + rect.width / 2;
-            game.joystickStartY = rect.top + rect.height / 2;
-            game.joystickRadius = rect.width / 2;
-            game.joystickHandleX = game.joystickStartX;
-            game.joystickHandleY = game.joystickStartY;
-            
-            // Touch start event
-            joystickBase.addEventListener('touchstart', (e) => {
-                if (game.paused) return;
-                game.joystickActive = true;
-                updateJoystickPosition(e.touches[0]);
-                e.preventDefault();
-            });
-            
-            // Touch move event
-            joystickBase.addEventListener('touchmove', (e) => {
-                if (game.joystickActive) {
-                    updateJoystickPosition(e.touches[0]);
-                    e.preventDefault();
-                }
-            });
-            
-            // Touch end event
-            joystickBase.addEventListener('touchend', (e) => {
-                game.joystickActive = false;
-                resetJoystick();
-                e.preventDefault();
-            });
-            
-            joystickBase.addEventListener('touchcancel', (e) => {
-                game.joystickActive = false;
-                resetJoystick();
-                e.preventDefault();
-            });
-        }
-
-        // NEW: Update joystick position
-        function updateJoystickPosition(touch) {
-            const touchX = touch.clientX;
-            const touchY = touch.clientY;
-            
-            // Calculate distance from center
-            const dx = touchX - game.joystickStartX;
-            const dy = touchY - game.joystickStartY;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            
-            // Limit to joystick radius
-            const limitedDistance = Math.min(distance, game.joystickRadius);
-            const angle = Math.atan2(dy, dx);
-            
-            // Calculate limited position
-            game.joystickHandleX = game.joystickStartX + Math.cos(angle) * limitedDistance;
-            game.joystickHandleY = game.joystickStartY + Math.sin(angle) * limitedDistance;
-            
-            // Update joystick handle position
-            const joystickHandle = document.querySelector('.joystick-handle');
-            if (joystickHandle) {
-                const handleX = game.joystickHandleX - (game.joystickStartX - game.joystickRadius);
-                const handleY = game.joystickHandleY - (game.joystickStartY - game.joystickRadius);
-                
-                joystickHandle.style.transform = `translate(${handleX}px, ${handleY}px)`;
-            }
-            
-            // Calculate movement direction based on joystick position
-            const normalizedX = dx / game.joystickRadius;
-            const normalizedY = dy / game.joystickRadius;
-            
-            // Set player movement based on joystick position
-            game.player.moveUp = normalizedY < -0.3;
-            game.player.moveDown = normalizedY > 0.3;
-            game.player.moveLeft = normalizedX < -0.3;
-            game.player.moveRight = normalizedX > 0.3;
-            
-            // Track movement for tutorial
-            if ((normalizedX !== 0 || normalizedY !== 0) && Date.now() - game.player.lastMoveTime > 500) {
-                game.player.lastMoveTime = Date.now();
-                completeTutorialStep('move');
-            }
-        }
-
-        // NEW: Reset joystick to center
-        function resetJoystick() {
-            game.joystickHandleX = game.joystickStartX;
-            game.joystickHandleY = game.joystickStartY;
-            
-            const joystickHandle = document.querySelector('.joystick-handle');
-            if (joystickHandle) {
-                joystickHandle.style.transform = 'translate(-50%, -50%)';
-            }
-            
-            // Reset player movement
-            game.player.moveUp = false;
-            game.player.moveDown = false;
-            game.player.moveLeft = false;
-            game.player.moveRight = false;
-        }
-
         function resetGame() {
-            // Set up track length based on chapter
             setupCanvas();
             
-            // Create player character
-            game.player = new Player(game.canvas.width / 2, game.canvas.height - 100 * game.scaleFactor);
+            // NEW: Set up auto-move parameters
+            game.autoMoving = true;
+            const startY = game.canvas.height - 100 * game.scaleFactor;
+            game.autoMoveTargetY = game.canvas.height / 2; // Middle of screen
+            game.autoMoveSpeed = 2;
+            
+            // Create player at bottom (will auto-move to middle)
+            game.player = new Player(game.canvas.width / 2, startY);
             
             // Create opponents at the top of the screen
             game.opponents = [];
-            let opponentsCount = 5 + (game.chapter - 1) * 2; // Chapter 1: 5, Chapter 2: 7, etc.
+            let opponentsCount = 5 + (game.chapter - 1) * 2;
             
-            // Limit opponents on mobile to prevent overcrowding
             if (game.isMobile) {
                 opponentsCount = Math.min(opponentsCount, CONFIG.MAX_OPPONENTS);
             }
             
-            // Calculate opponent area (top portion of screen)
             const opponentAreaHeight = 100 * game.scaleFactor;
             const opponentAreaWidth = game.canvas.width - 100 * game.scaleFactor;
             const opponentAreaStartX = 50 * game.scaleFactor;
             const opponentAreaStartY = 50 * game.scaleFactor;
             
-            // Distribute opponents evenly in the top area
             for (let i = 0; i < opponentsCount; i++) {
                 const x = opponentAreaStartX + (i * opponentAreaWidth) / opponentsCount;
                 const y = opponentAreaStartY;
-                const speed = (Math.random() * 2 + 1) * (game.chapter * 0.1 + 0.5); // Speed increases with chapter
+                const speed = (Math.random() * 2 + 1) * (game.chapter * 0.1 + 0.5);
                 const opponent = new Opponent(x, y, speed);
                 game.opponents.push(opponent);
             }
             
-            // NEW: Reset track scrolling
             game.trackOffset = 0;
             game.trackScrollSpeed = 0;
             
-            // NEW: Reset goal timer
             game.goalTimer = CONFIG.GOAL_APPEARANCE_TIMES[game.chapter] || 2;
             game.goalVisible = false;
             
-            // NEW: Reset lasers
             game.lasers = [];
             game.laserCooldown = 0;
             game.opponentLasers = [];
             
-            // NEW: Reset power-ups
             game.powerups = [];
             game.activePowerups = {
                 bigLaser: { active: false, timer: 0 },
@@ -2861,7 +2444,7 @@
             updateOpponentsDisplay();
             updateGoalTimerDisplay();
             
-            // NEW: Start tutorial for chapter 1
+            // Start tutorial for chapter 1
             if (game.chapter === 1) {
                 startTutorial();
             }
@@ -2872,7 +2455,6 @@
             document.getElementById('pauseBtn').style.display = 'block';
             game.gameStarted = true;
             
-            // Start background music
             playBackgroundMusic();
         }
 
@@ -2883,13 +2465,11 @@
                 document.getElementById('pauseOverlay').style.display = 'flex';
                 document.getElementById('pauseBtn').textContent = 'RESUME';
                 
-                // Pause background music and sounds
                 stopBackgroundMusic();
             } else {
                 document.getElementById('pauseOverlay').style.display = 'none';
                 document.getElementById('pauseBtn').textContent = 'PAUSE';
                 
-                // Resume background music
                 playBackgroundMusic();
             }
         }
@@ -2899,23 +2479,19 @@
             resetGame();
             game.gameStarted = true;
             
-            // Resume background music
             playBackgroundMusic();
         }
 
         function nextChapter() {
             document.getElementById('winOverlay').style.display = 'none';
             
-            // NEW: Mark current chapter as completed
             markChapterCompleted(game.chapter);
             
-            // NEW: Set chapter to the next one or current progress
             game.chapter = Math.min(game.chapter + 1, game.currentChapter);
             
             resetGame();
             game.gameStarted = true;
             
-            // Resume background music
             playBackgroundMusic();
         }
 
@@ -2924,7 +2500,6 @@
             resetGame();
             game.gameStarted = true;
             
-            // Resume background music
             playBackgroundMusic();
         }
 
@@ -2941,7 +2516,6 @@
         }
 
         function update(deltaTime) {
-            // NEW: Update goal timer
             if (!game.goalVisible) {
                 game.goalTimer -= deltaTime / 1000;
                 updateGoalTimerDisplay();
@@ -2952,39 +2526,38 @@
                 }
             }
             
-            // NEW: Update laser cooldown
             if (game.laserCooldown > 0) {
                 game.laserCooldown--;
             }
             
-            // Update player
+            // Update player (includes auto-move logic)
             game.player.update();
             
             // Update opponents
             game.opponents.forEach(opponent => opponent.update());
             
-            // NEW: Update lasers
+            // Update lasers
             for (let i = game.lasers.length - 1; i >= 0; i--) {
                 if (game.lasers[i] && typeof game.lasers[i].update === 'function') {
                     game.lasers[i].update();
                 }
             }
             
-            // NEW: Update opponent lasers
+            // Update opponent lasers
             for (let i = game.opponentLasers.length - 1; i >= 0; i--) {
                 if (game.opponentLasers[i] && typeof game.opponentLasers[i].update === 'function') {
                     game.opponentLasers[i].update();
                 }
             }
             
-            // NEW: Update power-ups
+            // Update power-ups
             for (let i = game.powerups.length - 1; i >= 0; i--) {
                 if (game.powerups[i] && typeof game.powerups[i].update === 'function') {
                     game.powerups[i].update();
                 }
             }
             
-            // NEW: Update active power-ups
+            // Update active power-ups
             if (game.activePowerups.bigLaser.active) {
                 game.activePowerups.bigLaser.timer--;
                 if (game.activePowerups.bigLaser.timer <= 0) {
@@ -3007,7 +2580,7 @@
                 }
             }
             
-            // NEW: Update AI buddy
+            // Update AI buddy
             if (game.aiBuddy && typeof game.aiBuddy.update === 'function') {
                 game.aiBuddy.update();
             }
@@ -3016,19 +2589,12 @@
         }
 
         function checkWinCondition() {
-            // Check if all opponents are destroyed
             const activeOpponents = game.opponents.filter(opponent => !opponent.destroyed).length;
             
             if (activeOpponents === 0 && game.goalVisible) {
-                // Play win sound
                 playSound('win');
-                
-                // Stop background music
                 stopBackgroundMusic();
-                
-                // NEW: Mark chapter as completed when player wins
                 markChapterCompleted(game.chapter);
-                
                 showWinOverlay();
             }
         }
@@ -3041,12 +2607,8 @@
         }
 
         function showLoseOverlay() {
-            // Play lose sound
             playSound('lose');
-            
-            // Stop background music
             stopBackgroundMusic();
-            
             document.getElementById('loseChapter').textContent = game.chapter;
             document.getElementById('loseOpponents').textContent = game.opponents.length;
             document.getElementById('loseOverlay').style.display = 'flex';
@@ -3069,13 +2631,11 @@
             document.getElementById('chapterDisplay').textContent = game.chapter;
         }
 
-        // NEW: Update opponents display
         function updateOpponentsDisplay() {
             const activeOpponents = game.opponents.filter(opponent => !opponent.destroyed).length;
             document.getElementById('opponentsDisplay').textContent = activeOpponents;
         }
 
-        // NEW: Update goal timer display
         function updateGoalTimerDisplay() {
             document.getElementById('goalTimer').textContent = Math.max(0, Math.ceil(game.goalTimer));
         }
@@ -3086,53 +2646,43 @@
             
             drawBackground(ctx);
             
-            // NEW: Only draw goal area if visible
             if (game.goalVisible) {
                 drawGoalArea(ctx);
             }
             
-            // Draw opponents
             game.opponents.forEach(opponent => opponent.draw(ctx));
             
-            // Draw player
             game.player.draw(ctx);
             
-            // NEW: Draw lasers
             game.lasers.forEach(laser => {
                 if (laser && typeof laser.draw === 'function') {
                     laser.draw(ctx);
                 }
             });
             
-            // NEW: Draw opponent lasers
             game.opponentLasers.forEach(laser => {
                 if (laser && typeof laser.draw === 'function') {
                     laser.draw(ctx);
                 }
             });
             
-            // NEW: Draw power-ups
             game.powerups.forEach(powerup => {
                 if (powerup && typeof powerup.draw === 'function') {
                     powerup.draw(ctx);
                 }
             });
             
-            // NEW: Draw AI buddy
             if (game.aiBuddy && typeof game.aiBuddy.draw === 'function') {
                 game.aiBuddy.draw(ctx);
             }
             
-            // NEW: Draw active power-up indicators
             drawPowerUpIndicators(ctx);
         }
 
         function drawBackground(ctx) {
-            // Draw space background
             ctx.fillStyle = '#0f1a2a';
             ctx.fillRect(0, 0, game.canvas.width, game.canvas.height);
             
-            // Draw stars
             ctx.fillStyle = '#ffffff';
             for (let i = 0; i < 100; i++) {
                 const x = Math.random() * game.canvas.width;
@@ -3141,18 +2691,15 @@
                 ctx.fillRect(x, y, size, size);
             }
             
-            // Draw opponent area at top
             ctx.fillStyle = 'rgba(231, 76, 60, 0.2)';
             ctx.fillRect(0, 0, game.canvas.width, 100 * game.scaleFactor);
             
-            // Draw border around opponent area
             ctx.strokeStyle = '#e74c3c';
             ctx.lineWidth = 3;
             ctx.strokeRect(0, 0, game.canvas.width, 100 * game.scaleFactor);
         }
 
         function drawGoalArea(ctx) {
-            // Draw goal area at top center
             const goalAreaHeight = 50 * game.scaleFactor;
             const goalAreaWidth = 100 * game.scaleFactor;
             
@@ -3162,14 +2709,12 @@
             ctx.strokeRect(game.canvas.width/2 - goalAreaWidth/2, 0, goalAreaWidth, goalAreaHeight);
             ctx.setLineDash([]);
             
-            // Add goal text
             ctx.fillStyle = '#27ae60';
             ctx.font = `bold ${Math.max(12, 16 * game.scaleFactor)}px Arial`;
             ctx.textAlign = 'center';
             ctx.fillText('GOAL', game.canvas.width/2, goalAreaHeight + 20 * game.scaleFactor);
         }
 
-        // NEW: Draw power-up indicators
         function drawPowerUpIndicators(ctx) {
             const indicatorSize = 15;
             const indicatorX = 10;
@@ -3201,6 +2746,22 @@
                 ctx.fillText('AI Buddy: ' + Math.ceil(game.activePowerups.aiBuddy.timer / 60), indicatorX + indicatorSize + 5, indicatorY + 10);
             }
         }
+
+        // Add CSS for tutorial highlights
+        const style = document.createElement('style');
+        style.textContent = `
+            .tutorial-highlight {
+                box-shadow: 0 0 15px #f1c40f, 0 0 30px #f1c40f !important;
+                border-color: #f1c40f !important;
+                animation: pulse-glow 0.8s infinite alternate;
+            }
+            
+            @keyframes pulse-glow {
+                from { box-shadow: 0 0 10px #f1c40f, 0 0 20px #f1c40f; }
+                to { box-shadow: 0 0 20px #f1c40f, 0 0 40px #f1c40f; }
+            }
+        `;
+        document.head.appendChild(style);
 
         // Initialize the game
         window.addEventListener('load', function() {
